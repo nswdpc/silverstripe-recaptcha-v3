@@ -1,0 +1,8 @@
+---
+Name: nswdpc_recaptchav3_routes
+After:
+  - '#coreroutes'
+---
+Silverstripe\Control\Director:
+  rules:
+    'recaptchaverify//$Action/$ID/$OtherID': 'NSWDPC\SpamProtection\VerificationController'
