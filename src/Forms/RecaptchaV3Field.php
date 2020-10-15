@@ -243,7 +243,11 @@ grecaptcha.ready(function() {
             }
         );
     };
-    var form = document.getElementById('{$id}').form;
+    var elm = document.getElementById('{$id}');
+    if(!elm) {
+        return;
+    }
+    var form = elm.form;
     {$refresh_on_error}
     for (i = 0; i < form.elements.length; i++) {
         if(form.elements[i].type != 'submit') {
