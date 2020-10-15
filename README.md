@@ -19,7 +19,7 @@ See [composer.json](./composer.json) but in summary:
 
 Add the field to the form as you would any other `FormField`:
 
-```
+```php
 use NSWDPC\SpamProtection;
 
 // ...
