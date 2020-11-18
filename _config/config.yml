@@ -3,7 +3,7 @@ Name: nswdpc_recaptchav3_spamprotection
 ---
 NSWDPC\SpamProtection\TokenResponse:
   # 1 = good, 0 = spam
-  score: 0.7
+  score: 0.5
 NSWDPC\SpamProtection\Verifier:
   # Provided by the Recaptcha admin project
   secret_key: ''

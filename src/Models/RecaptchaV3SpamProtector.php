@@ -2,10 +2,12 @@
 
 namespace NSWDPC\SpamProtection;
 
-use SilverStripe\SpamProtection\SpamProtector;
+use Silverstripe\Core\Config\Config;
+use Silverstripe\Core\Config\Configurable;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\DropdownField;
+use SilverStripe\SpamProtection\SpamProtector;
 
 /**
  * Spam protector class, when set and you call $form->enableSpamProtection()
@@ -15,10 +17,27 @@ use SilverStripe\Forms\DropdownField;
 class RecaptchaV3SpamProtector implements SpamProtector
 {
 
-    protected $default_name = "recaptcha_protector";
+    use Configurable;
 
-    protected $threshold = 70;// default threshold, anything under this is treated as spam
+    /**
+     * @var int
+     */
+    private static $steps = 5;
+
+    /**
+     * @var int
+     */
+    private static $default_name = "recaptcha_protector";
+
+    /**
+     * @var string
+     */
     protected $execute_action = "autoprotection/submit";//default execute action
+
+    /**
+     * @var string
+     */
+    protected $threshold = -1;//default threshold (use config value)
 
     /**
      * Return the field for the spam protector
@@ -34,12 +53,11 @@ class RecaptchaV3SpamProtector implements SpamProtector
                 ['name' => $name, 'title' => $title, 'value' => $value]
         );
 
-        $default_threshold= 70;
+        // check if the threshold provided is in bounds
         if($this->threshold < 0 || $this->threshold > 100) {
-            $this->threshold = $default_threshold;
+            $this->threshold = self::getDefaultThreshold();
         }
-        $threshold = round( ($this->threshold / 100), 2);
-        $field->setScore( $threshold ); // format for the reCAPTCHA API 0.00->1.00
+        $field->setScore( round( ($this->threshold / 100), 2) ); // format for the reCAPTCHA API 0.00->1.00
         $field->setExecuteAction( $this->execute_action, true);
         return $field;
     }
@@ -63,19 +81,44 @@ class RecaptchaV3SpamProtector implements SpamProtector
     }
 
     /**
+     * Based on the value set in configuration for {@link TokenRespone}, return a threshold based on that
+     * If the configured value is out of bounds, the value of 70 is returned
+     * @return int between 0 and 100 from configuration
+     */
+    public static function getDefaultThreshold() {
+        // returns a float between 0 and 1.0
+        $threshold = TokenResponse::getDefaultScore();
+        // convert to int
+        $threshold = $threshold * 100;
+        // round to the number of steps expected here
+        $steps = Config::inst()->get(self::class, 'steps');
+        $threshold = round( $threshold / $steps) * $steps;
+        if($threshold < 0 || $threshold > 100) {
+            // configuration value is out of bounds
+            $threshold = 70;
+        }
+        return $threshold;
+    }
+
+    /**
      * Return range of allowed thresholds for use in forms
      * The values returned are a percentage - 100 = all, 0 = none
      * @return array
      */
-    public static  function getRange() {
+    public static function getRange() {
         $min = 0;
         $max = 100;
-        $steps = 5;
+        $steps = Config::inst()->get(self::class, 'steps');
+        $default = self::getDefaultThreshold();
         $i = 5;
         $range = [];
         $range [ $min ] = $min . " (" . _t(__CLASS__ . ".BLOCK_LESS", "block less") . ")";
         while($i < $max) {
-            $range[ $i ] = $i;
+            $value = $i;
+            if($i == $default) {
+                $value .= " (" . _t(__CLASS__ . ".DEFAULT_FOR_THIS_SITE", "default for this website") . ")";
+            }
+            $range[ $i ] = $value;
             $i += $steps;
         }
         $range [ $max ] = $max . " (" . _t(__CLASS__ . ".BLOCK_MORE", "block more") . ")";

@@ -2,6 +2,7 @@
 
 namespace NSWDPC\SpamProtection;
 
+use Silverstripe\Core\Config\Config;
 use Silverstripe\Core\Config\Configurable;
 
 /**
@@ -50,7 +51,7 @@ class TokenResponse {
     public function __construct(array $response, $score = null, $action = '') {
         $this->response = $response;
         $this->action = self::formatAction($action);
-        $this->verification_score = $this->validateScore($score);
+        $this->verification_score = self::validateScore($score);
     }
 
     /**
@@ -59,7 +60,7 @@ class TokenResponse {
     public static function validateScore($score) {
         // null, return null (use configuration)
         if(is_null($score)){
-            $score = self::config()->get('score');
+            $score = self::getDefaultScore();
         }
         // not a number
         if(!is_float($score)) {
@@ -147,10 +148,19 @@ class TokenResponse {
     }
 
     /**
-     * @returns float
+     * Return the score threshold to use for verifying responses
+     * @return float
      */
     public function getScore() {
-        return $this->verification_score ? $this->verification_score : $this->config()->get('score');
+        return $this->verification_score ? $this->verification_score : self::getDefaultScore();
+    }
+
+    /**
+     * Returns the default score from configuration
+     * @return float
+     */
+    public static function getDefaultScore() {
+        return round(Config::inst()->get(self::class, 'score'), 2);
     }
 
     /**
