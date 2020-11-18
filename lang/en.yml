@@ -6,7 +6,7 @@ en:
     TOKEN_TIMEOUT: 'Please check the information provided and submit the form again.'
     TOKEN_POSSIBLE_SPAM: 'We have detected that the form may be a spam submission. Please try to submit the form again.'
     SCORE: 'Score'
-    SCORE_HUMAN: 'Set a threshold. Any submissions receiving a score below this will be blocked.'
+    SCORE_HUMAN: 'Set a reCAPTCHAv3 threshold. Any submissions receiving a score below this will be blocked.'
     ACTION: 'Action'
     ACTION_HUMAN: 'Set a custom action'
     SCORE_DESCRIPTION: '(0 =  almost certainly an automated submission, 100 = almost certainly a good interaction)'
