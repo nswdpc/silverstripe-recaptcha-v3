@@ -78,7 +78,7 @@ class Verifier {
                // use first
                $remote_addr = $ips[0];
            } else {
-               $ips = array_map(trim($ips));
+               $ips = array_map("trim", $ips);
                if(!empty($trusted) && is_array($trusted)) {
                    $ips = array_diff($ips, $trusted);
                }
