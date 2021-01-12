@@ -81,8 +81,12 @@ class Verifier {
                $ips = array_map("trim", $ips);
                if(!empty($trusted) && is_array($trusted)) {
                    $ips = array_diff($ips, $trusted);
+                   // once trusted proxies are removed, use the last value
+                   $remote_addr = array_pop($ips);
+               } else {
+                   // no trusted proxies set, use the first entry (client,proxy1,proxy2,etc)
+                   $remote_addr = array_shift($ips);
                }
-               $remote_addr = array_pop($ips);
            }
        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
            // use REMOTE_ADDR
