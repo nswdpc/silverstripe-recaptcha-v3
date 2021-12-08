@@ -23,11 +23,6 @@
     "suggest": {
         "nswdpc/silverstripe-recaptcha-v3-userforms": "Adding reCAPTCHA v3 field via silverstripe/userforms"
     },
-    "extra": {
-        "expose": [
-            "client/dist"
-        ]
-    },
     "authors": [
         {
             "name": "James Ellis",
