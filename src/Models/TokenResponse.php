@@ -62,14 +62,15 @@ class TokenResponse {
         if(is_null($score)){
             $score = self::getDefaultScore();
         }
+
         // not a number
-        if(!is_float($score)) {
-            throw new \Exception("Score should be a float between 0 and 1");
+        if(!is_float($score) && !is_int($score)) {
+            throw new \Exception("Score should be a number between 0.0 and 1.0");
         }
         if($score > 1) {
             throw new \Exception("Score should not be > 1");
         } else if($score < 0) {
-            throw new \Exception("Score should not be < 1");
+            throw new \Exception("Score should not be < 0");
         }
         return $score;
     }

@@ -3,11 +3,14 @@
 namespace NSWDPC\SpamProtection;
 
 use Silverstripe\Core\Config\Configurable;
+use SilverStripe\Core\Injector\Injectable;
 use GuzzleHttp\Client;
 
 class Verifier {
 
     use Configurable;
+
+    use Injectable;
 
     private static $url_verify = "https://www.google.com/recaptcha/api/siteverify";
     private static $secret_key = '';
@@ -17,7 +20,7 @@ class Verifier {
      * Check a token returned from a RecaptchaV3
      * Each token is valid for 2 minutes
      * @param string $token
-     * @param flaot|null $score
+     * @param float|null $score
      * @param string $action used to verify the action
      * @returns boolean|TokenResponse
      * @throws \Exception
