@@ -6,7 +6,7 @@ use SilverStripe\Core\Injector\Injector;
 
 /**
  * Trait for controller that need to set/get a Verifier
- *
+ * @author James
  */
 trait HasVerifier {
 
@@ -25,6 +25,7 @@ trait HasVerifier {
 
     /**
      * Return the verifier to use for this request
+     * If no verifier is set, use the injected Verifier class
      */
     public function getVerifier() : Verifier {
         if(!$this->verifier) {
