@@ -6,6 +6,11 @@ use Silverstripe\Core\Config\Configurable;
 use SilverStripe\Core\Injector\Injectable;
 use GuzzleHttp\Client;
 
+/**
+ * Verification model for reCAPTCHAv3
+ * Communicates with the siteverify reCAPTCHA API endpoint
+ * @author James
+ */
 class Verifier {
 
     use Configurable;

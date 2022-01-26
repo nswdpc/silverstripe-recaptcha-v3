@@ -7,7 +7,6 @@ use Silverstripe\Control\Controller;
 use Silverstripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Core\Injector\Injector;
 
 
 /**
@@ -19,6 +18,8 @@ use SilverStripe\Core\Injector\Injector;
  * @author James <james.ellis@dpc.nsw.gov.au>
  */
 class VerificationController extends Controller {
+
+    use HasVerifier;
 
     /**
      * If this is true, this controller is enabled
@@ -63,24 +64,6 @@ class VerificationController extends Controller {
             $this->config()->get('url_segment'),
             $action
         );
-    }
-
-    /**
-     * Set the verifier to use for this request
-     */
-    public function setVerifier(Verifier $verifier) {
-        $this->verifier = $verifier;
-        return $this;
-    }
-
-    /**
-     * Return the verifier to use for this request
-     */
-    public function getVerifier() : Verifier {
-        if(!$this->verifier) {
-            $this->verifier = Injector::inst()->get(Verifier::class);
-        }
-        return $this->verifier;
     }
 
     /**

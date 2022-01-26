@@ -10,8 +10,6 @@ use NSWDPC\SpamProtection\RecaptchaV3Field;
  */
 class TestRecaptchaV3Field extends RecaptchaV3Field {
 
-    protected $verifier = null;
-
     /**
      * Return a dummy 'token' as the submitted value of the field
      * @return string
@@ -22,18 +20,24 @@ class TestRecaptchaV3Field extends RecaptchaV3Field {
     }
 
     /**
-     * Set a verifier to use for this test
+     * Set a test verifier to use for this test
      */
-    public function setVerifier(TestVerifier $verifier) {
-        $this->verifier = $verifier;
-        return $this;
+    public function setVerifier(Verifier $verifier) {
+        if(!($verifier instanceof TestVerifier)) {
+            throw \InvalidArgumentException("Verifier parameter should be an instance of TestVerifier");
+        }
+        return parent::setVerifier($verifier);
     }
 
     /**
-     * Return the verifier to use for this test
+     * Return the test verifier to use for this test
      */
-    public function getVerifier() : TestVerifier {
-        return $this->verifier;
+    public function getVerifier() : Verifier {
+        $verifier = parent::getVerifier();
+        if(!($verifier instanceof TestVerifier)) {
+            throw \InvalidArgumentException("Verifier returned should be an instance of TestVerifier");
+        }
+        return $verifier;
     }
 
 }

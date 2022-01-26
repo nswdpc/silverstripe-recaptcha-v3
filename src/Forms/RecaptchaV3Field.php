@@ -17,6 +17,8 @@ use SilverStripe\Control\Controller;
  */
 class RecaptchaV3Field extends HiddenField {
 
+    use HasVerifier;
+
     /**
      * Site key, configured in project
      * @param string
@@ -302,15 +304,6 @@ JS;
         } else {
             return $data;
         }
-    }
-
-    /**
-     * Return the Verifier to use for validating the response
-     * @return Verifier
-     */
-    public function getVerifier() : Verifier {
-        $verifier = Verifier::create();
-        return $verifier;
     }
 
     /**
