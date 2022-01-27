@@ -385,7 +385,6 @@ JS;
             // TODO: log failures on this general exception
             // set a general error
             $message = self::getMessageGeneralFailure();
-            $message .= " " . $e->getMessage();
         }
         // set error on form
         $this->getForm()->sessionError( $message );
