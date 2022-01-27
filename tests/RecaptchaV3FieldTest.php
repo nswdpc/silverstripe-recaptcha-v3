@@ -2,6 +2,7 @@
 
 namespace NSWDPC\SpamProtection\Tests;
 
+use NSWDPC\SpamProtection\RecaptchaV3SpamProtector;
 use NSWDPC\SpamProtection\RecaptchaV3Field;
 use NSWDPC\SpamProtection\Verifier;
 use NSWDPC\SpamProtection\TokenResponse;
@@ -18,6 +19,21 @@ class Recaptchav3FieldTest extends SapphireTest
 
     public function setUp() {
         parent::setUp();
+    }
+
+    public function testField() {
+        $protector = new RecaptchaV3SpamProtector();
+        $executeAction = 'prefix/testaction';
+        $threshold = 0.55;
+        $fieldMapping = [];
+        $fieldMapping['recaptchav3_options']['threshold'] = $threshold;
+        $fieldMapping['recaptchav3_options']['action'] = $executeAction;
+        $protector->setFieldMapping($fieldMapping);
+        $field = $protector->getFormField('Test', 'Test');
+
+        $this->assertInstanceOf( RecaptchaV3Field::class, $field, 'Field is a RecaptchaV3Field' );
+        $this->assertEquals( $executeAction, $field->getRecaptchaAction(), 'Execute action is correct' );
+        $this->assertEquals( $threshold,  $field->getScore(), "Score is correct" );
     }
 
     /**
