@@ -2,6 +2,7 @@
 
 namespace NSWDPC\SpamProtection\Tests;
 
+use NSWDPC\SpamProtection\RecaptchaV3Field;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\TestOnly;
@@ -26,6 +27,8 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
      * @var string
      */
     private static $url_segment = 'TestRecaptchaV3FormHumanController';
+
+    const FIELD_VALUE = 'test-field-for-human';
 
     /**
      * @var array
@@ -52,11 +55,13 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
         $verifier = TestVerifier::create();
         $verifier->setIsHuman( true );
 
-        $field = TestRecaptchaV3Field::create('FunctionalVerificationTestHuman');
+        // Create field, set verifier as TestVerifier
+        $field = RecaptchaV3Field::create('FunctionalVerificationTestHuman');
         $field->setExecuteAction("humantest/submit", true);
         $field->setVerifier($verifier);
+        $field->setValue(self::FIELD_VALUE);
 
-        return Form::create(
+        $form = Form::create(
             $this,
             "RecaptchaV3HumanTestForm",
             FieldList::create(
@@ -66,6 +71,11 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
                 FormAction::create("testRecaptchaVerify")
             )
         );
+
+        // Ensure rule is correctly set
+        $field->setForm($form);
+
+        return $form;
     }
 
     /**

@@ -16,14 +16,10 @@ use SilverStripe\Forms\TextField;
  * Test the RecaptchaV3SpamProtector handling
  * @author James
  */
-class RecaptchaV3Test extends SapphireTest
+class RecaptchaV3SpamProtectorTest extends SapphireTest
 {
 
     protected $usesDatabase = false;
-
-    public function setUp() {
-        parent::setUp();
-    }
 
     public function testDefaultThreshold() {
         TokenResponse::config()->set('score', 0.7);

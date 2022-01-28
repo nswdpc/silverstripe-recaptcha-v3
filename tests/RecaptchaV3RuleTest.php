@@ -2,6 +2,7 @@
 
 namespace NSWDPC\SpamProtection\Tests;
 
+use NSWDPC\SpamProtection\FormExtension;
 use NSWDPC\SpamProtection\RecaptchaV3Rule;
 use NSWDPC\SpamProtection\RecaptchaV3SpamProtector;
 use NSWDPC\SpamProtection\RecaptchaV3Field;
@@ -9,6 +10,7 @@ use NSWDPC\SpamProtection\Verifier;
 use NSWDPC\SpamProtection\TokenResponse;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\ORM\ValidationException;
+use SilverStripe\Forms\Form;
 
 /**
  * Test the RecaptchaV3Field
@@ -18,6 +20,12 @@ class RecaptchaV3RuleTest extends SapphireTest
 {
 
     protected $usesDatabase = true;
+
+    protected static $required_extensions = [
+        Form::class => [
+            FormExtension::class
+        ]
+    ];
 
     public function setUp() {
         parent::setUp();
@@ -165,6 +173,19 @@ class RecaptchaV3RuleTest extends SapphireTest
         $foundRule = RecaptchaV3Rule::getRuleByTag("tag2");
 
         $this->assertEquals("tag2", $foundRule->Tag);
+    }
+
+    /**
+     * Test rule auto creation
+     */
+    public function testAutoCreateRule() {
+        $tag = "testautocreate";
+        $rule = RecaptchaV3Rule::createFromTag($tag, false);
+        $this->assertInstanceOf( RecaptchaV3Rule::class, $rule );
+        $this->assertEquals(0, $rule->Enabled, "Rule is not enabled");
+        $this->assertEquals($tag, $rule->Tag, "Rule is not enabled");
+        $this->assertEquals(RecaptchaV3Rule::TAKE_ACTION_BLOCK, $rule->ActionToTake);
+        $this->assertEquals(RecaptchaV3SpamProtector::getDefaultThreshold(), $rule->Score);
     }
 
 

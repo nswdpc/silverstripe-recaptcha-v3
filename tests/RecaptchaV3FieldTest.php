@@ -17,14 +17,13 @@ class Recaptchav3FieldTest extends SapphireTest
 
     protected $usesDatabase = false;
 
-    public function setUp() {
-        parent::setUp();
-    }
-
+    /**
+     * Get a test field from the RecaptchaV3SpamProtector
+     */
     public function testField() {
         $protector = new RecaptchaV3SpamProtector();
         $executeAction = 'prefix/testaction';
-        $threshold = 0.55;
+        $threshold = 55;
         $fieldMapping = [];
         $fieldMapping['recaptchav3_options']['threshold'] = $threshold;
         $fieldMapping['recaptchav3_options']['action'] = $executeAction;
@@ -33,7 +32,7 @@ class Recaptchav3FieldTest extends SapphireTest
 
         $this->assertInstanceOf( RecaptchaV3Field::class, $field, 'Field is a RecaptchaV3Field' );
         $this->assertEquals( $executeAction, $field->getRecaptchaAction(), 'Execute action is correct' );
-        $this->assertEquals( $threshold,  $field->getScore(), "Score is correct" );
+        $this->assertEquals( round($threshold / 100, 2),  $field->getScore(), "Score is correct" );
     }
 
     /**

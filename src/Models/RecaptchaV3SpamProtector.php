@@ -35,12 +35,24 @@ class RecaptchaV3SpamProtector implements SpamProtector
     /**
      * @var string
      */
-    protected $execute_action = "autoprotection/submit";//default execute action
+    protected $execute_action = "";//default execute action
 
     /**
      * @var string
      */
     protected $threshold = -1;//default threshold (use config value)
+
+    /**
+     * Return the RecaptchaV3Field instance to use for this form
+     * @return RecaptchaV3Field
+     */
+    protected function getRecaptchaV3Field($name = null, $title = null, $value = null) : RecaptchaV3Field {
+        $field = Injector::inst()->createWithArgs(
+                RecaptchaV3Field::class,
+                ['name' => $name, 'title' => $title, 'value' => $value]
+        );
+        return $field;
+    }
 
     /**
      * Return the field for the spam protector
@@ -51,10 +63,8 @@ class RecaptchaV3SpamProtector implements SpamProtector
         if(!$name) {
             $name = $this->default_name;
         }
-        $field = Injector::inst()->createWithArgs(
-                RecaptchaV3Field::class,
-                ['name' => $name, 'title' => $title, 'value' => $value]
-        );
+        // Get the spam protection field to use
+        $field = $this->getRecaptchaV3Field($name, $title, $value);
 
         // check if the threshold provided is in bounds
         if($this->threshold < 0 || $this->threshold > 100) {
@@ -66,8 +76,9 @@ class RecaptchaV3SpamProtector implements SpamProtector
     }
 
     /**
-     * In the RecaptchaV3 field, we use setFieldMapping to assign values to
-     * the field prior to getFormField being called
+     * Provide a way to modify score and threshold from the 'mapping' option
+     * provided by {@link FormSpamProtectionExtension::enableSpamProtection}
+     * These values can be overridden by an enabled RecaptchaV3Rule matching the FormName the field is in
      * @param mixed $fieldMapping
      * @return void
      */

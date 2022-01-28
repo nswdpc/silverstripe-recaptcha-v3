@@ -5,6 +5,7 @@ namespace NSWDPC\SpamProtection\Tests;
 use NSWDPC\SpamProtection\Verifier;
 use NSWDPC\SpamProtection\TokenResponse;
 use NSWDPC\SpamProtection\RecaptchaV3Field;
+use NSWDPC\SpamProtection\RecaptchaV3Rule;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\FunctionalTest;
 
@@ -15,8 +16,6 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
 {
 
     protected static $fixture_file = null;
-
-    protected static $use_draft_site = false;
 
     protected static $disable_themes = true;
 
@@ -34,11 +33,6 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
         TokenResponse::config()->set('score', 0.5);
     }
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-    }
-
     public function testFormSubmissionHuman()
     {
         // validate the controller has the test field and verifier
@@ -47,7 +41,7 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
         $form = $controller->Form();
         $field = $form->HiddenFields()->fieldByName('FunctionalVerificationTestHuman');
 
-        $this->assertInstanceOf(TestRecaptchaV3Field::class, $field, "Field is a TestRecaptchaV3Field");
+        $this->assertInstanceOf(RecaptchaV3Field::class, $field, "Field is a RecaptchaV3Field");
 
         $this->assertInstanceOf(TestVerifier::class,  $field->getVerifier(), "Field verifier is a TestVerifier");
 
@@ -78,7 +72,7 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
         $form = $controller->Form();
         $field = $form->HiddenFields()->fieldByName('FunctionalVerificationTestHuman');
 
-        $this->assertInstanceOf(TestRecaptchaV3Field::class, $field, "Field is a TestRecaptchaV3Field");
+        $this->assertInstanceOf(RecaptchaV3Field::class, $field, "Field is a RecaptchaV3Field");
 
         $this->assertInstanceOf(TestVerifier::class,  $field->getVerifier(), "Field verifier is a TestVerifier");
 
@@ -101,7 +95,7 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
         $form = $controller->Form();
         $field = $form->HiddenFields()->fieldByName('FunctionalVerificationTestBot');
 
-        $this->assertInstanceOf(TestRecaptchaV3Field::class, $field, "Field is a TestRecaptchaV3Field");
+        $this->assertInstanceOf(RecaptchaV3Field::class, $field, "Field is a RecaptchaV3Field");
 
         $this->assertInstanceOf(TestVerifier::class,  $field->getVerifier(), "Field verifier is a TestVerifier");
 

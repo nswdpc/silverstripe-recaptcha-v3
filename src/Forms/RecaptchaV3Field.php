@@ -82,7 +82,7 @@ class RecaptchaV3Field extends HiddenField {
      * the recaptchaV3RuleTag value assigned to this field
      * @var bool
      */
-    private static $auto_create_rule = true;
+    private static $auto_create_rule = false;
 
 
     public function __construct($name, $title = null, $value = null)
@@ -107,6 +107,7 @@ class RecaptchaV3Field extends HiddenField {
      */
     public function setForm($form)
     {
+        Logger::log("RecaptchaV3Field::setForm() called", "DEBUG");
         $this->setRecaptchaV3RuleTag( $form->getRecaptchaV3RuleTag() );
         return parent::setForm($form);
     }
@@ -231,11 +232,11 @@ class RecaptchaV3Field extends HiddenField {
     public function setRecaptchaV3RuleTag(string $tag) : self {
         if($this->recaptchaV3RuleTag && ($tag != $this->recaptchaV3RuleTag)) {
             // invalidate the rule
-            Logger::log("setRecaptchaV3RuleTag invalidating rule", "DEBUG");
+            Logger::log("RecaptchaV3Field::setRecaptchaV3RuleTag invalidating rule", "DEBUG");
             $this->rule = null;
         }
         $this->recaptchaV3RuleTag = $tag;
-        Logger::log("setRecaptchaV3RuleTag tag={$tag}", "DEBUG");
+        Logger::log("RecaptchaV3Field::setRecaptchaV3RuleTag tag={$tag}", "DEBUG");
         return $this;
     }
 
@@ -362,7 +363,7 @@ JS;
         $session = $request->getSession();
         $data = [
             'token' => $token,
-            'score' => $response->getResponseScore(),
+            'score' => $response->getResponseScore(),// the verification score from the API
             'hostname' => $response->getResponseHostname(),
             'action' => $response->getResponseAction()
         ];
