@@ -84,7 +84,7 @@ class RecaptchaV3SpamProtector implements SpamProtector
     }
 
     /**
-     * Based on the value set in configuration for {@link TokenRespone}, return a threshold based on that
+     * Based on the value set in configuration for {@link TokenResponse}, return a threshold based on that
      * If the configured value is out of bounds, the value of 70 is returned
      * @return int between 0 and 100 from configuration
      */

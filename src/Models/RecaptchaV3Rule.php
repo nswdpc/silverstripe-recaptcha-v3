@@ -58,7 +58,8 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
         'Enabled' => 'Boolean',
         'Score' => 'Int',// 0-100
         'Action' => 'Varchar(255)',// custom action
-        'ActionToTake' => "Enum('Block,Caution,Allow','Block')"// action to take
+        'ActionToTake' => "Enum('Block,Caution,Allow','Block')",// action to take
+        'AutoCreated' => 'Boolean'// whether this rule was auto created
     ];
 
     /**
@@ -69,7 +70,8 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
         'Enabled.Nice' => 'Enabled?',
         'Score' => 'Threshold score',
         'Action' => 'Action (for analytics)',
-        'ActionToTake' => 'Action to take'
+        'ActionToTake' => 'Action to take',
+        'AutoCreated.Nice' => 'Auto-created?'
     ];
 
     /**
@@ -79,6 +81,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
         'Enabled' => 0, // not enabled by default
         'Action' => '',
         'ActionToTake' => 'Block',
+        'AutoCreated' => 0
     ];
 
     /**
@@ -119,13 +122,36 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
     }
 
     /**
-     * Get a rule based on a tag
+     * Get an **enabled** rule based on a tag
      * @return RecaptchaV3Rule|null
      */
     public static function getRuleByTag(string $tag) {
         $tags = self::getEnabledRules();
         $tag = $tags->filter(['Tag' => $tag])->first();
         return $tag;
+    }
+
+    /**
+     * Create a rule based on a tag.
+     * Returns the rule, or the existing rule if the tag exists
+     * @param string $tag the tag to assign to a Rule
+     * @param bool $enabled whether the rule created will be enabled
+     */
+    public static function createFromTag(string $tag, bool $enabled = false) : self {
+        $rule = RecaptchaV3Rule::get()->filter(['Tag' => $tag])->first();
+        if(!empty($rule->ID)) {
+            return $rule;
+        } else {
+            $rule = RecaptchaV3Rule::create([
+                'Tag' => $tag,
+                'AutoCreated' => 1,
+                'Enabled' => ($enabled ? 1 : 0),
+                'ActionToTake' => self::TAKE_ACTION_BLOCK,
+                'Score' => RecaptchaV3SpamProtector::getDefaultThreshold()
+            ]);
+            $rule->write();
+            return $rule;
+        }
     }
 
     /**
@@ -257,6 +283,22 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
             )
         );
 
+        $autoCreatedField = CheckBoxField::create(
+            'AutoCreated',
+            _t(
+                "NSWDPC\SpamProtection.RECAPTCHAV3_AUTOCREATED_TITLE",
+                'Whether this rule was auto-created by the system'
+            )
+        )->performReadonlyTransformation();
+        if($this->AutoCreated) {
+            $autoCreatedField->setDescription(
+                _t(
+                    "NSWDPC\SpamProtection.RECAPTCHAV3_IS_AUTOCREATED_DESCRIPTION",
+                    "This field was automatically created by the system. Please review prior to enabling."
+                )
+            );
+        }
+
         $fields->addFieldsToTab(
             'Root.Main', [
                 $enabledField,
@@ -267,6 +309,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
         );
 
         $fields->insertBefore($tagField, 'Enabled');
+        $fields->insertBefore($autoCreatedField, 'Action');
 
         return $fields;
 
@@ -307,13 +350,13 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
             $this->Score = RecaptchaV3SpamProtector::getDefaultThreshold();
         }
 
-        // If not action specified, use the tag name
+        // If no action specified, use the tag name
         if(!$this->Action) {
             $this->Action = $this->Tag;
         }
 
-        // remove disallowed characters
-        $this->Action = TokenResponse::formatAction($this->Action);
+        // remove disallowed characters, store the action in lowercase
+        $this->Action = strtolower(TokenResponse::formatAction($this->Action));
 
         if(!$this->ActionToTake) {
             $this->ActionToTake = self::TAKE_ACTION_BLOCK;

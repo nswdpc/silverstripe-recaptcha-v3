@@ -12,3 +12,8 @@ NSWDPC\SpamProtection\RecaptchaV3Field:
   site_key: ''
   # Global action prefix for the field
   execute_action: 'submit'
+  # auto create a RecaptchaV3Rule record for the tag assigned to this field
+  auto_create_rule: true
+Silverstripe\Forms\Form:
+  extensions:
+    - 'NSWDPC\SpamProtection\FormExtension'
