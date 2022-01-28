@@ -364,6 +364,7 @@ JS;
         $data = [
             'token' => $token,
             'score' => $response->getResponseScore(),// the verification score from the API
+            'threshold' => $response->getScore(),// the threshold set for the test
             'hostname' => $response->getResponseHostname(),
             'action' => $response->getResponseAction()
         ];
