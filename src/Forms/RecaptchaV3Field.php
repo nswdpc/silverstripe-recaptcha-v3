@@ -107,7 +107,6 @@ class RecaptchaV3Field extends HiddenField {
      */
     public function setForm($form)
     {
-        Logger::log("RecaptchaV3Field::setForm() called", "DEBUG");
         $this->setRecaptchaV3RuleTag( $form->getRecaptchaV3RuleTag() );
         return parent::setForm($form);
     }
@@ -231,12 +230,10 @@ class RecaptchaV3Field extends HiddenField {
      */
     public function setRecaptchaV3RuleTag(string $tag) : self {
         if($this->recaptchaV3RuleTag && ($tag != $this->recaptchaV3RuleTag)) {
-            // invalidate the rule
-            Logger::log("RecaptchaV3Field::setRecaptchaV3RuleTag invalidating rule", "DEBUG");
+            // invalidate the rule as the tag changed
             $this->rule = null;
         }
         $this->recaptchaV3RuleTag = $tag;
-        Logger::log("RecaptchaV3Field::setRecaptchaV3RuleTag tag={$tag}", "DEBUG");
         return $this;
     }
 
@@ -247,19 +244,14 @@ class RecaptchaV3Field extends HiddenField {
     public function getRecaptchaV3Rule() {
         if(!$this->rule) {
             if($tag = $this->recaptchaV3RuleTag) {
-                Logger::log("getRecaptchaV3Rule searching for rule..", "DEBUG");
                 $this->rule = RecaptchaV3Rule::getRuleByTag($tag);
             }
 
             if($tag && !$this->rule && $this->config()->get('auto_create_rule') ) {
-                Logger::log("getRecaptchaV3Rule auto create from tag={$tag}", "DEBUG");
                 // create from tag but do not enable it
                 // for inspection by site owner who can enabled it manually
                 RecaptchaV3Rule::createFromTag($tag, false);
             }
-        }
-        if($this->rule) {
-            Logger::log("getRecaptchaV3Rule found rule #{$this->rule->ID}", "DEBUG");
         }
         return $this->rule;
     }
@@ -446,7 +438,7 @@ JS;
             $token = $this->Value();
             // no token submitted with form
             if(!$token) {
-                throw new \Exception( "No token" );
+                throw new \Exception( "No token for this field ({$this->getName()})" );
             }
 
             $rule = $this->getRecaptchaV3Rule();
@@ -472,7 +464,7 @@ JS;
                     switch($rule->ActionToTake) {
                         case RecaptchaV3Rule::TAKE_ACTION_ALLOW:
                         case RecaptchaV3Rule::TAKE_ACTION_CAUTION:
-                            Logger::log("RecaptchaV3 verification failed. Allowing as rule '{$rule->Tag}' sets {$rule->ActionToTake}", "NOTICE");
+                            Logger::log("RecaptchaV3 verification failed. Passing validation as rule '{$rule->Tag}' sets actiontotake={$rule->ActionToTake}", "NOTICE");
                             return true;
                             break;
                         default:
@@ -495,7 +487,6 @@ JS;
             $message = $e->getMessage();
         } catch (\Exception $e) {
             // set a general error
-            Logger::log("RecaptchaV3Field: Exception={$e->getMessage()}", "INFO");
             $message = self::getMessageGeneralFailure();
         }
         // set error on form
