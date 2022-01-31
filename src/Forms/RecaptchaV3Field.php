@@ -93,7 +93,9 @@ class RecaptchaV3Field extends HiddenField {
     /**
      * @inheritdoc
      *
-     * Sets the tag to be used for rule retrieval.
+     * Automatically sets the tag to be used for rule retrieval if none has been set on the field
+     * See {@link FormExtension::getRecaptchaV3RuleTag()}
+     *
      * If no tag/rule is found, the system default settings are used.
      *
      * Note: if your form  modifies the form name after initial construction
@@ -107,7 +109,9 @@ class RecaptchaV3Field extends HiddenField {
      */
     public function setForm($form)
     {
-        $this->setRecaptchaV3RuleTag( $form->getRecaptchaV3RuleTag() );
+        if(!$this->recaptchaV3RuleTag) {
+            $this->setRecaptchaV3RuleTag( $form->getRecaptchaV3RuleTag() );
+        }
         return parent::setForm($form);
     }
 
