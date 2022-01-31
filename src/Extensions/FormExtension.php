@@ -26,11 +26,9 @@ class FormExtension extends Extension {
             $tag = $this->owner->getRecaptchaV3Tag();
         }
         if(!$tag) {
-            Logger::log("FormExtension::getRecaptchaV3RuleTag no getRecaptchaV3Tag, using FormName()", "DEBUG");
             $tag = $this->owner->FormName();
         }
         $tag = strtolower($tag);
-        Logger::log("FormExtension::getRecaptchaV3RuleTag tag={$tag}", "DEBUG");
         return $tag;
 ;    }
 }
