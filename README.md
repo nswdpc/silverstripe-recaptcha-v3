@@ -84,6 +84,8 @@ NSWDPC\SpamProtection\RecaptchaV3Field:
   site_key: 'zyx321.....'
   # Global action prefix for the field
   execute_action: 'submit'
+  # Place the reCAPTCHA badge in the form
+  badge_display: 'form'
 ```
 
 ## Token retrieval
