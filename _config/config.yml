@@ -12,3 +12,5 @@ NSWDPC\SpamProtection\RecaptchaV3Field:
   site_key: ''
   # Global action prefix for the field
   execute_action: 'submit'
+  # How the badge is displayed
+  badge_display: ''
