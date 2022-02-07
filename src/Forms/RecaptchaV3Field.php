@@ -219,7 +219,7 @@ class RecaptchaV3Field extends HiddenField {
          */
         $refresh_on_error = "";
 
-        if(($errors = $this->getForm()->getSessionValidationResult()) && !$errors->isValid()) {
+        if(($form = $this->getForm()) && ($errors = $form->getSessionValidationResult()) && !$errors->isValid()) {
             $refresh_on_error = "recaptcha_execute_handler(form);";
         }
 
