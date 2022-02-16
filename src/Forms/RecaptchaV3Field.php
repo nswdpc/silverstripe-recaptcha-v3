@@ -63,19 +63,6 @@ class RecaptchaV3Field extends HiddenField {
      */
     private $has_prefixed_action = false;
 
-    /**
-     * Badge display options: empty string, 'form' or 'page'
-     * If page it is up to you to to include NSWDPC/SpamProtection/PageBadge in your template in the appropriate location
-     * See: https://developers.google.com/recaptcha/docs/faq#id-like-to-hide-the-recaptcha-badge.-what-is-allowed
-     * @param string
-     */
-    private static $badge_display = "";
-
-
-    const BADGE_DISPLAY_DEFAULT = '';// use the reCAPTCHAv3 library default (fixed bottom right)
-    const BADGE_DISPLAY_FORM = 'form';// display the badge text in the form, above the actions
-    const BADGE_DISPLAY_PAGE = 'page';// display the badge text in the page somewhere
-
 
     public function __construct($name, $title = null, $value = null)
     {
@@ -374,26 +361,6 @@ JS;
         $this->setSubmittedValue("");
         // fail validation
         return false;
-    }
-
-    /**
-     * Return some information for templates to display the RecaptchaV3Badge
-     * Returns an empty string, 'form' or 'page'
-     */
-    public function ShowRecaptchaV3Badge() : string {
-        $displayOption = $this->config()->get('badge_display');
-        switch($displayOption) {
-            case self::BADGE_DISPLAY_FORM:
-            case self::BADGE_DISPLAY_PAGE:
-                $css = ".grecaptcha-badge { visibility: hidden; }";
-                Requirements::customCSS($css, 'recaptcha_badge_hide');
-                break;
-            case self::BADGE_DISPLAY_DEFAULT:
-            default:
-                $displayOption = '';
-                break;
-        }
-        return $displayOption;
     }
 
 }

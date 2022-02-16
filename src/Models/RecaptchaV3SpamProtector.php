@@ -8,13 +8,16 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\SpamProtection\SpamProtector;
+use SilverStripe\View\ArrayData;
+use SilverStripe\View\Requirements;
+use SilverStripe\View\TemplateGlobalProvider;
 
 /**
  * Spam protector class, when set and you call $form->enableSpamProtection()
  * The RecaptchaV3Field will be added to the form
  * @author James Ellis <james.ellis@dpc.nsw.gov.au>
  */
-class RecaptchaV3SpamProtector implements SpamProtector
+class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
 {
 
     use Configurable;
@@ -38,6 +41,20 @@ class RecaptchaV3SpamProtector implements SpamProtector
      * @var string
      */
     protected $threshold = -1;//default threshold (use config value)
+
+    /**
+     * Badge display options: empty string, 'form' or 'page'
+     * If page it is up to you to to include NSWDPC/SpamProtection/PageBadge in your template in the appropriate location
+     * See: https://developers.google.com/recaptcha/docs/faq#id-like-to-hide-the-recaptcha-badge.-what-is-allowed
+     * @param string
+     */
+    private static $badge_display = "";
+
+
+    const BADGE_DISPLAY_DEFAULT = '';// use the reCAPTCHAv3 library default (fixed bottom right)
+    const BADGE_DISPLAY_FIELD = 'field';// display the badge text in the form, above the actions
+    const BADGE_DISPLAY_FORM = 'form';// badge is displayed in form. NB: requires custom form template
+    const BADGE_DISPLAY_PAGE = 'page';// display the badge text in the page somewhere
 
     /**
      * Return the field for the spam protector
@@ -164,5 +181,55 @@ class RecaptchaV3SpamProtector implements SpamProtector
                 . 'and it may not be personally identifiable'
             )
         );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function get_template_global_variables() {
+        return [
+            'ReCAPTCHAv3PrivacyInformation' => 'get_privacy_information',
+            'ReCAPTCHAv3BadgeDisplay' => 'get_badge_display',
+        ];
+    }
+
+    /**
+     * Return the privacy information from a template
+     */
+    public static function get_privacy_information() {
+        $displayOption = self::config()->get('badge_display');
+        var_dump($displayOption);
+        $value = '';
+        switch($displayOption) {
+            case self::BADGE_DISPLAY_FORM:
+            case self::BADGE_DISPLAY_FIELD:
+            case self::BADGE_DISPLAY_PAGE:
+                self::hideBadge();
+                return ArrayData::create([
+                    'DisplayOption' => $displayOption
+                ])->renderWith('NSWDPC/SpamProtection/PrivacyInformation');
+                break;
+            case self::BADGE_DISPLAY_DEFAULT:
+            default:
+                // reCAPTCHAv3 handles badge display
+                return '';
+                break;
+        }
+    }
+
+    /**
+     * Return some information for templates to display the RecaptchaV3Badge
+     * Returns an empty string, 'field', 'form' or 'page'
+     */
+    public static function get_badge_display() : string {
+        return self::config()->get('badge_display');
+    }
+
+    /**
+     * Hide badge via custom css
+     */
+    public static function hideBadge() : void {
+        $css = ".grecaptcha-badge { visibility: hidden; }";
+        Requirements::customCSS($css, 'recaptcha_badge_hide');
     }
 }

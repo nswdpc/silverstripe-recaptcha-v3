@@ -41,11 +41,7 @@ $field->setExecuteAction('myaction');
 
 ## reCAPTCHA badge placement
 
-You can place the badge in one of three locations using the `NSWDPC\SpamProtection\RecaptchaV3Field.badge_display` configuration value.
-
-1. Empty string (default): The badge will automatically appear in the lower right corner of the viewport
-1. `form`: the [replacement text](https://developers.google.com/recaptcha/docs/faq#id-like-to-hide-the-recaptcha-badge.-what-is-allowed) is displayed adjacent to the hidden recaptcha input. The default badge is hidden with CSS.
-1. `page`: no badge or text is displayed. It's up to you to "include the reCAPTCHA branding visibly in the user flow". The default badge is hidden with CSS.
+See [badge display](./002_badge_display.md)
 
 ## Controller verification
 
