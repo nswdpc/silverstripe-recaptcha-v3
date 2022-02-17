@@ -198,7 +198,6 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      */
     public static function get_privacy_information() {
         $displayOption = self::config()->get('badge_display');
-        var_dump($displayOption);
         $value = '';
         switch($displayOption) {
             case self::BADGE_DISPLAY_FORM:
