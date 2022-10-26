@@ -11,7 +11,7 @@ use SilverStripe\Dev\SapphireTest;
  * Test the RecaptchaV3Field
  * @author James
  */
-class Recaptchav3FieldTest extends SapphireTest
+class RecaptchaV3FieldTest extends SapphireTest
 {
 
     protected $usesDatabase = false;
