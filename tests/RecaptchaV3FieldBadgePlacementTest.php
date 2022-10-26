@@ -26,9 +26,9 @@ class RecaptchaV3FieldBadgePlacementTest extends SapphireTest
 
         $template = $field->FieldHolder()->forTemplate();
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") === false, "Recatpcha policy link not in template");
+        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") === false, "Recaptcha policy link not in template");
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/terms") === false, "Recatpcha T&C link not in template");
+        $this->assertTrue( strpos($template, "https://policies.google.com/terms") === false, "Recaptcha T&C link not in template");
     }
 
     public function testFieldBadgePlacement() {
@@ -41,9 +41,9 @@ class RecaptchaV3FieldBadgePlacementTest extends SapphireTest
 
         $template = $field->FieldHolder()->forTemplate();
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") !== false, "Recatpcha policy link in template");
+        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") !== false, "Recaptcha policy link in template");
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/terms") !== false, "Recatpcha T&C link in template");
+        $this->assertTrue( strpos($template, "https://policies.google.com/terms") !== false, "Recaptcha T&C link in template");
     }
 
     public function testFormBadgePlacement() {
@@ -56,9 +56,9 @@ class RecaptchaV3FieldBadgePlacementTest extends SapphireTest
 
         $template = $field->FieldHolder()->forTemplate();
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") === false, "Recatpcha policy link not in template");
+        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") === false, "Recaptcha policy link not in template");
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/terms") === false, "Recatpcha T&C link not in template");
+        $this->assertTrue( strpos($template, "https://policies.google.com/terms") === false, "Recaptcha T&C link not in template");
 
     }
 
@@ -72,9 +72,9 @@ class RecaptchaV3FieldBadgePlacementTest extends SapphireTest
 
         $template = $field->FieldHolder()->forTemplate();
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") === false, "Recatpcha policy link not in template");
+        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") === false, "Recaptcha policy link not in template");
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/terms") === false, "Recatpcha T&C link not in template");
+        $this->assertTrue( strpos($template, "https://policies.google.com/terms") === false, "Recaptcha T&C link not in template");
 
     }
 }
