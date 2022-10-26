@@ -39,6 +39,10 @@ $field->setExecuteAction('myaction');
 ```
 [Valid characters in an action are `a-z A-Z 0-9 /`](https://developers.google.com/recaptcha/docs/v3#actions)
 
+## reCAPTCHA badge placement
+
+See [badge display](./002_badge_display.md)
+
 ## Controller verification
 
 The module provides a controller to verify tokens and actions beyond a standard form submission.

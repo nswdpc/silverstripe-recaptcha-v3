@@ -6,9 +6,17 @@ You can also use the module to verify tokens/actions from non-form interactions 
 
 > The default score for verification is 0.7, you can change this in project configuration
 
+## Installation
+
+Install via composer
+
+```shell
+composer require nswdpc/silverstripe-recaptcha-v3
+```
+
 ## Requirements
 
-See [composer.json](./composer.json) but in summary:
+See [composer.json](./composer.json), but in summary:
 
 + silverstripe/framework ^4
 + silverstripe/spamprotection ^3
@@ -43,14 +51,16 @@ SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension:
   default_spam_protector: NSWDPC\SpamProtection\RecaptchaV3SpamProtector
 ```
 
-Then calling `$form->enableSpamProtection()` will add the field to the form automatically.
+Then calling `$form->enableSpamProtection()` will add the field to the form automatically. Read the [silverstripe/spamprotection documentation](https://github.com/silverstripe/silverstripe-spamprotection#configuring) for more information on how this works.
 
 ### Field for silverstripe/userforms modules
 
 The module `nswdpc/silverstripe-recaptcha-v3-userforms` provides a userforms field
 
-## Documentation
- * [Further documentation](docs/en/index.md) for tips on usage
+## Further documentation
+
++ [Further documentation](docs/en/001_index.md) for tips on usage
++ [Badge placement](docs/en/001_badge_display.md)
 
 ## Configuration
 
@@ -84,6 +94,9 @@ NSWDPC\SpamProtection\RecaptchaV3Field:
   site_key: 'zyx321.....'
   # Global action prefix for the field
   execute_action: 'submit'
+NSWDPC\SpamProtection\RecaptchaV3SpamProtector:
+  # Place the reCAPTCHA privacy text adjacent to the hidden input form field
+  badge_display: 'field'
 ```
 
 ## Token retrieval
@@ -93,14 +106,6 @@ The behaviour triggering a token retrieval from the reCAPTCHAv3 API is a focus()
 When the first field in a form is focused, a token will be retrieved. If another field is focused in the form after 30 seconds, the token will be refreshed.
 
 The latest token will be submitted with the form and validated, if it has expired, the visitor will be prompted to check and resubmit the form.
-
-## Installation
-
-Install via composer
-
-```
-composer require nswdpc/silverstripe-recaptcha-v3
-```
 
 ## License
 
