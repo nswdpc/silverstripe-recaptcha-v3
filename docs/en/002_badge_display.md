@@ -46,6 +46,10 @@ If you provide specific form templates, this will need to be added to each templ
 
 The default badge is hidden using CSS. Calling `$ReCAPTCHAv3PrivacyInformation` in the template hides the default badge.
 
+### Direct include
+
+You can also `<% include NSWDPC/SpamProtection/FormBadge %>` in a form template.
+
 ## Page
 
 Value: 'page'
@@ -62,5 +66,10 @@ Example:
 ```
 
 The default badge is hidden using CSS. Calling `$ReCAPTCHAv3PrivacyInformation` in the template hides the default badge.
+
+### Direct include
+
+You can also `<% include NSWDPC/SpamProtection/PageBadge %>` in a page template.
+
 
 [Back to the index](./001_index.md)
