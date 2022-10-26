@@ -16,7 +16,7 @@ class RecaptchaV3FieldTest extends SapphireTest
 
     protected $usesDatabase = false;
 
-    public function setUp() {
+    public function setUp() : void {
         parent::setUp();
     }
 
