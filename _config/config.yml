@@ -17,3 +17,7 @@ NSWDPC\SpamProtection\RecaptchaV3Field:
 Silverstripe\Forms\Form:
   extensions:
     - 'NSWDPC\SpamProtection\FormExtension'
+NSWDPC\SpamProtection\RecaptchaV3SpamProtector:
+  # How the badge is displayed
+  # Options: '','field','form','page'
+  badge_display: ''

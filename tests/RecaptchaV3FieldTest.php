@@ -12,10 +12,14 @@ use SilverStripe\Dev\SapphireTest;
  * Test the RecaptchaV3Field
  * @author James
  */
-class Recaptchav3FieldTest extends SapphireTest
+class RecaptchaV3FieldTest extends SapphireTest
 {
 
     protected $usesDatabase = false;
+
+    public function setUp() : void {
+        parent::setUp();
+    }
 
     /**
      * Get a test field from the RecaptchaV3SpamProtector
