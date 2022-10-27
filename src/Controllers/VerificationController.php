@@ -6,7 +6,7 @@ use Silverstripe\Control\Director;
 use Silverstripe\Control\Controller;
 use Silverstripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
-use GuzzleHttp\Client;
+use SilverStripe\Core\Config\Config;
 
 
 /**
@@ -19,20 +19,31 @@ use GuzzleHttp\Client;
  */
 class VerificationController extends Controller {
 
+    use HasVerifier;
+
     /**
      * If this is true, this controller is enabled
+     * @var bool
      */
     private static $enabled = false;
 
+    /**
+     * urlsegment for this controller
+     * @var string
+     */
     private static $url_segment = "recaptchaverify";
 
+    /**
+     * @var array
+     */
     private static $allowed_actions = [
         'check' => true
     ];
 
-    public function init() {
-        parent::init();
-    }
+    /**
+     * @var Verifier
+     */
+    protected $verifier = null;
 
     /**
      * 403 on / requests
@@ -56,6 +67,13 @@ class VerificationController extends Controller {
     }
 
     /**
+     * Score for verification
+     */
+    public function getScore() {
+        return Config::inst()->get(TokenResponse::class, 'score');
+    }
+
+    /**
      * Handle verification requests
      * check expects a POST with the 'token' and an optional 'action'
      * When the action is present, the returned action from verification must match the provided action
@@ -70,25 +88,44 @@ class VerificationController extends Controller {
             $token = $request->postVar('token');
             if(!$this->config()->get('enabled') || !$token) {
                 // bad request
-                $response = new HTTPResponse( json_encode(["result"=>"FAIL"]), 400 );
+                $response = new HTTPResponse( json_encode([
+                    "result" => "FAIL",
+                    "threshold" => null,
+                    "score" => null,
+                    "errorcodes" => []
+                ]), 400 );
                 $response->addHeader('Content-Type','application/json');
                 return $response;
             }
             $action = $request->postVar('action');
-            $score = null;
-            $verifier = new Verifier();
-            $result = $verifier->check($token, $score, $action);
+            $score = $request->postVar('score');
+            if(!$score) {
+                $score = $this->getScore();
+            }
+            $this->getVerifier();
+            $result = $this->verifier->check($token, $score, $action);
+            $this->verifier = null;
             // handle the response when it is a {@link NSWDPC\SpamProtection\TokenResponse}
             if($result instanceof TokenResponse) {
                 // a verification response from API
                 if($result->isValid()) {
                     // all good
-                    $response = new HTTPResponse( json_encode(["result"=>"OK"]), 200 );
+                    $response = new HTTPResponse( json_encode([
+                        "result" => "OK",
+                        "threshold" => $score,
+                        "score" => $result->getResponseScore(),
+                        'errorcodes' => $result->errorCodes()
+                    ]), 200 );
                     $response->addHeader('Content-Type','application/json');
                     return $response;
                 } else {
                     // bad request / timeout / verification failed
-                    $response = new HTTPResponse( json_encode(["result"=>"FAIL"]), 400 );
+                    $response = new HTTPResponse( json_encode([
+                        "result" => "FAIL",
+                        "threshold" => $score,
+                        "score" => $result->getResponseScore(),
+                        'errorcodes' => $result->errorCodes()
+                    ]), 400 );
                     $response->addHeader('Content-Type','application/json');
                     return $response;
                 }
@@ -98,9 +135,17 @@ class VerificationController extends Controller {
             throw new \Exception("Failed to verify");
 
         } catch (\Exception $e) {
-            $response = new HTTPResponse( json_encode(["result"=>"FAIL"]), 500 );
+            $response = new HTTPResponse( json_encode([
+                "result" => "FAIL",
+                "threshold" => null,
+                "score" => null,
+                "errorcodes" => []
+            ]), 500 );
             $response->addHeader('Content-Type','application/json');
+            $response->addHeader('X-Error-Message', $e->getMessage());
             return $response;
+        } finally {
+            $this->verifier = null;
         }
     }
 }
