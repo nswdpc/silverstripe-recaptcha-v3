@@ -17,6 +17,8 @@ use SilverStripe\Control\Controller;
  */
 class RecaptchaV3Field extends HiddenField {
 
+    use HasVerifier;
+
     /**
      * Site key, configured in project
      * @param string
@@ -305,6 +307,36 @@ JS;
     }
 
     /**
+     * Return the message when possible spam/bot found
+     */
+    public static function getMessagePossibleSpam() : string {
+        return _t(
+            'NSWDPC\SpamProtection.TOKEN_POSSIBLE_SPAM',
+            'We have detected that the form may be a spam submission. Please try to submit the form again.'
+        );
+    }
+
+    /**
+     * Return the message when general failure occurs
+     */
+    public static function getMessageGeneralFailure() : string {
+        return _t(
+            'NSWDPC\SpamProtection.TOKEN_VERIFICATION_GENERAL_ERROR',
+            'Sorry, the form submission failed. You may like to try again.'
+        );
+    }
+
+    /**
+     * Return the message when a timeout occurs
+     */
+    public static function getMessageTimeout() : string {
+        return _t(
+            'NSWDPC\SpamProtection.TOKEN_TIMEOUT',
+            'Please check the information provided and submit the form again.'
+        );
+    }
+
+    /**
      * Validate the field
      * @see https://developers.google.com/recaptcha/docs/verify#error_code_reference
      *
@@ -325,8 +357,7 @@ JS;
                 throw new \Exception( "No token" );
             }
             $action = $this->getRecaptchaAction();
-            $verifier = new Verifier();
-            $success = false;
+            $verifier = $this->getVerifier();
             $response = $verifier->check($token, $this->getScore(), $action);
             // handle the response when it is a {@link NSWDPC\SpamProtection\TokenResponse}
             if($response instanceof TokenResponse) {
@@ -341,9 +372,9 @@ JS;
                 // timeout
                 if($response->isTimeout()) {
                     // > timeout to submit form
-                    throw new RecaptchaVerificationException( _t( 'NSWDPC\SpamProtection.TOKEN_TIMEOUT', 'Please check the information provided and submit the form again.') );
+                    throw new RecaptchaVerificationException( self::getMessageTimeout() );
                 }
-                throw new RecaptchaVerificationException( _t( 'NSWDPC\SpamProtection.TOKEN_POSSIBLE_SPAM', 'We have detected that the form may be a spam submission. Please try to submit the form again.') );
+                throw new RecaptchaVerificationException( self::getMessagePossibleSpam() );
             }
             // general failure
             throw new \Exception("Verification failed - no/bad response from verify API");
@@ -353,7 +384,7 @@ JS;
         } catch (\Exception $e) {
             // TODO: log failures on this general exception
             // set a general error
-            $message = _t( 'NSWDPC\SpamProtection.TOKEN_VERIFICATION_GENERAL_ERROR', 'Sorry, the form submission failed. You may like to try again.');
+            $message = self::getMessageGeneralFailure();
         }
         // set error on form
         $this->getForm()->sessionError( $message );
