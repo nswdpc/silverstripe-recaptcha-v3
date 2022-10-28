@@ -1,6 +1,13 @@
 # Documentation
 
-> Tokens have a 2 minute lifetime. Checking a token with an older lifetime will result in a `timeout-or-duplicate` error response
+## See also
+
++ [Badge display](./002_badge_display.md)
++ [Rule management](./003_rule_management.md)
+
+## Important
+
+> reCAPTCHA v3 tokens have a 2 minute lifetime. Checking a token with an older lifetime will result in a `timeout-or-duplicate` error response
 
 ## Further configuration
 
@@ -38,10 +45,6 @@ $field->setExecuteAction('myaction');
 // {$field->ID()}/myaction
 ```
 [Valid characters in an action are `a-z A-Z 0-9 /`](https://developers.google.com/recaptcha/docs/v3#actions)
-
-## reCAPTCHA badge placement
-
-See [badge display](./002_badge_display.md)
 
 ## Controller verification
 
