@@ -220,7 +220,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
         )->setDescription(
             _t(
                 'NSWDPC\SpamProtection.ACTION_DESCRIPTION',
-                'This is used for analytics in the reCAPTCHA console. '
+                'This is used for analytics and trend analysis. '
                 . ' Allowed characters are \'a-z 0-9 /\' '
                 . 'and it may not be personally identifiable'
             )
