@@ -412,19 +412,19 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
     {
         return [
             'RECAPTCHAV3_RULE_VIEW' => [
-                'name' => _t('NSWDPC\SpamProtection.PERMISSION_VIEW', 'View reCAPTCHAv3 rules'),
+                'name' => _t('NSWDPC\SpamProtection.PERMISSION_VIEW', 'View form spam rules'),
                 'category' => 'reCAPTCHAv3',
             ],
             'RECAPTCHAV3_RULE_EDIT' => [
-                'name' => _t('NSWDPC\SpamProtection.PERMISSION_EDIT', 'Edit reCAPTCHAv3 rules'),
+                'name' => _t('NSWDPC\SpamProtection.PERMISSION_EDIT', 'Edit form spam rules'),
                 'category' => 'reCAPTCHAv3',
             ],
             'RECAPTCHAV3_RULE_CREATE' => [
-                'name' => _t('NSWDPC\SpamProtection.PERMISSION_CREATE', 'Create reCAPTCHAv3 rules'),
+                'name' => _t('NSWDPC\SpamProtection.PERMISSION_CREATE', 'Create form spam rules'),
                 'category' => 'reCAPTCHAv3',
             ],
             'RECAPTCHAV3_RULE_DELETE' => [
-                'name' => _t('NSWDPC\SpamProtection.PERMISSION_DELETE', 'Delete reCAPTCHAv3 rules'),
+                'name' => _t('NSWDPC\SpamProtection.PERMISSION_DELETE', 'Delete form spam rules'),
                 'category' => 'reCAPTCHAv3',
             ]
         ];
