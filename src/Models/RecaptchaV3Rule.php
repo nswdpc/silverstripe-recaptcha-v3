@@ -31,12 +31,12 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
     /**
      * @var string
      */
-    private static $singular_name = 'reCAPTCHAv3 Rule';
+    private static $singular_name = 'Captcha Rule';
 
     /**
      * @var string
      */
-    private static $plural_name = 'reCAPTCHAv3 Rules';
+    private static $plural_name = 'Captcha Rules';
 
     /**
      * A list of system tags that can be used for common actions
@@ -255,7 +255,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
             'Action',
             _t(
                 "NSWDPC\SpamProtection.RECAPTCHAV3_ACTION",
-                "Action, used for reCAPTCHAv3 score analytics"
+                "A unique action for this rule, used for monitoring and analytics"
             )
         )->setDescription(
             _t(
