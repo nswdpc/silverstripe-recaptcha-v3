@@ -73,9 +73,9 @@ class RecaptchaV3Field extends HiddenField {
 
     /**
      * Rule used for validation
-     * @var string
+     * @var RecaptchaV3Rule|null
      */
-    protected $rule;
+    protected $rule = null;
 
     /**
      * When true, a non-enabled RecaptchaV3Rule record will be created with a tag matching
@@ -452,7 +452,6 @@ JS;
 
             // handle the response when it is a {@link NSWDPC\SpamProtection\TokenResponse}
             if($response instanceof TokenResponse) {
-
                 // successful verification
                 if($response->isValid()) {
                     // store token response score

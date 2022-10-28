@@ -8,7 +8,6 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DropdownField;
-use SilverStripe\Forms\HeaderField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\SpamProtection\SpamProtector;
 use SilverStripe\View\ArrayData;
@@ -159,7 +158,8 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * Return an HTML list explaining response scores
      */
     public static function getRuleSummary() : string {
-        return "<ul>"
+        return "<h3>" . _t('NSWDPC\SpamProtection.SCORE_EXAMPLE_HEADER', 'Verification score guide') . "</h3>"
+        . "<ul>"
         . "<li>10: " . _t('NSWDPC\SpamProtection.SCORE_10','Very likely a bot/automated request') . "</li>"
         . "<li>30: " . _t('NSWDPC\SpamProtection.SCORE_30','Likely a bot/automated request') . "</li>"
         . "<li>70: " . _t('NSWDPC\SpamProtection.SCORE_70','Likely a non-automated request') . "</li>"
@@ -177,15 +177,14 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
             $name,
             _t(
                 'NSWDPC\SpamProtection.SCORE_THRESHOLD_TITLE',
-                'Set a reCAPTCHAv3 threshold. '
-                . ' Any requests receiving a verification score below this will be blocked.'
+                'Set a form spam protection threshold'
             ),
             self::getRange(),
             $value
         )->setDescription(
             _t(
                 'NSWDPC\SpamProtection.SCORE_THRESHOLD_DESCRIPTION',
-                "Setting the threshold to 100 will block almost all submissions"
+                'Any requests receiving a verification score below the value selected will be blocked.'
             )
         );
     }
@@ -197,10 +196,6 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     public static function getRangeCompositeField($name, $value = null) {
         return CompositeField::create(
             self::getRangeField($name, $value),
-            HeaderField::create(
-                'ThresholdCompositeHeader',
-                _t('NSWDPC\SpamProtection.SCORE_EXAMPLE_HEADER', 'Example verification scores')
-            ),
             LiteralField::create(
                 'ThresholdCompositeLiteral',
                 self::getRuleSummary()
@@ -208,7 +203,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
         )->setTitle(
             _t(
                 'NSWDPC\SpamProtection.SCORE_COMPOSITE_TITLE',
-                'reCAPTCHAv3 threshold handling'
+                'Form spam threshold handling'
             )
         );
     }
