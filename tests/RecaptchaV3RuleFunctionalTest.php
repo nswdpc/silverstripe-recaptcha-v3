@@ -77,6 +77,9 @@ class RecaptchaV3RuleFunctionalTest extends FunctionalTest
         $this->assertInstanceOf(RecaptchaV3Rule::class, $ruleUsed, "Rule is a RecaptchaV3Rule");
         $this->assertEquals($rule->ID, $ruleUsed->ID, "Rule is the rule created");
 
+        $template = $field->Field()->RAW();
+        $this->assertStringContainsString("data-rule=\"{$rule->ID}\"", $template);
+
         $this->assertInstanceOf(TestVerifier::class,  $field->getVerifier(), "Field verifier is a TestVerifier");
 
         // Submit the form
