@@ -22,10 +22,19 @@ use SilverStripe\ORM\ValidationException;
  */
 class RecaptchaV3Rule extends DataObject implements PermissionProvider {
 
+    /**
+     * @var string
+     */
     const TAKE_ACTION_BLOCK = 'Block';
 
+    /**
+     * @var string
+     */
     const TAKE_ACTION_CAUTION = 'Caution';
 
+    /**
+     * @var string
+     */
     const TAKE_ACTION_ALLOW = 'Allow';
 
     /**
@@ -364,21 +373,33 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
 
     }
 
+    /**
+     * @inheritdoc
+     */
     public function canView($member = null)
     {
         return Permission::checkMember($member, 'RECAPTCHAV3_RULE_VIEW');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function canCreate($member = null, $context = [])
     {
         return Permission::checkMember($member, 'RECAPTCHAV3_RULE_CREATE');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function canEdit($member = null)
     {
         return Permission::checkMember($member, 'RECAPTCHAV3_RULE_EDIT');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function canDelete($member = null)
     {
         return Permission::checkMember($member, 'RECAPTCHAV3_RULE_DELETE');
