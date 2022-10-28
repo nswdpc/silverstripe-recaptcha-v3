@@ -18,14 +18,26 @@ use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
 class RecaptchaV3RuleFunctionalTest extends FunctionalTest
 {
 
+    /**
+     * @inheritdoc
+     */
     protected static $fixture_file = null;
 
+    /**
+     * @inheritdoc
+     */
     protected static $disable_themes = true;
 
+    /**
+     * @inheritdoc
+     */
     protected static $extra_controllers = [
         TestRecaptchaV3FormWithRuleController::class
     ];
 
+    /**
+     * @inheritdoc
+     */
     protected static $required_extensions = [
         Form::class => [
             FormExtension::class,
@@ -33,17 +45,10 @@ class RecaptchaV3RuleFunctionalTest extends FunctionalTest
         ]
     ];
 
+    /**
+     * @inheritdoc
+     */
     protected $usesDatabase = true;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-    }
 
     /**
      * Test a form submission using a rule for verification

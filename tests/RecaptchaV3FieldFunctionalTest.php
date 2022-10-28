@@ -15,17 +15,32 @@ use SilverStripe\Dev\FunctionalTest;
 class RecaptchaV3FieldFunctionalTest extends FunctionalTest
 {
 
+    /**
+     * @inheritdoc
+     */
     protected static $fixture_file = null;
 
+    /**
+     * @inheritdoc
+     */
     protected static $disable_themes = true;
 
+    /**
+     * @inheritdoc
+     */
     protected static $extra_controllers = [
         TestRecaptchaV3FormHumanController::class,
         TestRecaptchaV3FormBotController::class
     ];
 
+    /**
+     * @inheritdoc
+     */
     protected $usesDatabase = false;
 
+    /**
+     * @inheritdoc
+     */
     protected function setUp(): void
     {
         parent::setUp();

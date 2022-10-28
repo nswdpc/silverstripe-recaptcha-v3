@@ -15,8 +15,14 @@ use SilverStripe\Dev\SapphireTest;
 class RecaptchaV3FieldTest extends SapphireTest
 {
 
+    /**
+     * @inheritdoc
+     */
     protected $usesDatabase = false;
 
+    /**
+     * @inheritdoc
+     */
     public function setUp() : void {
         parent::setUp();
     }

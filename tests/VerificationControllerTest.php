@@ -16,19 +16,20 @@ use SilverStripe\Dev\FunctionalTest;
 class VerificationControllerTest extends FunctionalTest
 {
 
+    /**
+     * @inheritdoc
+     */
     protected $usesDatabase = false;
 
+    /**
+     * @inheritdoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
         // default 'middle' score
         TokenResponse::config()->set('score', 0.5);
         Config::inst()->update( VerificationController::class, 'enabled', true);
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
     }
 
     /**

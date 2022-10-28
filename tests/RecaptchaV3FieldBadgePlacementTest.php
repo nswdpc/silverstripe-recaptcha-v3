@@ -14,6 +14,9 @@ use SilverStripe\Dev\SapphireTest;
 class RecaptchaV3FieldBadgePlacementTest extends SapphireTest
 {
 
+    /**
+     * @inheritdoc
+     */
     protected $usesDatabase = false;
 
     public function testDefaultBadgePlacement() {

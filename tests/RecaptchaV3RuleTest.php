@@ -19,17 +19,19 @@ use SilverStripe\Forms\Form;
 class RecaptchaV3RuleTest extends SapphireTest
 {
 
+    /**
+     * @inheritdoc
+     */
     protected $usesDatabase = true;
 
+    /**
+     * @inheritdoc
+     */
     protected static $required_extensions = [
         Form::class => [
             FormExtension::class
         ]
     ];
-
-    public function setUp() {
-        parent::setUp();
-    }
 
     public function testRecaptchaV3Rule() {
 
