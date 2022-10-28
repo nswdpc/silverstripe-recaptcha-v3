@@ -15,8 +15,8 @@ use SilverStripe\Control\Controller;
  * When the form field is validated after submission, the token is verified
  * @author James <james.ellis@dpc.nsw.gov.au>
  */
-class RecaptchaV3Field extends HiddenField {
-
+class RecaptchaV3Field extends HiddenField
+{
     use HasVerifier;
 
     /**
@@ -94,10 +94,11 @@ class RecaptchaV3Field extends HiddenField {
      * @inheritdoc
      * Return rule attribute for visual validation
      */
-    public function getDefaultAttributes($attributes = null) : array {
-        $defaultAttributes = parent::getDefaultAttributes($attributes );
+    public function getDefaultAttributes($attributes = null) : array
+    {
+        $defaultAttributes = parent::getDefaultAttributes($attributes);
         $rule = $this->getRecaptchaV3Rule();
-        if($rule && $rule->exists()) {
+        if ($rule && $rule->exists()) {
             $defaultAttributes['data-rule'] = $rule->ID;
         }
         return $defaultAttributes;
@@ -122,8 +123,8 @@ class RecaptchaV3Field extends HiddenField {
      */
     public function setForm($form)
     {
-        if(!$this->recaptchaV3RuleTag) {
-            $this->setRecaptchaV3RuleTag( $form->getRecaptchaV3RuleTag() );
+        if (!$this->recaptchaV3RuleTag) {
+            $this->setRecaptchaV3RuleTag($form->getRecaptchaV3RuleTag());
         }
         return parent::setForm($form);
     }
@@ -144,7 +145,7 @@ class RecaptchaV3Field extends HiddenField {
      *
      * @return DBHTMLText
      */
-    public function FieldHolder($properties = array())
+    public function FieldHolder($properties = [])
     {
         $context = $this;
 
@@ -163,7 +164,8 @@ class RecaptchaV3Field extends HiddenField {
      * @param array $properties
      * @return string
      */
-    public function Field($properties = []) {
+    public function Field($properties = [])
+    {
         $field = parent::Field($properties);
         $this->addRequirements();
         return $field;
@@ -173,7 +175,8 @@ class RecaptchaV3Field extends HiddenField {
      * Override the execute action configuration
      * @returns RecaptchaV3Field
      */
-    public function setExecuteAction($action, $is_prefixed = false) {
+    public function setExecuteAction($action, $is_prefixed = false)
+    {
         $this->field_execute_action = $action;
         $this->has_prefixed_action = $is_prefixed;
         return $this;
@@ -183,7 +186,8 @@ class RecaptchaV3Field extends HiddenField {
      * Get the execution action for this field, if none is set use configuration
      * @returns string
      */
-    public function getExecuteAction() {
+    public function getExecuteAction()
+    {
         return $this->field_execute_action  ?
                 $this->field_execute_action :
                 $this->config()->get('execute_action');
@@ -194,12 +198,13 @@ class RecaptchaV3Field extends HiddenField {
      * If a rule is present, this value is used
      * @return string
      */
-    public function getRecaptchaAction() {
-        if($rule = $this->getRecaptchaV3Rule()) {
+    public function getRecaptchaAction()
+    {
+        if ($rule = $this->getRecaptchaV3Rule()) {
             $action = $rule->Action;
         } else {
             $prefix = "";
-            if(!$this->has_prefixed_action) {
+            if (!$this->has_prefixed_action) {
                 $prefix = $this->ID() . "/";
             }
             $action = $prefix . $this->getExecuteAction();
@@ -211,14 +216,16 @@ class RecaptchaV3Field extends HiddenField {
      * Returns the unique id to use in the customScript requirement
      * @returns string
      */
-    public function getUniqueId() {
+    public function getUniqueId()
+    {
         return "recaptcha_execute_{$this->ID()}";
     }
 
     /**
      * Set a score for this instance
      */
-    public function setScore($score) {
+    public function setScore($score)
+    {
         $score = TokenResponse::validateScore($score);
         $this->score = $score;
         return $this;
@@ -227,11 +234,12 @@ class RecaptchaV3Field extends HiddenField {
     /**
      * Score for field verification
      */
-    public function getScore() {
-        if($rule = $this->getRecaptchaV3Rule()) {
+    public function getScore()
+    {
+        if ($rule = $this->getRecaptchaV3Rule()) {
             // a rule score is an int between 0 and 100
             return round($rule->Score / 100, 2);
-        } else if(is_null($this->score)) {
+        } elseif (is_null($this->score)) {
             // use configured value if none set
             return Config::inst()->get(TokenResponse::class, 'score');
         } else {
@@ -245,8 +253,9 @@ class RecaptchaV3Field extends HiddenField {
      * when it calls self::setForm()
      * @return self
      */
-    public function setRecaptchaV3RuleTag(string $tag) : self {
-        if($this->recaptchaV3RuleTag && ($tag != $this->recaptchaV3RuleTag)) {
+    public function setRecaptchaV3RuleTag(string $tag) : self
+    {
+        if ($this->recaptchaV3RuleTag && ($tag != $this->recaptchaV3RuleTag)) {
             // invalidate the rule as the tag changed
             $this->rule = null;
         }
@@ -258,13 +267,14 @@ class RecaptchaV3Field extends HiddenField {
      * Return a rule defined by the tag set on this field
      * @return RecaptchaV3Rule|null
      */
-    public function getRecaptchaV3Rule() {
-        if(!$this->rule) {
-            if($tag = $this->recaptchaV3RuleTag) {
+    public function getRecaptchaV3Rule()
+    {
+        if (!$this->rule) {
+            if ($tag = $this->recaptchaV3RuleTag) {
                 $this->rule = RecaptchaV3Rule::getRuleByTag($tag);
             }
 
-            if($tag && !$this->rule && $this->config()->get('auto_create_rule') ) {
+            if ($tag && !$this->rule && $this->config()->get('auto_create_rule')) {
                 // create from tag but do not enable it
                 // for inspection by site owner who can enabled it manually
                 RecaptchaV3Rule::createFromTag($tag, false);
@@ -277,11 +287,12 @@ class RecaptchaV3Field extends HiddenField {
      * Get the requirements for this particular field
      * @returns void
      */
-    protected function addRequirements() {
+    protected function addRequirements()
+    {
         $site_key = $this->config()->get('site_key');
         Requirements::javascript($this->config()->get('script_render'). "?render={$site_key}", "recaptchav3_api_with_site_key");
         // load the template Javascript for this field
-        Requirements::customScript(  $this->actionScript(), $this->getUniqueId() );
+        Requirements::customScript($this->actionScript(), $this->getUniqueId());
     }
 
     /**
@@ -290,7 +301,8 @@ class RecaptchaV3Field extends HiddenField {
      * Tokens time out after 2 minutes, refreshing the token will assist in reducing token timeouts on longer forms
      * @returns string
      */
-    protected function actionScript() {
+    protected function actionScript()
+    {
         $site_key = $this->config()->get('site_key');
         $data = [
             'action' => $this->getRecaptchaAction()
@@ -308,7 +320,7 @@ class RecaptchaV3Field extends HiddenField {
          */
         $refresh_on_error = "";
 
-        if(($form = $this->getForm()) && ($errors = $form->getSessionValidationResult()) && !$errors->isValid()) {
+        if (($form = $this->getForm()) && ($errors = $form->getSessionValidationResult()) && !$errors->isValid()) {
             $refresh_on_error = "recaptcha_execute_handler(form);";
         }
 
@@ -367,7 +379,8 @@ JS;
      * Store data from the TokenResponse model in session
      * This will be cleared when Form::clearFormState() is called as it uses .data
      */
-    protected function storeResponseToSession($token, TokenResponse $response) {
+    protected function storeResponseToSession($token, TokenResponse $response)
+    {
         $request = Controller::curr()->getRequest();
         $session = $request->getSession();
         $data = [
@@ -377,30 +390,32 @@ JS;
             'hostname' => $response->getResponseHostname(),
             'action' => $response->getResponseAction()
         ];
-        $session->set( $this->config()->get('session_key'), $data);
+        $session->set($this->config()->get('session_key'), $data);
     }
 
     /**
      * Remove any previous session data
      */
-    protected function clearSessionResponse($session = null) {
+    protected function clearSessionResponse($session = null)
+    {
         $session = $session ?? Controller::curr()->getRequest()->getSession();
         $session_key = $this->config()->get('session_key');
-        $session->clear( $session_key );
+        $session->clear($session_key);
     }
 
     /**
      * Get response from session
      */
-    public function getResponseFromSession($key = "") {
+    public function getResponseFromSession($key = "")
+    {
         $request = Controller::curr()->getRequest();
         $session = $request->getSession();
         $session_key = $this->config()->get('session_key');
         // store score for this token to session
-        $data = $session->get( $session_key );//
+        $data = $session->get($session_key);//
         // clear session once retrieved
         $this->clearSessionResponse($session);
-        if(isset($data[$key])) {
+        if (isset($data[$key])) {
             return $data[$key];
         } else {
             return $data;
@@ -410,7 +425,8 @@ JS;
     /**
      * Return the message when possible spam/bot found
      */
-    public static function getMessagePossibleSpam() : string {
+    public static function getMessagePossibleSpam() : string
+    {
         return _t(
             'NSWDPC\SpamProtection.TOKEN_POSSIBLE_SPAM',
             'We have detected that the form may be a spam submission. Please try to submit the form again.'
@@ -420,7 +436,8 @@ JS;
     /**
      * Return the message when general failure occurs
      */
-    public static function getMessageGeneralFailure() : string {
+    public static function getMessageGeneralFailure() : string
+    {
         return _t(
             'NSWDPC\SpamProtection.TOKEN_VERIFICATION_GENERAL_ERROR',
             'Sorry, the form submission failed. You may like to try again.'
@@ -430,7 +447,8 @@ JS;
     /**
      * Return the message when a timeout occurs
      */
-    public static function getMessageTimeout() : string {
+    public static function getMessageTimeout() : string
+    {
         return _t(
             'NSWDPC\SpamProtection.TOKEN_TIMEOUT',
             'Please check the information provided and submit the form again.'
@@ -454,8 +472,8 @@ JS;
             // the token set by the script in executionScript()
             $token = $this->Value();
             // no token submitted with form
-            if(!$token) {
-                throw new \Exception( "No token for this field ({$this->getName()})" );
+            if (!$token) {
+                throw new \Exception("No token for this field ({$this->getName()})");
             }
 
             $rule = $this->getRecaptchaV3Rule();
@@ -464,40 +482,38 @@ JS;
             $response = $verifier->check($token, $this->getScore(), $action);
 
             // handle the response when it is a {@link NSWDPC\SpamProtection\TokenResponse}
-            if($response instanceof TokenResponse) {
+            if ($response instanceof TokenResponse) {
                 // successful verification
-                if($response->isValid()) {
+                if ($response->isValid()) {
                     // store token response score
                     $this->storeResponseToSession($token, $response);
                     // all good
                     $this->setSubmittedValue("");
                     return true;
-                } else if($response->isTimeout()) {
+                } elseif ($response->isTimeout()) {
                     // on timeout always prompt for revalidation, in order to get a valid result to inspect
-                    throw new RecaptchaVerificationException( self::getMessageTimeout() );
-                } else if( $rule ) {
+                    throw new RecaptchaVerificationException(self::getMessageTimeout());
+                } elseif ($rule) {
                     // Work out what action to take
-                    switch($rule->ActionToTake) {
+                    switch ($rule->ActionToTake) {
                         case RecaptchaV3Rule::TAKE_ACTION_ALLOW:
                         case RecaptchaV3Rule::TAKE_ACTION_CAUTION:
                             Logger::log("RecaptchaV3 verification failed. Passing validation as rule '{$rule->Tag}' sets actiontotake={$rule->ActionToTake}", "NOTICE");
                             return true;
                             break;
                         default:
-                            throw new RecaptchaVerificationException( self::getMessagePossibleSpam() );
+                            throw new RecaptchaVerificationException(self::getMessagePossibleSpam());
                             break;
                     }
                 } else {
                     // No rule, fall back to BLOCK (prompt to resubmit)
-                    throw new RecaptchaVerificationException( self::getMessagePossibleSpam() );
+                    throw new RecaptchaVerificationException(self::getMessagePossibleSpam());
                 }
                 // end - TokenResponse handling
-
             } else {
                 // general failure
                 throw new \Exception("Verification failed - no/bad response from verify API");
             }
-
         } catch (RecaptchaVerificationException $e) {
             // catch actual verification fails
             $message = $e->getMessage();
@@ -506,11 +522,10 @@ JS;
             $message = self::getMessageGeneralFailure();
         }
         // set error on form
-        $this->getForm()->sessionError( $message );
-        $validator->validationError( $this->getName(), $message, ValidationResult::TYPE_ERROR );
+        $this->getForm()->sessionError($message);
+        $validator->validationError($this->getName(), $message, ValidationResult::TYPE_ERROR);
         $this->setSubmittedValue("");
         // fail validation
         return false;
     }
-
 }

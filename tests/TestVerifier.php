@@ -10,8 +10,8 @@ use NSWDPC\SpamProtection\Verifier;
  * @see https://developers.google.com/recaptcha/docs/v3
 
  */
-class TestVerifier extends Verifier {
-
+class TestVerifier extends Verifier
+{
     const RESPONSE_HUMAN_SCORE = 0.9;
     const RESPONSE_BOT_SCORE = 0.1;
 
@@ -28,9 +28,10 @@ class TestVerifier extends Verifier {
     /**
      * @return bool
      */
-    public function setIsHuman(bool $is) {
+    public function setIsHuman(bool $is)
+    {
         $this->responseValue = $is;
-        if($is) {
+        if ($is) {
             $this->responseScore = self::RESPONSE_HUMAN_SCORE;
             $this->responseValue = true;
         } else {
@@ -43,16 +44,16 @@ class TestVerifier extends Verifier {
     /**
      * Get a test response emulating a successful request
      */
-    public function getTestResponse($action) : array {
-
+    public function getTestResponse($action) : array
+    {
         $dt = new \DateTime();
         $dt->modify('-15 seconds');
-        $timestamp = $dt->format( \DateTimeInterface::ISO8601 );
+        $timestamp = $dt->format(\DateTimeInterface::ISO8601);
 
         $success = true;
         $hostname = "localhost";
         $errorcodes = [];
-        if(!$this->responseValue) {
+        if (!$this->responseValue) {
             $errorcodes[] = 'an-error-code';
         }
 
@@ -72,8 +73,9 @@ class TestVerifier extends Verifier {
      * Create a test verification response with whatever settings are present on this instance
      * @inheritdoc
      */
-    public function check($token, $score = null, $action = "") {
+    public function check($token, $score = null, $action = "")
+    {
         $decoded = $this->getTestResponse($action);
-        return new TokenResponse( $decoded, $score, $action );
+        return new TokenResponse($decoded, $score, $action);
     }
 }

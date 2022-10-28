@@ -20,7 +20,8 @@ use SilverStripe\ORM\ValidationException;
  * Custom rules model for form spam protection, accessed via tags
  * @author James
  */
-class RecaptchaV3Rule extends DataObject implements PermissionProvider {
+class RecaptchaV3Rule extends DataObject implements PermissionProvider
+{
 
     /**
      * @var string
@@ -113,9 +114,10 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
     /**
      * Check if a Tag exists
      */
-    public function checkTagExists(string $tag) : bool {
+    public function checkTagExists(string $tag) : bool
+    {
         $tags = RecaptchaV3Rule::get()->filter(['Tag' => $tag]);
-        if($this->exists()) {
+        if ($this->exists()) {
             $tags = $tags->exclude(['ID' => $this->ID]);
         }
         return $tags->count() > 0;
@@ -124,7 +126,8 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
     /**
      * Get all enabled rules
      */
-    public static function getEnabledRules() : DataList {
+    public static function getEnabledRules() : DataList
+    {
         return RecaptchaV3Rule::get()
                 ->filter(['Enabled' => 1])
                 ->sort('Tag ASC');
@@ -134,7 +137,8 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
      * Get an **enabled** rule based on a tag
      * @return RecaptchaV3Rule|null
      */
-    public static function getRuleByTag(string $tag) {
+    public static function getRuleByTag(string $tag)
+    {
         $tags = self::getEnabledRules();
         $tag = $tags->filter(['Tag' => $tag])->first();
         return $tag;
@@ -146,9 +150,10 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
      * @param string $tag the tag to assign to a Rule
      * @param bool $enabled whether the rule created will be enabled
      */
-    public static function createFromTag(string $tag, bool $enabled = false) : self {
+    public static function createFromTag(string $tag, bool $enabled = false) : self
+    {
         $rule = RecaptchaV3Rule::get()->filter(['Tag' => $tag])->first();
-        if(!empty($rule->ID)) {
+        if (!empty($rule->ID)) {
             return $rule;
         } else {
             $rule = RecaptchaV3Rule::create([
@@ -166,24 +171,26 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
     /**
      * Auto title, as tag value
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->Tag;
     }
 
     /**
      * Return enabled as yes/no
      */
-    public function getEnabledNice() : string {
+    public function getEnabledNice() : string
+    {
         return $this->Enabled == 1 ?
             _t("NSWDPC\SpamProtection.ENABLED_YES", "Yes") :
             _t("NSWDPC\SpamProtection.ENABLED_NO", "No");
-
     }
 
     /**
      * Detailed version of record, use in Dropdown map()
      */
-    public function getTagDetailed() {
+    public function getTagDetailed()
+    {
         return _t(
             "NSWDPC\SpamProtection.RECAPTCHAV3_TAG_DETAILED",
             "Tag: {tag}, Score: {score}, Enabled: {enabled}, Action: {action}, Action to take: {actionToTake}",
@@ -200,11 +207,12 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
     /**
      * Define CMS fields
      */
-    public function getCMSFields() {
+    public function getCMSFields()
+    {
         $fields = parent::getCMSFields();
 
         // if there is no score yet, use the default
-        if(is_null($this->Score) || $this->Score < 0 || $this->Score > 100) {
+        if (is_null($this->Score) || $this->Score < 0 || $this->Score > 100) {
             $this->Score = RecaptchaV3SpamProtector::getDefaultThreshold();
         }
 
@@ -232,8 +240,8 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
 
         // Provide an option to select a tag
         $systemTags = $this->config()->get('system_tags');
-        if(!empty($systemTags)) {
-            foreach($systemTags as $systemTag) {
+        if (!empty($systemTags)) {
+            foreach ($systemTags as $systemTag) {
                 $selectTagOptions[ $systemTag ] = $systemTag;
             }
             $selectTag = DropdownField::create(
@@ -299,7 +307,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
                 'Whether this rule was auto-created by the system'
             )
         )->performReadonlyTransformation();
-        if($this->AutoCreated) {
+        if ($this->AutoCreated) {
             $autoCreatedField->setDescription(
                 _t(
                     "NSWDPC\SpamProtection.RECAPTCHAV3_IS_AUTOCREATED_DESCRIPTION",
@@ -309,7 +317,8 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
         }
 
         $fields->addFieldsToTab(
-            'Root.Main', [
+            'Root.Main',
+            [
                 $enabledField,
                 $rangeField,
                 $actionField,
@@ -321,7 +330,6 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
         $fields->insertBefore($autoCreatedField, 'Action');
 
         return $fields;
-
     }
 
     /**
@@ -331,18 +339,18 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
     {
         parent::onBeforeWrite();
 
-        if($this->SelectTag) {
+        if ($this->SelectTag) {
             $this->Tag = $this->SelectTag;
         }
 
-        if(!$this->Tag) {
+        if (!$this->Tag) {
             throw new ValidationException(
                 _t(
                     "NSWDPC\SpamProtection.TAG_REQUIRED_FOR_RULE",
                     "This rule requires a tag"
                 )
             );
-        } else if($this->checkTagExists( $this->Tag )) {
+        } elseif ($this->checkTagExists($this->Tag)) {
             throw new ValidationException(
                 _t(
                     "NSWDPC\SpamProtection.TAG_EXISTS_ERROR",
@@ -355,22 +363,21 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
         }
 
         // Use the default threshold score from config if the saved score is out of bounds
-        if(is_null($this->Score) || $this->Score < 0 || $this->Score > 100) {
+        if (is_null($this->Score) || $this->Score < 0 || $this->Score > 100) {
             $this->Score = RecaptchaV3SpamProtector::getDefaultThreshold();
         }
 
         // If no action specified, use the tag name
-        if(!$this->Action) {
+        if (!$this->Action) {
             $this->Action = $this->Tag;
         }
 
         // remove disallowed characters, store the action in lowercase
         $this->Action = strtolower(TokenResponse::formatAction($this->Action));
 
-        if(!$this->ActionToTake) {
+        if (!$this->ActionToTake) {
             $this->ActionToTake = self::TAKE_ACTION_BLOCK;
         }
-
     }
 
     /**
@@ -429,5 +436,4 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider {
             ]
         ];
     }
-
 }

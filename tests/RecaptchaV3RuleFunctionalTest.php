@@ -80,19 +80,18 @@ class RecaptchaV3RuleFunctionalTest extends FunctionalTest
         $template = $field->Field()->RAW();
         $this->assertStringContainsString("data-rule=\"{$rule->ID}\"", $template);
 
-        $this->assertInstanceOf(TestVerifier::class,  $field->getVerifier(), "Field verifier is a TestVerifier");
+        $this->assertInstanceOf(TestVerifier::class, $field->getVerifier(), "Field verifier is a TestVerifier");
 
         // Submit the form
         $response = $this->get('TestRecaptchaV3FormWithRuleController');
         $submitResponse = $this->submitForm($form->FormName(), 'action_testRecaptchaVerify', []);
         $sessionResponse = $field->getResponseFromSession();
 
-        $this->assertNotEmpty( $sessionResponse, 'Session response is not empty' );
-        $this->assertEquals( $field->Value(), $sessionResponse['token'] );
-        $this->assertEquals( TestVerifier::RESPONSE_HUMAN_SCORE, $sessionResponse['score'] );
-        $this->assertEquals( 'localhost', $sessionResponse['hostname'] );
-        $this->assertEquals( $rule->Action, $sessionResponse['action'] );
-        $this->assertEquals( round($rule->Score / 100, 2), $sessionResponse['threshold'] );
+        $this->assertNotEmpty($sessionResponse, 'Session response is not empty');
+        $this->assertEquals($field->Value(), $sessionResponse['token']);
+        $this->assertEquals(TestVerifier::RESPONSE_HUMAN_SCORE, $sessionResponse['score']);
+        $this->assertEquals('localhost', $sessionResponse['hostname']);
+        $this->assertEquals($rule->Action, $sessionResponse['action']);
+        $this->assertEquals(round($rule->Score / 100, 2), $sessionResponse['threshold']);
     }
-
 }

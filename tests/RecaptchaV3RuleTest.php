@@ -33,8 +33,8 @@ class RecaptchaV3RuleTest extends SapphireTest
         ]
     ];
 
-    public function testRecaptchaV3Rule() {
-
+    public function testRecaptchaV3Rule()
+    {
         $rule = RecaptchaV3Rule::create([
             'Tag' => 'testrule',
             'Enabled' => 1,
@@ -44,12 +44,11 @@ class RecaptchaV3RuleTest extends SapphireTest
         ]);
         $id = $rule->write();
 
-        $this->assertNotEmpty( $id, 'Rule 1 was created' );
-
+        $this->assertNotEmpty($id, 'Rule 1 was created');
     }
 
-    public function testRecaptchaV3RuleDuplicate() {
-
+    public function testRecaptchaV3RuleDuplicate()
+    {
         $rule = RecaptchaV3Rule::create([
             'Tag' => 'test2rule',
             'Enabled' => 1,
@@ -59,7 +58,7 @@ class RecaptchaV3RuleTest extends SapphireTest
         ]);
         $id = $rule->write();
 
-        $this->assertNotEmpty( $id, 'Rule 2 was created' );
+        $this->assertNotEmpty($id, 'Rule 2 was created');
 
         try {
             $rule = RecaptchaV3Rule::create([
@@ -83,14 +82,13 @@ class RecaptchaV3RuleTest extends SapphireTest
                 'Validation exception was found with correct duplicate rule text'
             );
         }
-
     }
 
     /**
      * test a rule cannot be empty
      */
-    public function testRecaptchaV3RuleEmpty() {
-
+    public function testRecaptchaV3RuleEmpty()
+    {
         try {
             $rule = RecaptchaV3Rule::create([
                 'Tag' => '',
@@ -110,15 +108,13 @@ class RecaptchaV3RuleTest extends SapphireTest
                 'Validation exception was found with correct empty rule text'
             );
         }
-
     }
 
 
-    public function testRecaptchaV3RulesEnabled() {
-
+    public function testRecaptchaV3RulesEnabled()
+    {
         $total = 3;
-        for($i = 0; $i < $total; $i++) {
-
+        for ($i = 0; $i < $total; $i++) {
             $rule = RecaptchaV3Rule::create([
                 'Tag' => "test{$i}rule",
                 'Enabled' => 1,
@@ -132,11 +128,10 @@ class RecaptchaV3RuleTest extends SapphireTest
         $rules = RecaptchaV3Rule::getEnabledRules();
 
         $this->assertEquals($total, $rules->count(), "Rules={$total}");
-
     }
 
-    public function testRecaptchaV3RuleByTag() {
-
+    public function testRecaptchaV3RuleByTag()
+    {
         $rule = RecaptchaV3Rule::create([
             'Tag' => "testenabledrule",
             'Enabled' => 1,
@@ -151,10 +146,10 @@ class RecaptchaV3RuleTest extends SapphireTest
 
         $result = $rule->checkTagExists("testenabledrule");
         $this->assertFalse($result, "checkTagExists returns false when called from existing rule");
-
     }
 
-    public function testRecaptchaV3SystemTag() {
+    public function testRecaptchaV3SystemTag()
+    {
         $sysTags = [
             'tag1',
             'tag2',
@@ -180,15 +175,14 @@ class RecaptchaV3RuleTest extends SapphireTest
     /**
      * Test rule auto creation
      */
-    public function testAutoCreateRule() {
+    public function testAutoCreateRule()
+    {
         $tag = "testautocreate";
         $rule = RecaptchaV3Rule::createFromTag($tag, false);
-        $this->assertInstanceOf( RecaptchaV3Rule::class, $rule );
+        $this->assertInstanceOf(RecaptchaV3Rule::class, $rule);
         $this->assertEquals(0, $rule->Enabled, "Rule is not enabled");
         $this->assertEquals($tag, $rule->Tag, "Rule is not enabled");
         $this->assertEquals(RecaptchaV3Rule::TAKE_ACTION_BLOCK, $rule->ActionToTake);
         $this->assertEquals(RecaptchaV3SpamProtector::getDefaultThreshold(), $rule->Score);
     }
-
-
 }

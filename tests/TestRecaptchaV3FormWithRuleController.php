@@ -41,7 +41,8 @@ class TestRecaptchaV3FormWithRuleController extends Controller implements TestOn
     /**
      * @return Form
      */
-    public function Form() {
+    public function Form()
+    {
         return $this->TestFormSubmissionWithRule();
     }
 
@@ -49,7 +50,8 @@ class TestRecaptchaV3FormWithRuleController extends Controller implements TestOn
      * Return the form using the spamprotection extension to create the field
      * @return Form
      */
-    public function TestFormSubmissionWithRule() {
+    public function TestFormSubmissionWithRule()
+    {
         $form = Form::create(
             $this,
             "TestFormSubmissionWithRule",
@@ -65,10 +67,10 @@ class TestRecaptchaV3FormWithRuleController extends Controller implements TestOn
 
         // Use FormSpamProtectionExtension
         $form->enableSpamProtection($options);
-        $recaptchaField = $form->HiddenFields()->dataFieldByName( $options['name'] );
+        $recaptchaField = $form->HiddenFields()->dataFieldByName($options['name']);
         // use the TestVerifier
         $verifier = TestVerifier::create();
-        $verifier->setIsHuman( true );
+        $verifier->setIsHuman(true);
         $recaptchaField->setVerifier($verifier);
         $recaptchaField->setValue(self::FIELD_VALUE);
         return $form;
@@ -84,6 +86,6 @@ class TestRecaptchaV3FormWithRuleController extends Controller implements TestOn
 
     public function getViewer($action = null)
     {
-        return new SSViewer( $this->template );
+        return new SSViewer($this->template);
     }
 }

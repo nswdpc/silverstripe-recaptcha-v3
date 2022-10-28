@@ -11,7 +11,6 @@ use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\View\SSViewer;
 
-
 /**
  * Test interaction with a simulated bot request
  * @author James
@@ -43,18 +42,20 @@ class TestRecaptchaV3FormBotController extends Controller implements TestOnly
     /**
      * @return Form
      */
-    public function Form() {
+    public function Form()
+    {
         return $this->RecaptchaV3BotTestForm();
     }
 
     /**
      * @return Form
      */
-    public function RecaptchaV3BotTestForm() {
+    public function RecaptchaV3BotTestForm()
+    {
 
         // Create a mock test verifier
         $verifier = TestVerifier::create();
-        $verifier->setIsHuman( false );
+        $verifier->setIsHuman(false);
 
         // Create field, set verifier as TestVerifier
         $field = RecaptchaV3Field::create('FunctionalVerificationTestBot');
@@ -89,6 +90,6 @@ class TestRecaptchaV3FormBotController extends Controller implements TestOnly
 
     public function getViewer($action = null)
     {
-        return new SSViewer( $this->template );
+        return new SSViewer($this->template);
     }
 }

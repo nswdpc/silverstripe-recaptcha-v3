@@ -42,18 +42,20 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
     /**
      * @return Form
      */
-    public function Form() {
+    public function Form()
+    {
         return $this->RecaptchaV3HumanTestForm();
     }
 
     /**
      * @return Form
      */
-    public function RecaptchaV3HumanTestForm() {
+    public function RecaptchaV3HumanTestForm()
+    {
 
         // Create a mock test verifier
         $verifier = TestVerifier::create();
-        $verifier->setIsHuman( true );
+        $verifier->setIsHuman(true);
 
         // Create field, set verifier as TestVerifier
         $field = RecaptchaV3Field::create('FunctionalVerificationTestHuman');
@@ -88,6 +90,6 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
 
     public function getViewer($action = null)
     {
-        return new SSViewer( $this->template );
+        return new SSViewer($this->template);
     }
 }

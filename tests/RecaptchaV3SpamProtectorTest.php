@@ -18,26 +18,27 @@ use SilverStripe\Forms\TextField;
  */
 class RecaptchaV3SpamProtectorTest extends SapphireTest
 {
-
     protected $usesDatabase = false;
 
-    public function testDefaultThreshold() {
+    public function testDefaultThreshold()
+    {
         TokenResponse::config()->set('score', 0.7);
         $score = TokenResponse::getDefaultScore();
         $default = RecaptchaV3SpamProtector::getDefaultThreshold();
         $score = $score * 100;
-        $this->assertEquals( $score, $default, "Default should equal {$score}");
-
+        $this->assertEquals($score, $default, "Default should equal {$score}");
     }
 
-    public function testRange() {
+    public function testRange()
+    {
         $range = RecaptchaV3SpamProtector::getRange();
         $this->assertEquals(21, count($range));
     }
     /**
      * Test the range field return value
      */
-    public function testRangeField() {
+    public function testRangeField()
+    {
         $field = RecaptchaV3SpamProtector::getRangeField(100, 'test');
         $this->assertInstanceOf(DropdownField::class, $field);
     }
@@ -45,7 +46,8 @@ class RecaptchaV3SpamProtectorTest extends SapphireTest
     /**
      * Test the range composite field return value
      */
-    public function testRangeCompositeField() {
+    public function testRangeCompositeField()
+    {
         $field = RecaptchaV3SpamProtector::getRangeCompositeField(100, 'test');
         $this->assertInstanceOf(CompositeField::class, $field);
     }
@@ -53,10 +55,9 @@ class RecaptchaV3SpamProtectorTest extends SapphireTest
     /**
      * Test the custom action field
      */
-    public function testActionField() {
+    public function testActionField()
+    {
         $field = RecaptchaV3SpamProtector::getActionField('CustomAction', 'Custom action');
         $this->assertInstanceOf(TextField::class, $field);
     }
-
-
 }

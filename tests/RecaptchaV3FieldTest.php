@@ -23,14 +23,16 @@ class RecaptchaV3FieldTest extends SapphireTest
     /**
      * @inheritdoc
      */
-    public function setUp() : void {
+    public function setUp() : void
+    {
         parent::setUp();
     }
 
     /**
      * Get a test field from the RecaptchaV3SpamProtector
      */
-    public function testField() {
+    public function testField()
+    {
         $protector = new RecaptchaV3SpamProtector();
         $executeAction = 'prefix/testaction';
         $threshold = 55;
@@ -40,9 +42,9 @@ class RecaptchaV3FieldTest extends SapphireTest
         $protector->setFieldMapping($fieldMapping);
         $field = $protector->getFormField('Test', 'Test');
 
-        $this->assertInstanceOf( RecaptchaV3Field::class, $field, 'Field is a RecaptchaV3Field' );
-        $this->assertEquals( $executeAction, $field->getRecaptchaAction(), 'Execute action is correct' );
-        $this->assertEquals( round($threshold / 100, 2),  $field->getScore(), "Score is correct" );
+        $this->assertInstanceOf(RecaptchaV3Field::class, $field, 'Field is a RecaptchaV3Field');
+        $this->assertEquals($executeAction, $field->getRecaptchaAction(), 'Execute action is correct');
+        $this->assertEquals(round($threshold / 100, 2), $field->getScore(), "Score is correct");
     }
 
     /**
@@ -67,16 +69,17 @@ class RecaptchaV3FieldTest extends SapphireTest
 
         $recaptchaAction = $field->getRecaptchaAction();
 
-        $this->assertEquals( $field->ID() . "/" . $expectedAction, $recaptchaAction);
-
+        $this->assertEquals($field->ID() . "/" . $expectedAction, $recaptchaAction);
     }
 
-    public function testUniqueID() {
+    public function testUniqueID()
+    {
         $field = RecaptchaV3Field::create('TestUniqID', 'UniqID test');
         $this->assertEquals("recaptcha_execute_TestUniqID", $field->getUniqueId());
     }
 
-    public function testSetScore() {
+    public function testSetScore()
+    {
         $field = RecaptchaV3Field::create('TestSetScore', 'Set score test');
         $field->setScore(0.7);
         $score = $field->getScore();
@@ -99,13 +102,11 @@ class RecaptchaV3FieldTest extends SapphireTest
         } catch (\Exception $e) {
             $this->assertEquals("Score should be a number between 0.0 and 1.0", $e->getMessage());
         }
-
     }
 
-    public function testVerifier() {
+    public function testVerifier()
+    {
         $field = RecaptchaV3Field::create('TestVerifier', 'Test verifier');
         $this->assertEquals(Verifier::class, get_class($field->getVerifier()));
     }
-
-
 }

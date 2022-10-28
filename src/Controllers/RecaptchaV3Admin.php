@@ -32,5 +32,4 @@ class RecaptchaV3Admin extends ModelAdmin
     private static $managed_models = [
         RecaptchaV3Rule::class
     ];
-
 }

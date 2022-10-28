@@ -8,7 +8,8 @@ use Silverstripe\Core\Extension;
  * Get a form spam rule for this form
  * @author James
  */
-class FormExtension extends Extension {
+class FormExtension extends Extension
+{
 
     /**
      * Get the tag to use for this form, for the purpose of finding
@@ -23,16 +24,18 @@ class FormExtension extends Extension {
      *
      * @return string
      */
-    public function getRecaptchaV3RuleTag() : string {
+    public function getRecaptchaV3RuleTag() : string
+    {
         $tag = '';
         // Allow a form to specify a tag via code
-        if( $this->owner->hasMethod('getRecaptchaV3Tag') ) {
+        if ($this->owner->hasMethod('getRecaptchaV3Tag')) {
             $tag = $this->owner->getRecaptchaV3Tag();
         }
-        if(!$tag) {
+        if (!$tag) {
             $tag = $this->owner->FormName();
         }
         $tag = strtolower($tag);
         return $tag;
-;    }
+        ;
+    }
 }

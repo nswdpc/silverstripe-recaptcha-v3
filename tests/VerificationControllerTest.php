@@ -29,7 +29,7 @@ class VerificationControllerTest extends FunctionalTest
         parent::setUp();
         // default 'middle' score
         TokenResponse::config()->set('score', 0.5);
-        Config::inst()->update( VerificationController::class, 'enabled', true);
+        Config::inst()->update(VerificationController::class, 'enabled', true);
     }
 
     /**
@@ -42,7 +42,8 @@ class VerificationControllerTest extends FunctionalTest
         $verifier = TestVerifier::create();
         $verifier->setIsHuman(true);
         Injector::inst()->registerService(
-            $verifier, Verifier::class
+            $verifier,
+            Verifier::class
         );
 
         $token = 'test-human-response';
@@ -61,10 +62,9 @@ class VerificationControllerTest extends FunctionalTest
         $body = $response->getBody();
         $decoded = json_decode($body, true);
 
-        $this->assertEquals(0.9, $decoded['threshold'], 'Threshold is as requested' );
-        $this->assertEquals(TestVerifier::RESPONSE_HUMAN_SCORE, $decoded['score'], 'Response score is a human score' );
-        $this->assertEquals(200, $response->getStatusCode(), 'Response is 200' );
-
+        $this->assertEquals(0.9, $decoded['threshold'], 'Threshold is as requested');
+        $this->assertEquals(TestVerifier::RESPONSE_HUMAN_SCORE, $decoded['score'], 'Response score is a human score');
+        $this->assertEquals(200, $response->getStatusCode(), 'Response is 200');
     }
 
     /**
@@ -77,7 +77,8 @@ class VerificationControllerTest extends FunctionalTest
         $verifier = TestVerifier::create();
         $verifier->setIsHuman(true);
         Injector::inst()->registerService(
-            $verifier, Verifier::class
+            $verifier,
+            Verifier::class
         );
 
         $token = 'test-human-response';
@@ -95,10 +96,9 @@ class VerificationControllerTest extends FunctionalTest
         $body = $response->getBody();
         $decoded = json_decode($body, true);
 
-        $this->assertEquals(0.5, $decoded['threshold'], 'Threshold is as configured' );
-        $this->assertEquals(TestVerifier::RESPONSE_HUMAN_SCORE, $decoded['score'], 'Response score is a human score' );
-        $this->assertEquals(200, $response->getStatusCode(), 'Response is 200' );
-
+        $this->assertEquals(0.5, $decoded['threshold'], 'Threshold is as configured');
+        $this->assertEquals(TestVerifier::RESPONSE_HUMAN_SCORE, $decoded['score'], 'Response score is a human score');
+        $this->assertEquals(200, $response->getStatusCode(), 'Response is 200');
     }
 
     /**
@@ -112,7 +112,8 @@ class VerificationControllerTest extends FunctionalTest
         $verifier->setIsHuman(false);
 
         Injector::inst()->registerService(
-            $verifier, Verifier::class
+            $verifier,
+            Verifier::class
         );
 
         $token = 'test-bot-response';
@@ -131,10 +132,9 @@ class VerificationControllerTest extends FunctionalTest
         $body = $response->getBody();
         $decoded = json_decode($body, true);
 
-        $this->assertEquals(TestVerifier::RESPONSE_BOT_SCORE, $decoded['score'], 'Score is a bot score' );
-        $this->assertEquals(0.9, $decoded['threshold'], 'Threshold is as requested' );
-        $this->assertContains('an-error-code', $decoded['errorcodes'], 'Score is a bot score' );
-        $this->assertEquals(400, $response->getStatusCode(), 'Response is 400' );
-
+        $this->assertEquals(TestVerifier::RESPONSE_BOT_SCORE, $decoded['score'], 'Score is a bot score');
+        $this->assertEquals(0.9, $decoded['threshold'], 'Threshold is as requested');
+        $this->assertContains('an-error-code', $decoded['errorcodes'], 'Score is a bot score');
+        $this->assertEquals(400, $response->getStatusCode(), 'Response is 400');
     }
 }
