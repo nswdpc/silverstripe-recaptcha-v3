@@ -32,6 +32,11 @@ class FormExtension extends Extension
             $tag = $this->owner->getRecaptchaV3Tag();
         }
         if (!$tag) {
+            // allow a form to set a tag via config API
+            $tag = $this->owner->config()->get('captcha_tag');
+        }
+        if(!$tag) {
+            // fall back to form name
             $tag = $this->owner->FormName();
         }
         $tag = strtolower($tag);

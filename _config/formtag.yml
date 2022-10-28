@@ -1,0 +1,9 @@
+---
+Name: nswdpc_recaptchav3_spamprotection_formtag
+---
+SilverStripe\Security\LoginForm:
+  captcha_tag: login
+SilverStripe\Security\MemberAuthenticator\LostPasswordForm:
+  captcha_tag: lostpassword
+SilverStripe\Security\MemberAuthenticator\ChangePasswordForm:
+  captcha_tag: changepassword
