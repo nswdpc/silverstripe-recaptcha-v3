@@ -17,7 +17,7 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\ValidationException;
 
 /**
- * Custom rules model for reCAPTCHAv3, accessed via tags
+ * Custom rules model for form spam protection, accessed via tags
  * @author James
  */
 class RecaptchaV3Rule extends DataObject implements PermissionProvider {
