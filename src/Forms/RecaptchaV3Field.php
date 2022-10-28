@@ -269,6 +269,7 @@ class RecaptchaV3Field extends HiddenField
      */
     public function getRecaptchaV3Rule()
     {
+        $tag = "";
         if (!$this->rule) {
             if ($tag = $this->recaptchaV3RuleTag) {
                 $this->rule = RecaptchaV3Rule::getRuleByTag($tag);
