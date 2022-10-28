@@ -92,6 +92,19 @@ class RecaptchaV3Field extends HiddenField {
 
     /**
      * @inheritdoc
+     * Return rule attribute for visual validation
+     */
+    public function getDefaultAttributes($attributes = null) : array {
+        $defaultAttributes = parent::getDefaultAttributes($attributes );
+        $rule = $this->getRecaptchaV3Rule();
+        if($rule && $rule->exists()) {
+            $defaultAttributes['data-rule'] = $rule->ID;
+        }
+        return $defaultAttributes;
+    }
+
+    /**
+     * @inheritdoc
      *
      * Automatically sets the tag to be used for rule retrieval if none has been set on the field
      * See {@link FormExtension::getRecaptchaV3RuleTag()}
