@@ -16,7 +16,7 @@ If no custom rules are added or found, the default threshold values are used.
 1. Choose an action to take - Block, Caution or Allow. The latter two will log failed requests at notice level and allow the submission
 1. Choose a threshold from 0 (block nothing) to 100 (block everything)
 
-❕ Importantly, adding a rule with a tag does not automatically add a captcha field to a form. The form must have a captcha field added to it or use `enableSpamProtection()` via the Silverstripe spam protector to make use of a rule. Adding a captcha field to a form is a decision to be made at a project level.
+💡 Importantly, adding a rule with a tag does not automatically add a captcha field to a form. The form must have a captcha field added to it or use `enableSpamProtection()` via the Silverstripe spam protector to make use of a rule. Adding a captcha field to a form is a decision to be made at a project level.
 
 ## Choosing a tag
 
