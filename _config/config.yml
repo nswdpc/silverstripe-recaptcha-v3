@@ -27,8 +27,4 @@ NSWDPC\SpamProtection\TurnstileField:
   # Provided by the Turnstile admin project
   site_key: ''
   # Global action prefix for the field
-  execute_action: 'submit'
-NSWDPC\SpamProtection\TurnstileSpamProtector:
-  # How the badge is displayed
-  # Options: '','field','form','page'
-  badge_display: ''
+  execute_action: 'submit''

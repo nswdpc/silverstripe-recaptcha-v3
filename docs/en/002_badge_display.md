@@ -1,4 +1,6 @@
 # Badge display
+
+(reCAPTCHA only)
  
 You can place the badge in one of four locations using the `NSWDPC\SpamProtection\RecaptchaV3SpamProtector.badge_display` configuration value:
 
