@@ -10,12 +10,11 @@ use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\View\SSViewer;
 
-
 /**
- * Test interaction with a simulated bot request
+ * Test controller containing a form with action and a single TurnstileField
  * @author James
  */
-class TestRecaptchaV3FormBotController extends Controller implements TestOnly
+class TestTurnstileFormHumanController extends Controller implements TestOnly
 {
 
     /**
@@ -26,45 +25,44 @@ class TestRecaptchaV3FormBotController extends Controller implements TestOnly
     /**
      * @var string
      */
-    private static $url_segment = 'TestRecaptchaV3FormBotController';
+    private static $url_segment = 'TestTurnstileFormHumanController';
 
     /**
      * @var array
      */
     private static $allowed_actions = [
         'Form',
-        'RecaptchaV3BotTestForm',
-        'testRecaptchaVerify'
+        'TurnstileHumanTestForm'
     ];
 
     /**
      * @return Form
      */
     public function Form() {
-        return $this->RecaptchaV3BotTestForm();
+        return $this->TurnstileHumanTestForm();
     }
 
     /**
      * @return Form
      */
-    public function RecaptchaV3BotTestForm() {
+    public function TurnstileHumanTestForm() {
 
         // Create a mock test verifier
-        $verifier = TestVerifier::create();
-        $verifier->setIsHuman( false );
+        $verifier = TestTurnstileVerifier::create();
+        $verifier->setIsHuman( true );
 
-        $field = TestRecaptchaV3Field::create('FunctionalVerificationTestBot');
-        $field->setExecuteAction("bottest/submit", true);
+        $field = TestTurnstileField::create('FunctionalVerificationTestHuman');
+        $field->setExecuteAction("humantest_submit", true);
         $field->setVerifier($verifier);
 
         return Form::create(
             $this,
-            "RecaptchaV3BotTestForm",
+            "TurnstileHumanTestForm",
             FieldList::create(
                 $field
             ),
             FieldList::create(
-                FormAction::create("testRecaptchaVerify")
+                FormAction::create("testTurnstileVerify")
             )
         );
     }
@@ -72,7 +70,7 @@ class TestRecaptchaV3FormBotController extends Controller implements TestOnly
     /**
      * store data on submission
      */
-    public function testRecaptchaVerify($data, $form = null)
+    public function testTurnstileVerify($data, $form = null)
     {
         return $this->redirectBack();
     }

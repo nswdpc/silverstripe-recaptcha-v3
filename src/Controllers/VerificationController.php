@@ -7,6 +7,7 @@ use Silverstripe\Control\Controller;
 use Silverstripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Injector\Injector;
 
 
 /**
@@ -15,7 +16,8 @@ use SilverStripe\Core\Config\Config;
  * Note that if you check a token that is already checked you will get
  * a 'timeout-or-duplicate' error
  * This controller can be used for non form submission actions, e.g check a user action
- * @author James <james.ellis@dpc.nsw.gov.au>
+ * @author James
+ * @deprecated will be removed in v1.0
  */
 class VerificationController extends Controller {
 
@@ -46,6 +48,16 @@ class VerificationController extends Controller {
     protected $verifier = null;
 
     /**
+     * Return the RecaptchaV3Verifier to use for this request
+     */
+    public function getVerifier() : ?Verifier {
+        if(!$this->verifier) {
+            $this->verifier = Injector::inst()->get(RecaptchaV3Verifier::class);
+        }
+        return $this->verifier;
+    }
+
+    /**
      * 403 on / requests
      */
     public function index(HTTPRequest $request) {
@@ -70,7 +82,7 @@ class VerificationController extends Controller {
      * Score for verification
      */
     public function getScore() {
-        return Config::inst()->get(TokenResponse::class, 'score');
+        return Config::inst()->get(RecaptchaV3TokenResponse::class, 'score');
     }
 
     /**

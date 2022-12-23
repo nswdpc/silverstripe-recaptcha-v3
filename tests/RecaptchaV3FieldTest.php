@@ -3,8 +3,8 @@
 namespace NSWDPC\SpamProtection\Tests;
 
 use NSWDPC\SpamProtection\RecaptchaV3Field;
-use NSWDPC\SpamProtection\Verifier;
-use NSWDPC\SpamProtection\TokenResponse;
+use NSWDPC\SpamProtection\RecaptchaV3Verifier;
+use NSWDPC\SpamProtection\RecaptchaV3TokenResponse;
 use SilverStripe\Dev\SapphireTest;
 
 /**
@@ -15,10 +15,6 @@ class RecaptchaV3FieldTest extends SapphireTest
 {
 
     protected $usesDatabase = false;
-
-    public function setUp() : void {
-        parent::setUp();
-    }
 
     /**
      * Test the execute action handling on the field, with/without prefix
@@ -79,7 +75,7 @@ class RecaptchaV3FieldTest extends SapphireTest
 
     public function testVerifier() {
         $field = RecaptchaV3Field::create('TestVerifier', 'Test verifier');
-        $this->assertEquals(Verifier::class, get_class($field->getVerifier()));
+        $this->assertEquals(RecaptchaV3Verifier::class, get_class($field->getVerifier()));
     }
 
 

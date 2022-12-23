@@ -6,28 +6,34 @@ use Silverstripe\Core\Config\Config;
 use Silverstripe\Core\Config\Configurable;
 
 /**
- * Represents a token response from the result of a call to the Recatpcha3
- * siteverify endpoint
- * The possible errors that come back from the token verification are:
- * missing-input-secret	The secret parameter is missing.
- * invalid-input-secret	The secret parameter is invalid or malformed.
- * missing-input-response	The response parameter is missing.
- * invalid-input-response	The response parameter is invalid or malformed.
- * bad-request	The request is invalid or malformed.
- * timeout-or-duplicate	The response is no longer valid: either is too old or has been used previously.
- * @author James <james.ellis@dpc.nsw.gov.au>
+ * Abstract TokenResponse handling
+ * @author James
  */
-class TokenResponse {
+abstract class TokenResponse {
 
     use Configurable;
 
+    /**
+     * @var float
+     */
     private static $score = 0.5;//default score
 
-    private $response = [];
+    /**
+     * @var array
+     */
+    protected $response = [];
 
-    private $action = '';
+    /**
+     * @var string
+     */
+    protected $action = '';
 
-    private $verification_score = null;
+    /**
+     * @var float|null
+     */
+    protected $verification_score = null;
+
+    // Verification error codes
 
     // the 'secret' key (the secret key in your Recaptcha config) in the request is missing or bad
     const ERR_MISSING_INPUT_SECRET = 'missing-input-secret';
@@ -43,71 +49,56 @@ class TokenResponse {
     // token already checked or is outside the 2 minute timeout
     const ERR_TIMEOUT_OR_DUPLCIATE = 'timeout-or-duplicate';
 
+    // An internal error happened while validating the response
+    const ERR_INTERNAL_ERROR = 'internal-error';
+
     /**
-     * @param array $response the result from a call to site verify
-     * @param float|null $score
+     * @param array $response the result from a call to the siteverify endpoint
+     * @param float|null $score some implementations do not support a score
      * @param string $action
      */
-    public function __construct(array $response, $score = null, $action = '') {
+    public function __construct(array $response, float $score = null, $action = '') {
         $this->response = $response;
-        $this->action = self::formatAction($action);
-        $this->verification_score = self::validateScore($score);
+        $this->action = static::formatAction($action);
+        $this->verification_score = static::validateScore($score);
     }
 
     /**
      * Validate a score parameter and return a score that is within bounds for comparison
      */
-    public static function validateScore($score) {
-        // null, return null (use configuration)
-        if(is_null($score)){
-            $score = self::getDefaultScore();
-        }
-
-        // not a number
-        if(!is_float($score) && !is_int($score)) {
-            throw new \Exception("Score should be a number between 0.0 and 1.0");
-        }
-        if($score > 1) {
-            throw new \Exception("Score should not be > 1");
-        } else if($score < 0) {
-            throw new \Exception("Score should not be < 0");
-        }
-        return $score;
-    }
+    abstract public static function validateScore(float $score) : ?float;
 
     /**
-     * @see https://developers.google.com/recaptcha/docs/v3#actions
-     * "Note: Actions may only contain alphanumeric characters and slashes, and must not be user-specific."
+     * Format an action string based on implementation rules
      */
-    public static function formatAction($action) {
-        $action = preg_replace("/[^a-z0-9\\/]/i", "", $action);
-        return $action;
-    }
+    abstract public static function formatAction(string $action) : string;
 
     /**
      * Return the response returned from the verification API
      * @returns array
      */
-    public function getResponse() {
+    public function getResponse() : array {
         return $this->response;
     }
 
     /**
-     * Determins whether the response score suggests a lower quality action
-     * @returns boolean
+     * Determines whether the response score suggests a lower quality action
+     * @returns bool
      */
-    public function failOnScore() {
+    public function failOnScore() : bool {
         $response_score = $this->getResponseScore();
         // if the response score is less than the allowed score, it's lower quality than we want
         return $response_score < $this->verification_score;
     }
 
     /**
-     * @returns boolean
+     * @returns bool
      */
-    public function failOnAction() {
+    public function failOnAction() : bool {
         if($action = $this->getAction()) {
-            return $action != $this->getResponseAction();
+            $responseAction = $this->getResponseAction();
+            Logger::log("Action is {$action}, response action is {$responseAction}" );
+            return $action != $responseAction;
         } else {
             // no action provide, cannot check on it
             return false;
@@ -115,36 +106,15 @@ class TokenResponse {
     }
 
     /**
-     * Checks whether the response is completely valid.
-     * Whether the API responded with a success
-     * Whether the action if provided matched the response action
-     * Whether the score is above the threshold
-     * @return boolean
+     * Validte based on implementation rules whether a response is valid
+     * @return bool
      */
-    public function isValid() {
-
-        // if the API return a false on 'success'
-        if(!$this->isSuccess()) {
-            return false;
-        }
-
-        // the action passed in does not match the response action
-        if($this->failOnAction()) {
-            return false;
-        }
-
-        // if the score does not meet requirements for quality
-        if( $this->failOnScore() ) {
-            return false;
-        }
-
-        return true;
-    }
+    abstract public function isValid() : bool;
 
     /**
      * @returns string
      */
-    public function getAction() {
+    public function getAction() : string {
         return $this->action;
     }
 
@@ -152,37 +122,37 @@ class TokenResponse {
      * Return the score threshold to use for verifying responses
      * @return float
      */
-    public function getScore() {
-        return $this->verification_score ? $this->verification_score : self::getDefaultScore();
+    public function getScore() : float {
+        return $this->verification_score ? $this->verification_score : static::getDefaultScore();
     }
 
     /**
      * Returns the default score from configuration
      * @return float
      */
-    public static function getDefaultScore() {
-        return round(Config::inst()->get(self::class, 'score'), 2);
+    public static function getDefaultScore() : float {
+        return round(Config::inst()->get(static::class, 'score'), 2);
     }
 
     /**
      * @returns string
      */
-    public function getResponseAction() {
+    public function getResponseAction() : string {
         return isset($this->response['action']) ? $this->response['action'] : '';
     }
 
     /**
-     * Get score from response, 1.0 is very likely a good interaction, 0.0 is very likely a bot
-     * @returns string
+     * Get score from response, if the implementation supports it
+     * @returns float
      */
-    public function getResponseScore() {
-        return isset($this->response['score']) ? $this->response['score'] : '';
+    public function getResponseScore() : ?float {
+        return isset($this->response['score']) ? $this->response['score'] : null;
     }
 
     /**
      * @returns string
      */
-    public function getResponseHostname() {
+    public function getResponseHostname() : string {
         return isset($this->response['hostname']) ? $this->response['hostname'] : '';
     }
 
@@ -191,31 +161,39 @@ class TokenResponse {
      * This does not do a score check or return that the token/action is valid
      * @returns boolean
      */
-    public function isSuccess() {
+    public function isSuccess() : bool {
         return isset($this->response['success']) && $this->response['success'];
     }
 
     /**
      * @returns array
      */
-    public function errorCodes() {
+    public function errorCodes() : array {
         return isset($this->response['error-codes']) && is_array($this->response['error-codes']) ? $this->response['error-codes'] : [];
     }
 
     /**
-     * @returns boolean
+     * @returns bool
      */
-    public function isTimeout() {
+    public function isTimeout() : bool {
         $codes = $this->errorCodes();
         return array_search( self::ERR_TIMEOUT_OR_DUPLCIATE, $codes) !== false;
     }
 
     /**
-     * @returns boolean
+     * @returns bool
      */
-    public function isBadRequest() {
+    public function isBadRequest() : bool {
         $codes = $this->errorCodes();
         return array_search( self::ERR_BAD_REQUEST, $codes) !== false;
+    }
+
+    /**
+     * @returns bool
+     */
+    public function isInternalError() : bool {
+        $codes = $this->errorCodes();
+        return array_search( self::ERR_INTERNAL_ERROR, $codes) !== false;
     }
 
 }

@@ -2,8 +2,6 @@
 
 namespace NSWDPC\SpamProtection;
 
-use SilverStripe\Core\Injector\Injector;
-
 /**
  * Trait for controller that need to set/get a Verifier
  * @author James
@@ -17,6 +15,7 @@ trait HasVerifier {
 
     /**
      * Set the verifier to use for this request
+     * This can be used to override the verifier, eg. for testing
      */
     public function setVerifier(Verifier $verifier) {
         $this->verifier = $verifier;
@@ -24,14 +23,10 @@ trait HasVerifier {
     }
 
     /**
-     * Return the verifier to use for this request
-     * If no verifier is set, use the injected Verifier class
+     * Implementations return their own verifier
      */
-    public function getVerifier() : Verifier {
-        if(!$this->verifier) {
-            $this->verifier = Injector::inst()->get(Verifier::class);
-        }
-        return $this->verifier;
+    public function getVerifier() : ?Verifier {
+        return null;
     }
 
 }

@@ -2,22 +2,21 @@
 
 namespace NSWDPC\SpamProtection;
 
+use SilverStripe\Core\Injector\Injector;
 use Silverstripe\Forms\HiddenField;
 use SilverStripe\View\Requirements;
-use SilverStripe\ORM\ValidationResult;
-use SilverStripe\ORM\ValidationException;
-use SilverStripe\Core\Config\Config;
-use SilverStripe\Control\Controller;
 
 /**
  * Provides a Recaptcha Form Field for use in forms
  * When the action is fired, the token retrieved from Recaptcha is added to the hidden value
  * When the form field is validated after submission, the token is verified
- * @author James <james.ellis@dpc.nsw.gov.au>
+ * @author James
  */
 class RecaptchaV3Field extends HiddenField {
 
     use HasVerifier;
+
+    use CaptchaSupport;
 
     /**
      * Site key, configured in project
@@ -38,12 +37,6 @@ class RecaptchaV3Field extends HiddenField {
     private static $execute_action = "submit";
 
     /**
-     * Per instance execute_action
-     * @param string
-     */
-    private $field_execute_action = "";
-
-    /**
      * Session key for storing recaatcha response
      */
     private static $session_key = "RecaptchaV3";
@@ -54,109 +47,29 @@ class RecaptchaV3Field extends HiddenField {
      */
     protected $fieldHolderTemplate = "RecaptchaV3Field_holder";
 
-
     /**
-     * Score for this field, if not provided, the configuration value will be used
+     * Return the RecaptchaV3Verifier to use for this request
      */
-    private $score = null;
-
-    /**
-     * If the action is already prefixed, don't auto-prefix it with the field ID
-     */
-    private $has_prefixed_action = false;
-
-
-    public function __construct($name, $title = null, $value = null)
-    {
-        parent::__construct($name, $title, $value);
-    }
-
-    /**
-     * @returns string
-     */
-    public function getSiteKey()
-    {
-        return $this->config()->get('site_key');
-    }
-
-    /**
-     * Returns a specific field holder template, for instance we may want to add some
-     * buzz about the form being protected by Recaptcha, some links to assistance pages
-     *
-     * @param array $properties
-     *
-     * @return DBHTMLText
-     */
-    public function FieldHolder($properties = array())
-    {
-        $context = $this;
-
-        $this->extend('onBeforeRenderHolder', $context, $properties);
-
-        if (count($properties)) {
-            $context = $this->customise($properties);
+    public function getVerifier() : ?Verifier {
+        if(!$this->verifier) {
+            $this->verifier = Injector::inst()->get(RecaptchaV3Verifier::class);
         }
-
-        return $context->renderWith($this->getFieldHolderTemplates());
-    }
-
-
-    /**
-     * Returns the field, sets requirements for this form
-     * @param array $properties
-     * @return string
-     */
-    public function Field($properties = []) {
-        $field = parent::Field($properties);
-        $this->addRequirements();
-        return $field;
-    }
-
-    /**
-     * Override the execute action configuration
-     * @returns RecaptchaV3Field
-     */
-    public function setExecuteAction($action, $is_prefixed = false) {
-        $this->field_execute_action = $action;
-        $this->has_prefixed_action = $is_prefixed;
-        return $this;
-    }
-
-    /**
-     * Get the execution action for this field, if none is set use configuration
-     * @returns string
-     */
-    public function getExecuteAction() {
-        return $this->field_execute_action  ?
-                $this->field_execute_action :
-                $this->config()->get('execute_action');
-    }
-
-    /**
-     * Returns the configured action name for this form
-     * @returns string
-     */
-    public function getRecaptchaAction() {
-        $prefix = "";
-        if(!$this->has_prefixed_action) {
-            $prefix = $this->ID() . "/";
-        }
-        return TokenResponse::formatAction($prefix . $this->getExecuteAction());
+        return $this->verifier;
     }
 
     /**
      * Returns the unique id to use in the customScript requirement
      * @returns string
      */
-    public function getUniqueId() {
+    public function getUniqueId() : string {
         return "recaptcha_execute_{$this->ID()}";
     }
 
     /**
      * Set a score for this instance
      */
-    public function setScore($score) {
-        $score = TokenResponse::validateScore($score);
+    public function setScore($score) : self {
+        $score = RecaptchaV3TokenResponse::validateScore($score);
         $this->score = $score;
         return $this;
     }
@@ -164,22 +77,44 @@ class RecaptchaV3Field extends HiddenField {
     /**
      * Score for field verification
      */
-    public function getScore() {
+    public function getScore() : ?float {
         if(is_null($this->score)) {
             // use configured value if none set
-            return Config::inst()->get(TokenResponse::class, 'score');
+            return Config::inst()->get(RecaptchaV3TokenResponse::class, 'score');
         } else {
             return $this->score;
         }
     }
 
     /**
+     * Returns the configured action name for this form field
+     * @returns string
+     */
+    public function getCaptchaAction() : string {
+        $prefix = "";
+        if(!$this->has_prefixed_action) {
+            $prefix = $this->ID() . "/";
+        }
+        return RecaptchaV3TokenResponse::formatAction($prefix . $this->getExecuteAction());
+    }
+
+    /**
+     * Require the client-side API script
+     */
+    protected function requireClientAPIScript() : void {
+        $site_key = $this->config()->get('site_key');
+        Requirements::javascript(
+            $this->config()->get('script_render'). "?render={$site_key}",
+            "recaptchav3_api_with_site_key"
+        );
+    }
+
+    /**
      * Get the requirements for this particular field
      * @returns void
      */
-    protected function addRequirements() {
-        $site_key = $this->config()->get('site_key');
-        Requirements::javascript($this->config()->get('script_render'). "?render={$site_key}", "recaptchav3_api_with_site_key");
+    protected function addRequirements() : void {
+        $this->requireClientAPIScript();
         // load the template Javascript for this field
         Requirements::customScript(  $this->actionScript(), $this->getUniqueId() );
     }
@@ -190,10 +125,10 @@ class RecaptchaV3Field extends HiddenField {
      * Tokens time out after 2 minutes, refreshing the token will assist in reducing token timeouts on longer forms
      * @returns string
      */
-    protected function actionScript() {
+    protected function actionScript() : string {
         $site_key = $this->config()->get('site_key');
         $data = [
-            'action' => $this->getRecaptchaAction()
+            'action' => $this->getCaptchaAction()
         ];
         $configuration = json_encode($data, JSON_UNESCAPED_SLASHES);
         $id = $this->ID();
@@ -261,137 +196,6 @@ grecaptcha.ready(function() {
 });
 JS;
         return $js;
-    }
-
-    /**
-     * Store data from the TokenResponse model in session
-     * This will be cleared when Form::clearFormState() is called as it uses .data
-     */
-    protected function storeResponseToSession($token, TokenResponse $response) {
-        $request = Controller::curr()->getRequest();
-        $session = $request->getSession();
-        $data = [
-            'token' => $token,
-            'score' => $response->getResponseScore(),
-            'hostname' => $response->getResponseHostname(),
-            'action' => $response->getResponseAction()
-        ];
-        $session->set( $this->config()->get('session_key'), $data);
-    }
-
-    /**
-     * Remove any previous session data
-     */
-    protected function clearSessionResponse($session = null) {
-        $session = $session ?? Controller::curr()->getRequest()->getSession();
-        $session_key = $this->config()->get('session_key');
-        $session->clear( $session_key );
-    }
-
-    /**
-     * Get response from session
-     */
-    public function getResponseFromSession($key = "") {
-        $request = Controller::curr()->getRequest();
-        $session = $request->getSession();
-        $session_key = $this->config()->get('session_key');
-        // store score for this token to session
-        $data = $session->get( $session_key );//
-        // clear session once retrieved
-        $this->clearSessionResponse($session);
-        if(isset($data[$key])) {
-            return $data[$key];
-        } else {
-            return $data;
-        }
-    }
-
-    /**
-     * Return the message when possible spam/bot found
-     */
-    public static function getMessagePossibleSpam() : string {
-        return _t(
-            'NSWDPC\SpamProtection.TOKEN_POSSIBLE_SPAM',
-            'We have detected that the form may be a spam submission. Please try to submit the form again.'
-        );
-    }
-
-    /**
-     * Return the message when general failure occurs
-     */
-    public static function getMessageGeneralFailure() : string {
-        return _t(
-            'NSWDPC\SpamProtection.TOKEN_VERIFICATION_GENERAL_ERROR',
-            'Sorry, the form submission failed. You may like to try again.'
-        );
-    }
-
-    /**
-     * Return the message when a timeout occurs
-     */
-    public static function getMessageTimeout() : string {
-        return _t(
-            'NSWDPC\SpamProtection.TOKEN_TIMEOUT',
-            'Please check the information provided and submit the form again.'
-        );
-    }
-
-    /**
-     * Validate the field
-     * @see https://developers.google.com/recaptcha/docs/verify#error_code_reference
-     *
-     * @param Validator $validator
-     * @return bool
-     */
-    public function validate($validator)
-    {
-        try {
-            // clear previous attempts
-            $this->clearSessionResponse();
-
-            $message = '';
-            // the token set by the script in executionScript()
-            $token = $this->Value();
-            // no token submitted with form
-            if(!$token) {
-                throw new \Exception( "No token" );
-            }
-            $action = $this->getRecaptchaAction();
-            $verifier = $this->getVerifier();
-            $response = $verifier->check($token, $this->getScore(), $action);
-            // handle the response when it is a {@link NSWDPC\SpamProtection\TokenResponse}
-            if($response instanceof TokenResponse) {
-                // successful verification
-                if($response->isValid()) {
-                    // store token response score
-                    $this->storeResponseToSession($token, $response);
-                    // all good
-                    $this->setSubmittedValue("");
-                    return true;
-                }
-                // timeout
-                if($response->isTimeout()) {
-                    // > timeout to submit form
-                    throw new RecaptchaVerificationException( self::getMessageTimeout() );
-                }
-                throw new RecaptchaVerificationException( self::getMessagePossibleSpam() );
-            }
-            // general failure
-            throw new \Exception("Verification failed - no/bad response from verify API");
-        } catch (RecaptchaVerificationException $e) {
-            // catch actual verification fails
-            $message = $e->getMessage();
-        } catch (\Exception $e) {
-            // TODO: log failures on this general exception
-            // set a general error
-            $message = self::getMessageGeneralFailure();
-        }
-        // set error on form
-        $this->getForm()->sessionError( $message );
-        $validator->validationError( $this->getName(), $message, ValidationResult::TYPE_ERROR );
-        $this->setSubmittedValue("");
-        // fail validation
-        return false;
     }
 
 }

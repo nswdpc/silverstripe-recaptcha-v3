@@ -1,10 +1,10 @@
 ---
 Name: nswdpc_recaptchav3_spamprotection
 ---
-NSWDPC\SpamProtection\TokenResponse:
+NSWDPC\SpamProtection\RecaptchaV3TokenResponse:
   # 1 = good, 0 = spam
   score: 0.5
-NSWDPC\SpamProtection\Verifier:
+NSWDPC\SpamProtection\RecaptchaV3Verifier:
   # Provided by the Recaptcha admin project
   secret_key: ''
 NSWDPC\SpamProtection\RecaptchaV3Field:
@@ -13,6 +13,22 @@ NSWDPC\SpamProtection\RecaptchaV3Field:
   # Global action prefix for the field
   execute_action: 'submit'
 NSWDPC\SpamProtection\RecaptchaV3SpamProtector:
+  # How the badge is displayed
+  # Options: '','field','form','page'
+  badge_display: ''
+
+---
+Name: nswdpc_turnstile_spamprotection
+---
+NSWDPC\SpamProtection\TurnstileVerifier:
+  # Provided by the Turnstile admin project
+  secret_key: ''
+NSWDPC\SpamProtection\TurnstileField:
+  # Provided by the Turnstile admin project
+  site_key: ''
+  # Global action prefix for the field
+  execute_action: 'submit'
+NSWDPC\SpamProtection\TurnstileSpamProtector:
   # How the badge is displayed
   # Options: '','field','form','page'
   badge_display: ''

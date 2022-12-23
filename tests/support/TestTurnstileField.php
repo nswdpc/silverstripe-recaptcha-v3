@@ -3,12 +3,12 @@
 namespace NSWDPC\SpamProtection\Tests;
 
 use NSWDPC\SpamProtection\Verifier;
-use NSWDPC\SpamProtection\RecaptchaV3Field;
+use NSWDPC\SpamProtection\TurnstileField;
 
 /**
  * A test version of RecaptchaV3Field
  */
-class TestRecaptchaV3Field extends RecaptchaV3Field {
+class TestTurnstileField extends TurnstileField {
 
     /**
      * Return a dummy 'token' as the submitted value of the field
@@ -23,8 +23,8 @@ class TestRecaptchaV3Field extends RecaptchaV3Field {
      * Set a test verifier to use for this test
      */
     public function setVerifier(Verifier $verifier) {
-        if(!($verifier instanceof TestVerifier)) {
-            throw \InvalidArgumentException("Verifier parameter should be an instance of TestVerifier");
+        if(!($verifier instanceof TestTurnstileVerifier)) {
+            throw \InvalidArgumentException("Verifier parameter should be an instance of TestTurnstileVerifier");
         }
         return parent::setVerifier($verifier);
     }
@@ -34,8 +34,8 @@ class TestRecaptchaV3Field extends RecaptchaV3Field {
      */
     public function getVerifier() : Verifier {
         $verifier = parent::getVerifier();
-        if(!($verifier instanceof TestVerifier)) {
-            throw \InvalidArgumentException("Verifier returned should be an instance of TestVerifier");
+        if(!($verifier instanceof TestTurnstileVerifier)) {
+            throw \InvalidArgumentException("Verifier returned should be an instance of TestTurnstileVerifier");
         }
         return $verifier;
     }
