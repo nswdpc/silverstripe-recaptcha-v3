@@ -49,7 +49,7 @@ class TurnstileFieldFunctionalTest extends FunctionalTest
         $sessionResponse = $field->getResponseFromSession();
 
         $this->assertNotEmpty( $sessionResponse );
-        $this->assertEquals( $field->Value(), $sessionResponse['token'] );
+        $this->assertEquals( $field->getTokenValue(), $sessionResponse['token'] );
         $this->assertEquals( 'localhost', $sessionResponse['hostname'] );
         $this->assertEquals( 'humantest_submit', $sessionResponse['action'] );
 

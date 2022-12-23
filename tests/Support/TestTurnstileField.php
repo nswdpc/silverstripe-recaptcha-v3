@@ -12,12 +12,10 @@ use NSWDPC\SpamProtection\TurnstileField;
 class TestTurnstileField extends TurnstileField {
 
     /**
-     * Return a dummy 'token' as the submitted value of the field
-     * @return string
+     * Return a dummy 'token' as the response token value for this field
      */
-    public function Value() {
-        $this->value = "test-value-for-" . $this->getName();
-        return parent::Value();
+    public function getTokenValue() {
+        return "test-value-for-" . $this->getName();
     }
 
     /**

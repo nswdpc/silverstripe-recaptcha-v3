@@ -9,7 +9,6 @@ use SilverStripe\Dev\TestOnly;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
-use SilverStripe\Forms\HiddenField;
 use SilverStripe\View\SSViewer;
 
 /**
@@ -61,13 +60,7 @@ class TestTurnstileFormHumanController extends Controller implements TestOnly
             $this,
             "TurnstileHumanTestForm",
             FieldList::create(
-                $field,
-                // add a test hidden field with the test token value
-                HiddenField::create(
-                    TestTurnstileField::config()->get('response_field_name'),
-                    'test-response-field',
-                    $field->Value()
-                )
+                $field
             ),
             FieldList::create(
                 FormAction::create("testTurnstileVerify")
