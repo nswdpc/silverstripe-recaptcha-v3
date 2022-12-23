@@ -12,6 +12,7 @@ use SilverStripe\Control\Controller;
 
 /**
  * Provides a Cloudflare Turnstile field, compatible with RecaptchaV3Field
+ * Options: https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/#configurations
  * @author James
  */
 class TurnstileField extends HiddenField {
@@ -49,6 +50,16 @@ class TurnstileField extends HiddenField {
     private static $response_field_name = "cf-turnstile-response";
 
     /**
+     * The widget theme, empty value by default (auto)
+     */
+    private static $widget_theme = "dark";
+
+    /**
+     * The widget size, empty value by default (normal)
+     */
+    private static $widget_size = "compact";
+
+    /**
      * Field holder template to use
      * @param string
      */
@@ -81,6 +92,20 @@ class TurnstileField extends HiddenField {
      */
     public function getResponseFieldName() : string {
         return $this->config()->get('response_field_name');
+    }
+
+    /**
+     * Return configured widget theme
+     */
+    public function getWidgetTheme() : string {
+        return $this->config()->get('widget_theme');
+    }
+
+    /**
+     * Return configured widget size
+     */
+    public function getWidgetSize() : string {
+        return $this->config()->get('widget_size');
     }
 
     /**

@@ -1,1 +1,1 @@
-<div class="cf-turnstile" data-sitekey="{$SiteKey}" data-size="normal" data-action="{$CaptchaAction}" data-response-field-name="{$ResponseFieldName}"></div>
+<div class="cf-turnstile" data-sitekey="{$SiteKey}" data-action="{$CaptchaAction}"<% if $ResponseFieldName %> data-response-field-name="{$ResponseFieldName}"<% end_if %><% if $WidgetTheme %> data-theme="{$WidgetTheme}"<% end_if %><% if $WidgetSize %> data-size="{$WidgetSize}"<% end_if %>></div>
