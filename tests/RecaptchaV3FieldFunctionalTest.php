@@ -2,6 +2,10 @@
 
 namespace NSWDPC\SpamProtection\Tests;
 
+use NSWDPC\SpamProtection\Tests\Support\TestRecaptchaV3Field;
+use NSWDPC\SpamProtection\Tests\Support\TestRecaptchaV3Verifier;
+use NSWDPC\SpamProtection\Tests\Support\TestRecaptchaV3FormHumanController;
+use NSWDPC\SpamProtection\Tests\Support\TestRecaptchaV3FormBotController;
 use NSWDPC\SpamProtection\Verifier;
 use NSWDPC\SpamProtection\RecaptchaV3TokenResponse;
 use NSWDPC\SpamProtection\RecaptchaV3Field;
@@ -32,11 +36,6 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
         parent::setUp();
         // default 'middle' score
         RecaptchaV3TokenResponse::config()->set('score', 0.5);
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
     }
 
     public function testFormSubmissionHuman()

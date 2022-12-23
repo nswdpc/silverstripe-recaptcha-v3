@@ -1,6 +1,6 @@
 <?php
 
-namespace NSWDPC\SpamProtection\Tests;
+namespace NSWDPC\SpamProtection\Tests\Support;
 
 use NSWDPC\SpamProtection\Verifier;
 use NSWDPC\SpamProtection\RecaptchaV3Field;

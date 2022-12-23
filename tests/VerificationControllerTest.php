@@ -2,6 +2,7 @@
 
 namespace NSWDPC\SpamProtection\Tests;
 
+use NSWDPC\SpamProtection\Tests\Support\TestRecaptchaV3Verifier;
 use NSWDPC\SpamProtection\RecaptchaV3Verifier;
 use NSWDPC\SpamProtection\RecaptchaV3TokenResponse;
 use NSWDPC\SpamProtection\RecaptchaV3Field;

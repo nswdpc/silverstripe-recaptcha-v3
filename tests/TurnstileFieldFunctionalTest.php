@@ -2,6 +2,10 @@
 
 namespace NSWDPC\SpamProtection\Tests;
 
+use NSWDPC\SpamProtection\Tests\Support\TestTurnstileField;
+use NSWDPC\SpamProtection\Tests\Support\TestTurnstileVerifier;
+use NSWDPC\SpamProtection\Tests\Support\TestTurnstileFormHumanController;
+use NSWDPC\SpamProtection\Tests\Support\TestTurnstileFormBotController;
 use NSWDPC\SpamProtection\Verifier;
 use NSWDPC\SpamProtection\TurnstileTokenResponse;
 use NSWDPC\SpamProtection\TurnstileField;
@@ -47,7 +51,30 @@ class TurnstileFieldFunctionalTest extends FunctionalTest
         $this->assertNotEmpty( $sessionResponse );
         $this->assertEquals( $field->Value(), $sessionResponse['token'] );
         $this->assertEquals( 'localhost', $sessionResponse['hostname'] );
-        $this->assertEquals( 'test_submit', $sessionResponse['action'] );
+        $this->assertEquals( 'humantest_submit', $sessionResponse['action'] );
+
+    }
+
+    public function testFormSubmissionBot()
+    {
+        // validate the controller has the test field and verifier
+        $controller = TestTurnstileFormBotController::create();
+
+        $form = $controller->Form();
+        $field = $form->HiddenFields()->fieldByName('FunctionalVerificationTestBot');
+
+        $this->assertInstanceOf(TestTurnstileField::class, $field, "Field is a TestTurnstileField");
+
+        $this->assertInstanceOf(TestTurnstileVerifier::class,  $field->getVerifier(), "Field verifier is a TestTurnstileVerifier");
+
+        // Submit the form
+        $response = $this->get('TestTurnstileFormBotController');
+        $submitResponse = $this->submitForm($form->FormName(), 'action_testTurnstileVerify', []);
+        $sessionResponse = $field->getResponseFromSession();
+
+        $this->assertEmpty( $sessionResponse, 'Session response is empty' );
+
+        $this->assertTrue( strpos($submitResponse->getBody(), TurnstileField::getMessagePossibleSpam()) !== false, "Message contains possible spam response" );
 
     }
 

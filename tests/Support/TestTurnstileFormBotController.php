@@ -1,13 +1,15 @@
 <?php
 
-namespace NSWDPC\SpamProtection\Tests;
+namespace NSWDPC\SpamProtection\Tests\Support;
 
+use NSWDPC\SpamProtection\TurnstileField;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\TestOnly;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\HiddenField;
 use SilverStripe\View\SSViewer;
 
 
@@ -60,7 +62,13 @@ class TestTurnstileFormBotController extends Controller implements TestOnly
             $this,
             "TurnstileBotTestForm",
             FieldList::create(
-                $field
+                $field,
+                // add a test hidden field with the test token value           // add a test hidden field with the test token value
+                HiddenField::create(
+                    TurnstileField::config()->get('response_field_name'),
+                    'test-response-field',
+                    $field->Value()
+                )
             ),
             FieldList::create(
                 FormAction::create("testTurnstileVerify")

@@ -1,7 +1,8 @@
 <?php
 
-namespace NSWDPC\SpamProtection\Tests;
+namespace NSWDPC\SpamProtection\Tests\Support;
 
+use NSWDPC\SpamProtection\Logger;
 use NSWDPC\SpamProtection\Verifier;
 use NSWDPC\SpamProtection\TurnstileField;
 

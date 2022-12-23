@@ -44,6 +44,11 @@ class TurnstileField extends HiddenField {
     private static $session_key = "TurnstileCaptcha";
 
     /**
+     * The default response field name for the hidden input added by Turnstile JS API
+     */
+    private static $response_field_name = "cf-turnstile-response";
+
+    /**
      * Field holder template to use
      * @param string
      */
@@ -69,6 +74,13 @@ class TurnstileField extends HiddenField {
             $prefix = $this->ID() . "_";// prefix with underscore suffix
         }
         return TurnstileTokenResponse::formatAction($prefix . $this->getExecuteAction());
+    }
+
+    /**
+     * Return response field name configured
+     */
+    public function getResponseFieldName() : string {
+        return $this->config()->get('response_field_name');
     }
 
     /**
@@ -99,12 +111,13 @@ class TurnstileField extends HiddenField {
     public function getTokenValue() {
         $token = null;
         try {
-            $key = 'cf-turnstile-response';
+            $key = $this->getResponseFieldName();
             $form = $this->getForm();
             $request = $form->getRequestHandler()->getRequest();
             $token = $request->postVar($key);
         } catch (\Exception $e) {
             // failed to find the data
+            Logger::log("TurnstileField failed to get a token value from POST data '{$key}' with error: {$e->getMessage()}", "NOTICE");
         }
         return $token;
     }

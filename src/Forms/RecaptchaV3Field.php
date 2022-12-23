@@ -2,6 +2,7 @@
 
 namespace NSWDPC\SpamProtection;
 
+use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
 use Silverstripe\Forms\HiddenField;
 use SilverStripe\View\Requirements;

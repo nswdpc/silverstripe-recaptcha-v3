@@ -1,25 +1,18 @@
 <?php
 
-namespace NSWDPC\SpamProtection\Tests;
+namespace NSWDPC\SpamProtection\Tests\Support;
 
 use NSWDPC\SpamProtection\TokenResponse;
-use NSWDPC\SpamProtection\RecaptchaV3TokenResponse;
+use NSWDPC\SpamProtection\TurnstileTokenResponse;
+use NSWDPC\SpamProtection\TurnstileVerifier;
 use NSWDPC\SpamProtection\Verifier;
 
 /**
- * Test verifier for reCAPTCHAv3 testing
- * @see https://developers.google.com/recaptcha/docs/v3
+ * Test verifier for Turnstile testing
+ * @see https://developers.cloudflare.com/turnstile/frequently-asked-questions/#are-there-sitekeys-and-secret-keys-that-can-be-used-for-testing
 
  */
-class TestRecaptchaV3Verifier extends Verifier {
-
-    const RESPONSE_HUMAN_SCORE = 0.9;
-    const RESPONSE_BOT_SCORE = 0.1;
-
-    /**
-     * @var float
-     */
-    protected $responseScore = self::RESPONSE_HUMAN_SCORE;
+class TestTurnstileVerifier extends TurnstileVerifier {
 
     /**
      * @var bool
@@ -31,13 +24,6 @@ class TestRecaptchaV3Verifier extends Verifier {
      */
     public function setIsHuman(bool $is) {
         $this->responseValue = $is;
-        if($is) {
-            $this->responseScore = self::RESPONSE_HUMAN_SCORE;
-            $this->responseValue = true;
-        } else {
-            $this->responseScore = self::RESPONSE_BOT_SCORE;
-            $this->responseValue = false;
-        }
         return $this;
     }
 
@@ -54,16 +40,16 @@ class TestRecaptchaV3Verifier extends Verifier {
         $hostname = "localhost";
         $errorcodes = [];
         if(!$this->responseValue) {
-            $errorcodes[] = 'an-error-code';
+            $errorcodes[] = 'bad-request';
         }
 
         $response = [
-            "success" => $this->responseValue, // whether this request was a valid reCAPTCHA token for your site
-            "score" => $this->responseScore, // the score for this request (0.0 - 1.0)
+            "success" => $this->responseValue, // whether this request was a valid token
             "action" => $action, // the action name for this request (important to verify)
             "challenge_ts" => $timestamp, // timestamp of the challenge load (ISO format yyyy-MM-dd'T'HH:mm:ssZZ)
             "hostname" => $hostname, // the hostname of the site where the reCAPTCHA was solved
-            "error-codes" => $errorcodes // optional
+            "error-codes" => $errorcodes, // optional
+            "cdata" => "" // optional customer data
         ];
 
         return $response;
@@ -73,7 +59,7 @@ class TestRecaptchaV3Verifier extends Verifier {
      * Return a RecaptchaV3TokenResponse instance for verification
      */
     protected function getTokenResponse( $decoded, $score, $action ) : TokenResponse {
-        return new RecaptchaV3TokenResponse( $decoded, $score, $action );
+        return new TurnstileTokenResponse( $decoded, $score, $action );
     }
 
     /**

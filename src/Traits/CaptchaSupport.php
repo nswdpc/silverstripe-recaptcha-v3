@@ -236,8 +236,6 @@ trait CaptchaSupport {
     public function validate($validator)
     {
         try {
-
-            Logger::log("validating...");
             // clear previous attempts
             $this->clearSessionResponse();
 
@@ -246,10 +244,9 @@ trait CaptchaSupport {
             $token = $this->getTokenValue();
             // no token submitted with form
             if(!$token) {
-                throw new \Exception( "No token" );
+                throw new \Exception( "CaptchaSupport::validate() - no token found" );
             }
 
-            Logger::log("Token..." . $token );
             $action = $this->getCaptchaAction();
             $verifier = $this->getVerifier();
             $response = $verifier->check($token, $this->getScore(), $action);

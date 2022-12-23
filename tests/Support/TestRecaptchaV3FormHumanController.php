@@ -1,6 +1,6 @@
 <?php
 
-namespace NSWDPC\SpamProtection\Tests;
+namespace NSWDPC\SpamProtection\Tests\Support;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Injector\Injector;
@@ -10,12 +10,11 @@ use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\View\SSViewer;
 
-
 /**
- * Test interaction with a simulated bot request
+ * Test controller containing a form with action and a single RecaptchaV3Field
  * @author James
  */
-class TestRecaptchaV3FormBotController extends Controller implements TestOnly
+class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
 {
 
     /**
@@ -26,39 +25,39 @@ class TestRecaptchaV3FormBotController extends Controller implements TestOnly
     /**
      * @var string
      */
-    private static $url_segment = 'TestRecaptchaV3FormBotController';
+    private static $url_segment = 'TestRecaptchaV3FormHumanController';
 
     /**
      * @var array
      */
     private static $allowed_actions = [
         'Form',
-        'RecaptchaV3BotTestForm'
+        'RecaptchaV3HumanTestForm'
     ];
 
     /**
      * @return Form
      */
     public function Form() {
-        return $this->RecaptchaV3BotTestForm();
+        return $this->RecaptchaV3HumanTestForm();
     }
 
     /**
      * @return Form
      */
-    public function RecaptchaV3BotTestForm() {
+    public function RecaptchaV3HumanTestForm() {
 
         // Create a mock test verifier
         $verifier = TestRecaptchaV3Verifier::create();
-        $verifier->setIsHuman( false );
+        $verifier->setIsHuman( true );
 
-        $field = TestRecaptchaV3Field::create('FunctionalVerificationTestBot');
-        $field->setExecuteAction("bottest/submit", true);
+        $field = TestRecaptchaV3Field::create('FunctionalVerificationTestHuman');
+        $field->setExecuteAction("humantest/submit", true);
         $field->setVerifier($verifier);
 
         return Form::create(
             $this,
-            "RecaptchaV3BotTestForm",
+            "RecaptchaV3HumanTestForm",
             FieldList::create(
                 $field
             ),

@@ -37,8 +37,8 @@ class TurnstileFieldTest extends SapphireTest
         $this->assertEquals($expectedAction, $executeAction);
 
         $captchaAction = $field->getCaptchaAction();
-
-        $this->assertEquals( substr($field->ID() . "_" . $expectedAction, 0, 32), $captchaAction);
+        $expectedCaptchaAction = substr($field->ID() . "_" . $expectedAction, 0, 32);
+        $this->assertEquals( $expectedCaptchaAction, $captchaAction);
 
     }
 
