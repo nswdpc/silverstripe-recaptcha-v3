@@ -6,6 +6,12 @@ You can also use the module to verify tokens/actions from non-form interactions 
 
 > The default score for verification is 0.7, you can change this in project configuration
 
+## Features
+
++ Project-based threshold set via Configuration API
++ Granular rules for protected forms
++ Manage badge placement
+
 ## Installation
 
 Install via composer
@@ -18,7 +24,7 @@ composer require nswdpc/silverstripe-recaptcha-v3
 
 See [composer.json](./composer.json), but in summary:
 
-+ silverstripe/framework ^4
++ silverstripe/framework ^4.10.0
 + silverstripe/spamprotection ^3
 
 ## Form spam protection
@@ -61,6 +67,7 @@ The module `nswdpc/silverstripe-recaptcha-v3-userforms` provides a userforms fie
 
 + [Further documentation](docs/en/001_index.md) for tips on usage
 + [Badge placement](docs/en/001_badge_display.md)
++ [Rule management](docs/en/003_rule_management.md)
 
 ## Configuration
 
@@ -120,6 +127,10 @@ The latest token will be submitted with the form and validated, if it has expire
 We welcome bug reports, pull requests and feature requests on the Github Issue tracker for this project.
 
 Please review the [code of conduct](./code-of-conduct.md) prior to opening a new issue.
+
+## Security
+
+If you have found a security issue with this module, please email digital[@]dpc.nsw.gov.au in the first instance, detailing your findings.
 
 ## Development and contribution
 

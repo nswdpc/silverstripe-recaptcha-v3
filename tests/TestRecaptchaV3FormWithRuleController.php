@@ -2,7 +2,6 @@
 
 namespace NSWDPC\SpamProtection\Tests;
 
-use NSWDPC\SpamProtection\RecaptchaV3Field;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\TestOnly;
@@ -12,10 +11,10 @@ use SilverStripe\Forms\FormAction;
 use SilverStripe\View\SSViewer;
 
 /**
- * Test controller containing a form with action and a single RecaptchaV3Field
+ * Test controller containing a form with a rule / tag
  * @author James
  */
-class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
+class TestRecaptchaV3FormWithRuleController extends Controller implements TestOnly
 {
 
     /**
@@ -26,57 +25,54 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
     /**
      * @var string
      */
-    private static $url_segment = 'TestRecaptchaV3FormHumanController';
-
-    const FIELD_VALUE = 'test-field-for-human';
+    private static $url_segment = 'TestRecaptchaV3FormWithRuleController';
 
     /**
      * @var array
      */
     private static $allowed_actions = [
         'Form',
-        'RecaptchaV3HumanTestForm',
+        'TestFormSubmissionWithRule',
         'testRecaptchaVerify'
     ];
+
+    const FIELD_VALUE = 'test-field-with-rule';
 
     /**
      * @return Form
      */
     public function Form()
     {
-        return $this->RecaptchaV3HumanTestForm();
+        return $this->TestFormSubmissionWithRule();
     }
 
     /**
+     * Return the form using the spamprotection extension to create the field
      * @return Form
      */
-    public function RecaptchaV3HumanTestForm()
+    public function TestFormSubmissionWithRule()
     {
-
-        // Create a mock test verifier
-        $verifier = TestVerifier::create();
-        $verifier->setIsHuman(true);
-
-        // Create field, set verifier as TestVerifier
-        $field = RecaptchaV3Field::create('FunctionalVerificationTestHuman');
-        $field->setExecuteAction("humantest/submit", true);
-        $field->setVerifier($verifier);
-        $field->setValue(self::FIELD_VALUE);
-
         $form = Form::create(
             $this,
-            "RecaptchaV3HumanTestForm",
-            FieldList::create(
-                $field
-            ),
+            "TestFormSubmissionWithRule",
+            FieldList::create(),
             FieldList::create(
                 FormAction::create("testRecaptchaVerify")
             )
         );
 
-        // Ensure rule is correctly set
-        $field->setForm($form);
+        $options = [
+            'name' => 'RecaptchaV3FieldWithRule'
+        ];
 
+        // Use FormSpamProtectionExtension
+        $form->enableSpamProtection($options);
+        $recaptchaField = $form->HiddenFields()->dataFieldByName($options['name']);
+        // use the TestVerifier
+        $verifier = TestVerifier::create();
+        $verifier->setIsHuman(true);
+        $recaptchaField->setVerifier($verifier);
+        $recaptchaField->setValue(self::FIELD_VALUE);
         return $form;
     }
 

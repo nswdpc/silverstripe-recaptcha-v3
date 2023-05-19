@@ -11,8 +11,8 @@ use GuzzleHttp\Client;
  * Communicates with the siteverify reCAPTCHA API endpoint
  * @author James
  */
-class Verifier {
-
+class Verifier
+{
     use Configurable;
 
     use Injectable;
@@ -30,9 +30,10 @@ class Verifier {
      * @returns boolean|TokenResponse
      * @throws \Exception
      */
-    public function check($token, $score = null, $action = "") {
+    public function check($token, $score = null, $action = "")
+    {
         $secret_key = $this->config()->get('secret_key');
-        if(!$secret_key) {
+        if (!$secret_key) {
             throw new \Exception("Configuration failure");
         }
 
@@ -44,26 +45,26 @@ class Verifier {
 
         // try to get a remote addy
         $remote_ip = $this->getRemoteAddr();
-        if($remote_ip) {
+        if ($remote_ip) {
             $data['remoteip'] = $remote_ip;
         }
 
         // POST and get a verification response
         $client = new Client();
         $response = $client->request(
-                "POST",
-                $this->config()->get('url_verify'),
-                [ 'form_params' => $data ]
+            "POST",
+            $this->config()->get('url_verify'),
+            [ 'form_params' => $data ]
         );
-        if($response->getStatusCode() != 200) {
+        if ($response->getStatusCode() != 200) {
             return false;
         }
         $body = $response->getBody();
-        if($body) {
+        if ($body) {
             $decoded = json_decode($body, true);
-            if(json_last_error() == JSON_ERROR_NONE) {
+            if (json_last_error() == JSON_ERROR_NONE) {
                 // return a TokenResponse model for the caller to decide on the action
-                return new TokenResponse( $decoded, $score, $action );
+                return new TokenResponse($decoded, $score, $action);
             }
         }
         // failed in the decode or response collection
@@ -73,38 +74,37 @@ class Verifier {
     /**
      * Get the remote addr from the request in a method not dissimilar to Zend/Laminas
      */
-    protected function getRemoteAddr() {
+    protected function getRemoteAddr()
+    {
         if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-           // forwarded IP address
-           $x_forwarded_for = trim(strip_tags($_SERVER['HTTP_X_FORWARDED_FOR']));
-           $trusted = $this->config()->get('trusted_proxies');
-           $ips = explode(",", $x_forwarded_for);
-           if(empty($ips)) {
-               // none found
-               return "";
-           } else if(count($ips) == 1) {
-               // use first
-               $remote_addr = $ips[0];
-           } else {
-               $ips = array_map("trim", $ips);
-               if(!empty($trusted) && is_array($trusted)) {
-                   $ips = array_diff($ips, $trusted);
-                   // once trusted proxies are removed, use the last value
-                   $remote_addr = array_pop($ips);
-               } else {
-                   // no trusted proxies set, use the first entry (client,proxy1,proxy2,etc)
-                   $remote_addr = array_shift($ips);
-               }
-           }
-       } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
-           // use REMOTE_ADDR
-           $remote_addr = trim(strip_tags($_SERVER['REMOTE_ADDR']));
-       } else {
-           $remote_addr = "";
-       }
+            // forwarded IP address
+            $x_forwarded_for = trim(strip_tags($_SERVER['HTTP_X_FORWARDED_FOR']));
+            $trusted = $this->config()->get('trusted_proxies');
+            $ips = explode(",", $x_forwarded_for);
+            if (empty($ips)) {
+                // none found
+                return "";
+            } elseif (count($ips) == 1) {
+                // use first
+                $remote_addr = $ips[0];
+            } else {
+                $ips = array_map("trim", $ips);
+                if (!empty($trusted) && is_array($trusted)) {
+                    $ips = array_diff($ips, $trusted);
+                    // once trusted proxies are removed, use the last value
+                    $remote_addr = array_pop($ips);
+                } else {
+                    // no trusted proxies set, use the first entry (client,proxy1,proxy2,etc)
+                    $remote_addr = array_shift($ips);
+                }
+            }
+        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+            // use REMOTE_ADDR
+            $remote_addr = trim(strip_tags($_SERVER['REMOTE_ADDR']));
+        } else {
+            $remote_addr = "";
+        }
 
-       return $remote_addr;
-
+        return $remote_addr;
     }
-
 }

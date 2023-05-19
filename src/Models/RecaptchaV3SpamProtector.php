@@ -6,7 +6,9 @@ use Silverstripe\Core\Config\Config;
 use Silverstripe\Core\Config\Configurable;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\LiteralField;
 use SilverStripe\SpamProtection\SpamProtector;
 use SilverStripe\View\ArrayData;
 use SilverStripe\View\Requirements;
@@ -19,7 +21,6 @@ use SilverStripe\View\TemplateGlobalProvider;
  */
 class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
 {
-
     use Configurable;
 
     /**
@@ -35,7 +36,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     /**
      * @var string
      */
-    protected $execute_action = "autoprotection/submit";//default execute action
+    protected $execute_action = "";//default execute action
 
     /**
      * @var string
@@ -50,11 +51,23 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      */
     private static $badge_display = "";
 
-
     const BADGE_DISPLAY_DEFAULT = '';// use the reCAPTCHAv3 library default (fixed bottom right)
     const BADGE_DISPLAY_FIELD = 'field';// display the badge text in the form, above the actions
     const BADGE_DISPLAY_FORM = 'form';// badge is displayed in form. NB: requires custom form template
     const BADGE_DISPLAY_PAGE = 'page';// display the badge text in the page somewhere
+
+    /*
+     * Return the RecaptchaV3Field instance to use for this form
+     * @return RecaptchaV3Field
+     */
+    protected function getRecaptchaV3Field($name = null, $title = null, $value = null) : RecaptchaV3Field
+    {
+        $field = Injector::inst()->createWithArgs(
+            RecaptchaV3Field::class,
+            ['name' => $name, 'title' => $title, 'value' => $value]
+        );
+        return $field;
+    }
 
     /**
      * Return the field for the spam protector
@@ -62,55 +75,56 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      */
     public function getFormField($name = null, $title = null, $value = null)
     {
-        if(!$name) {
+        if (!$name) {
             $name = $this->default_name;
         }
-        $field = Injector::inst()->createWithArgs(
-                RecaptchaV3Field::class,
-                ['name' => $name, 'title' => $title, 'value' => $value]
-        );
+        // Get the spam protection field to use
+        $field = $this->getRecaptchaV3Field($name, $title, $value);
 
         // check if the threshold provided is in bounds
-        if($this->threshold < 0 || $this->threshold > 100) {
+        if ($this->threshold < 0 || $this->threshold > 100) {
             $this->threshold = self::getDefaultThreshold();
         }
-        $field->setScore( round( ($this->threshold / 100), 2) ); // format for the reCAPTCHA API 0.00->1.00
-        $field->setExecuteAction( $this->execute_action, true);
+        $field->setScore(round(($this->threshold / 100), 2)); // format for the reCAPTCHA API 0.00->1.00
+        $field->setExecuteAction($this->execute_action, true);
         return $field;
     }
 
     /**
-     * In the RecaptchaV3 field, we use setFieldMapping to assign values to
-     * the field prior to getFormField being called
+     * Provide a way to modify score and threshold from the 'mapping' option
+     * provided by {@link FormSpamProtectionExtension::enableSpamProtection}
+     * These values can be overridden by an enabled RecaptchaV3Rule matching the FormName the field is in
      * @param mixed $fieldMapping
      * @return void
      */
-    public function setFieldMapping($fieldMapping) {
-        if(isset($fieldMapping['recaptchav3_options']['threshold'])) {
+    public function setFieldMapping($fieldMapping)
+    {
+        if (isset($fieldMapping['recaptchav3_options']['threshold'])) {
             // expected is an integer between 0 and 100
             $this->threshold = intval($fieldMapping['recaptchav3_options']['threshold']);
         }
 
-        if(isset($fieldMapping['recaptchav3_options']['action'])) {
+        if (isset($fieldMapping['recaptchav3_options']['action'])) {
             // expected string, the action for analytics
             $this->execute_action = strval($fieldMapping['recaptchav3_options']['action']);
         }
     }
 
     /**
-     * Based on the value set in configuration for {@link TokenRespone}, return a threshold based on that
+     * Based on the value set in configuration for {@link TokenResponse}, return a threshold based on that
      * If the configured value is out of bounds, the value of 70 is returned
      * @return int between 0 and 100 from configuration
      */
-    public static function getDefaultThreshold() {
+    public static function getDefaultThreshold()
+    {
         // returns a float between 0 and 1.0
         $threshold = TokenResponse::getDefaultScore();
         // convert to int
         $threshold = $threshold * 100;
         // round to the number of steps expected here
         $steps = Config::inst()->get(self::class, 'steps');
-        $threshold = round( $threshold / $steps) * $steps;
-        if($threshold < 0 || $threshold > 100) {
+        $threshold = round($threshold / $steps) * $steps;
+        if ($threshold < 0 || $threshold > 100) {
             // configuration value is out of bounds
             $threshold = 70;
         }
@@ -122,7 +136,8 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * The values returned are a percentage - 100 = all, 0 = none
      * @return array
      */
-    public static function getRange() {
+    public static function getRange()
+    {
         $min = 0;
         $max = 100;
         $steps = Config::inst()->get(self::class, 'steps');
@@ -130,9 +145,9 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
         $i = 5;
         $range = [];
         $range [ $min ] = $min . " (" . _t(__CLASS__ . ".BLOCK_LESS", "block less") . ")";
-        while($i < $max) {
+        while ($i < $max) {
             $value = $i;
-            if($i == $default) {
+            if ($i == $default) {
                 $value .= " (" . _t(__CLASS__ . ".DEFAULT_FOR_THIS_SITE", "default for this website") . ")";
             }
             $range[ $i ] = $value;
@@ -143,23 +158,58 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     }
 
     /**
+     * Return an HTML list explaining response scores
+     */
+    public static function getRuleSummary() : string
+    {
+        return "<h3>" . _t('NSWDPC\SpamProtection.SCORE_EXAMPLE_HEADER', 'Verification score guide') . "</h3>"
+        . "<ul>"
+        . "<li>10: " . _t('NSWDPC\SpamProtection.SCORE_10', 'Very likely a bot/automated request') . "</li>"
+        . "<li>30: " . _t('NSWDPC\SpamProtection.SCORE_30', 'Likely a bot/automated request') . "</li>"
+        . "<li>70: " . _t('NSWDPC\SpamProtection.SCORE_70', 'Likely a non-automated request') . "</li>"
+        . "<li>90: " . _t('NSWDPC\SpamProtection.SCORE_90', 'Very likely a non-automated request') . "</li>"
+        . "</ul>";
+    }
+
+
+    /**
      * Get a dropdown field to allow user-selection of a score for a form
      * @return DropdownField
      */
-    public static function getRangeField($name, $value = null) {
+    public static function getRangeField($name, $value = null)
+    {
         return DropdownField::create(
             $name,
             _t(
-                'NSWDPC\SpamProtection.SCORE_HUMAN',
-                'Set a reCAPTCHAv3 threshold. '
-                . ' Any submissions receiving a score below this will be blocked.'
+                'NSWDPC\SpamProtection.SCORE_THRESHOLD_TITLE',
+                'Set a form spam protection threshold'
             ),
             self::getRange(),
             $value
         )->setDescription(
             _t(
-                'NSWDPC\SpamProtection.SCORE_DESCRIPTION_HUMAN',
-                "Setting the threshold to 100 will block almost all submissions"
+                'NSWDPC\SpamProtection.SCORE_THRESHOLD_DESCRIPTION',
+                'Any requests receiving a verification score below the value selected will be blocked.'
+            )
+        );
+    }
+
+    /**
+     * Get a CompositeField explaining more about the threshold selection
+     * @return CompositeField
+     */
+    public static function getRangeCompositeField($name, $value = null)
+    {
+        return CompositeField::create(
+            self::getRangeField($name, $value),
+            LiteralField::create(
+                'ThresholdCompositeLiteral',
+                self::getRuleSummary()
+            )
+        )->setTitle(
+            _t(
+                'NSWDPC\SpamProtection.SCORE_COMPOSITE_TITLE',
+                'Form spam threshold handling'
             )
         );
     }
@@ -168,15 +218,16 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * Get a text field to allow user entry of an action for a form
      * @return TextField
      */
-    public static function getActionField($name, $value = null) {
+    public static function getActionField($name, $value = null)
+    {
         return TextField::create(
             $name,
-            _t( 'NSWDPC\SpamProtection.ACTION_HUMAN', 'Set a custom action'),
+            _t('NSWDPC\SpamProtection.ACTION_HUMAN', 'Set a custom action'),
             $value
         )->setDescription(
             _t(
                 'NSWDPC\SpamProtection.ACTION_DESCRIPTION',
-                'This is used for analytics in the reCAPTCHA console. '
+                'This is used for analytics and trend analysis. '
                 . ' Allowed characters are \'a-z 0-9 /\' '
                 . 'and it may not be personally identifiable'
             )
@@ -186,7 +237,8 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     /**
      * @inheritdoc
      */
-    public static function get_template_global_variables() {
+    public static function get_template_global_variables()
+    {
         return [
             'ReCAPTCHAv3PrivacyInformation' => 'get_privacy_information',
             'ReCAPTCHAv3BadgeDisplay' => 'get_badge_display',
@@ -196,10 +248,11 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     /**
      * Return the privacy information from a template
      */
-    public static function get_privacy_information() {
+    public static function get_privacy_information()
+    {
         $displayOption = self::config()->get('badge_display');
         $value = '';
-        switch($displayOption) {
+        switch ($displayOption) {
             case self::BADGE_DISPLAY_FORM:
             case self::BADGE_DISPLAY_FIELD:
             case self::BADGE_DISPLAY_PAGE:
@@ -220,14 +273,16 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * Return some information for templates to display the RecaptchaV3Badge
      * Returns an empty string, 'field', 'form' or 'page'
      */
-    public static function get_badge_display() : string {
+    public static function get_badge_display() : string
+    {
         return self::config()->get('badge_display');
     }
 
     /**
      * Hide badge via custom css
      */
-    public static function hideBadge() : void {
+    public static function hideBadge() : void
+    {
         $css = ".grecaptcha-badge { visibility: hidden; }";
         Requirements::customCSS($css, 'recaptcha_badge_hide');
     }

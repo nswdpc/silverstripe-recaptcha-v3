@@ -1,4 +1,6 @@
 # Badge display
+
++ [Index](./001_index.md)
  
 You can place the badge in one of four locations using the `NSWDPC\SpamProtection\RecaptchaV3SpamProtector.badge_display` configuration value:
 

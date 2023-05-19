@@ -5,4 +5,6 @@ namespace NSWDPC\SpamProtection;
 /**
  * Specific {@link Exception} for verification exceptions
  */
-class RecaptchaVerificationException extends \Exception {}
+class RecaptchaVerificationException extends \Exception
+{
+}

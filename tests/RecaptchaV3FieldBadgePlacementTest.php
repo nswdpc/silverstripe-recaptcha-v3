@@ -14,9 +14,13 @@ use SilverStripe\Dev\SapphireTest;
 class RecaptchaV3FieldBadgePlacementTest extends SapphireTest
 {
 
+    /**
+     * @inheritdoc
+     */
     protected $usesDatabase = false;
 
-    public function testDefaultBadgePlacement() {
+    public function testDefaultBadgePlacement()
+    {
         Config::modify()->set(RecaptchaV3SpamProtector::class, 'badge_display', RecaptchaV3SpamProtector::BADGE_DISPLAY_DEFAULT);
         $field = RecaptchaV3Field::create(
             'test_default_badge'
@@ -26,12 +30,13 @@ class RecaptchaV3FieldBadgePlacementTest extends SapphireTest
 
         $template = $field->FieldHolder()->forTemplate();
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") === false, "Recaptcha policy link not in template");
+        $this->assertTrue(strpos($template, "https://policies.google.com/privacy") === false, "Recaptcha policy link not in template");
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/terms") === false, "Recaptcha T&C link not in template");
+        $this->assertTrue(strpos($template, "https://policies.google.com/terms") === false, "Recaptcha T&C link not in template");
     }
 
-    public function testFieldBadgePlacement() {
+    public function testFieldBadgePlacement()
+    {
         Config::modify()->set(RecaptchaV3SpamProtector::class, 'badge_display', RecaptchaV3SpamProtector::BADGE_DISPLAY_FIELD);
         $field = RecaptchaV3Field::create(
             'test_field_badge'
@@ -41,12 +46,13 @@ class RecaptchaV3FieldBadgePlacementTest extends SapphireTest
 
         $template = $field->FieldHolder()->forTemplate();
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") !== false, "Recaptcha policy link in template");
+        $this->assertTrue(strpos($template, "https://policies.google.com/privacy") !== false, "Recaptcha policy link in template");
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/terms") !== false, "Recaptcha T&C link in template");
+        $this->assertTrue(strpos($template, "https://policies.google.com/terms") !== false, "Recaptcha T&C link in template");
     }
 
-    public function testFormBadgePlacement() {
+    public function testFormBadgePlacement()
+    {
         Config::modify()->set(RecaptchaV3SpamProtector::class, 'badge_display', RecaptchaV3SpamProtector::BADGE_DISPLAY_FORM);
         $field = RecaptchaV3Field::create(
             'test_form_badge'
@@ -56,13 +62,13 @@ class RecaptchaV3FieldBadgePlacementTest extends SapphireTest
 
         $template = $field->FieldHolder()->forTemplate();
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") === false, "Recaptcha policy link not in template");
+        $this->assertTrue(strpos($template, "https://policies.google.com/privacy") === false, "Recaptcha policy link not in template");
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/terms") === false, "Recaptcha T&C link not in template");
-
+        $this->assertTrue(strpos($template, "https://policies.google.com/terms") === false, "Recaptcha T&C link not in template");
     }
 
-    public function testPageBadgePlacement() {
+    public function testPageBadgePlacement()
+    {
         Config::modify()->set(RecaptchaV3SpamProtector::class, 'badge_display', RecaptchaV3SpamProtector::BADGE_DISPLAY_PAGE);
         $field = RecaptchaV3Field::create(
             'test_page_badge'
@@ -72,9 +78,8 @@ class RecaptchaV3FieldBadgePlacementTest extends SapphireTest
 
         $template = $field->FieldHolder()->forTemplate();
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/privacy") === false, "Recaptcha policy link not in template");
+        $this->assertTrue(strpos($template, "https://policies.google.com/privacy") === false, "Recaptcha policy link not in template");
 
-        $this->assertTrue( strpos($template, "https://policies.google.com/terms") === false, "Recaptcha T&C link not in template");
-
+        $this->assertTrue(strpos($template, "https://policies.google.com/terms") === false, "Recaptcha T&C link not in template");
     }
 }
