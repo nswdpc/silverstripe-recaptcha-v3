@@ -287,17 +287,10 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
                 "Action to take when verification fails"
             ),
             [
-                self::TAKE_ACTION_BLOCK => _t("NSWDPC\SpamProtection.RECAPTCHAV3_ACTION_TO_TAKE_BLOCK", 'Block'),
-                self::TAKE_ACTION_CAUTION => _t("NSWDPC\SpamProtection.RECAPTCHAV3_ACTION_TO_TAKE_CAUTION", 'Caution'),
-                self::TAKE_ACTION_ALLOW => _t("NSWDPC\SpamProtection.RECAPTCHAV3_ACTION_TO_TAKE_ALLOW", 'Allow')
+                self::TAKE_ACTION_BLOCK => _t("NSWDPC\SpamProtection.RECAPTCHAV3_ACTION_TO_TAKE_BLOCK", 'Block - the action will fail'),
+                self::TAKE_ACTION_CAUTION => _t("NSWDPC\SpamProtection.RECAPTCHAV3_ACTION_TO_TAKE_CAUTION", 'Caution - the action may be allowed, and logged if allowed'),
+                self::TAKE_ACTION_ALLOW => _t("NSWDPC\SpamProtection.RECAPTCHAV3_ACTION_TO_TAKE_ALLOW", 'Allow - the action will be allowed but logged')
             ]
-        )->setDescription(
-            _t(
-                "NSWDPC\SpamProtection.RECAPTCHAV3_ACTION_TO_TAKE_DESCRIPTION",
-                "For a form submission, choosing block will cause validation to fail. "
-                . " The submitter will be presented with an error message."
-                . " If 'Caution' is selected the system may take further action before allowing the action to take place"
-            )
         );
 
         $autoCreatedField = CheckBoxField::create(
