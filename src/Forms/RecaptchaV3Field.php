@@ -498,10 +498,13 @@ JS;
                     // Work out what action to take
                     switch ($rule->ActionToTake) {
                         case RecaptchaV3Rule::TAKE_ACTION_ALLOW:
-                        case RecaptchaV3Rule::TAKE_ACTION_CAUTION:
-                            Logger::log("RecaptchaV3 verification failed. Passing validation as rule '{$rule->Tag}' sets actiontotake={$rule->ActionToTake}", "NOTICE");
+                            Logger::log("RecaptchaV3 verification failed. Passing validation as rule #{$rule->ID} sets actiontotake=" . RecaptchaV3Rule::TAKE_ACTION_ALLOW, "NOTICE");
                             return true;
-                            break;
+                        case RecaptchaV3Rule::TAKE_ACTION_CAUTION:
+                            // Allow an extension to throw a RecaptchaVerificationException or continue
+                            $this->extend('recaptchaFailWithCaution', $rule, $response);
+                            Logger::log("RecaptchaV3 verification failed. Passing validation as rule #{$rule->ID} sets actiontotake=" . RecaptchaV3Rule::TAKE_ACTION_CAUTION, "NOTICE");
+                            return true;
                         default:
                             throw new RecaptchaVerificationException(self::getMessagePossibleSpam());
                             break;
