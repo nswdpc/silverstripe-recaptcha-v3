@@ -104,9 +104,9 @@ class TokenResponse
     {
         $response_score = $this->getResponseScore();
         // if the response score is less than the allowed score, it's lower quality than we want
-        $result = $response_score < $this->verification_score;
-        Logger::log("RecaptchaV3 TokenResponse::failOnScore() check {$response_score} < {$this->verification_score} result=" . ($result ? "OK" : "FAIL"), "NOTICE");
-        return $result;
+        $hasFailed = $response_score < $this->verification_score;
+        Logger::log("RecaptchaV3 TokenResponse::failOnScore() check {$response_score} < {$this->verification_score} result=" . ($hasFailed ? "FAIL" : "OK"), "NOTICE");
+        return $hasFailed;
     }
 
     /**
