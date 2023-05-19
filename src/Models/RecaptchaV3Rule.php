@@ -248,7 +248,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
                 'SelectTag',
                 _t(
                     "NSWDPC\SpamProtection.RECAPTCHAV3_SELECT_A_TAG",
-                    "Select a tag, this will override any tag entered"
+                    "Select a tag, this will override any tag provided at 'Enter a tag'"
                 ),
                 $selectTagOptions,
                 $this->Tag
