@@ -41,6 +41,5 @@ class FormExtension extends Extension
         }
         $tag = strtolower($tag);
         return $tag;
-        ;
     }
 }
