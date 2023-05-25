@@ -12,9 +12,7 @@
     ],
     "license": "BSD-3-Clause",
     "require": {
-        "silverstripe/spamprotection" : "^3",
-        "silverstripe/framework": "^4.10.0",
-        "guzzlehttp/guzzle": ">=6.5 <8"
+        "silverstripe/spamprotection" : "^4"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
