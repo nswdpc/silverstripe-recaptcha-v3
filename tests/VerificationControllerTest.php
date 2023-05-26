@@ -29,7 +29,7 @@ class VerificationControllerTest extends FunctionalTest
         parent::setUp();
         // default 'middle' score
         TokenResponse::config()->set('score', 0.5);
-        Config::inst()->update(VerificationController::class, 'enabled', true);
+        Config::modify()->set(VerificationController::class, 'enabled', true);
     }
 
     /**
