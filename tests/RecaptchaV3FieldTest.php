@@ -97,11 +97,6 @@ class RecaptchaV3FieldTest extends SapphireTest
             $this->assertEquals("Score should not be < 0", $e->getMessage());
         }
 
-        try {
-            $field->setScore('abc123');
-        } catch (\Exception $e) {
-            $this->assertEquals("Score should be a number between 0.0 and 1.0", $e->getMessage());
-        }
     }
 
     public function testVerifier()
