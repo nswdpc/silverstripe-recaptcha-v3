@@ -43,6 +43,8 @@ class TokenResponse
     // token already checked or is outside the 2 minute timeout
     const ERR_TIMEOUT_OR_DUPLCIATE = 'timeout-or-duplicate';
 
+    private static $log_stats = false;
+
     /**
      * @param array $response the result from a call to site verify
      * @param float|null $score
@@ -102,7 +104,11 @@ class TokenResponse
     {
         $responseScore = $this->getResponseScore();
         // if the response score is less than the allowed score, it's lower quality than we want
-        return $responseScore < $this->verification_score;
+        $result = ($responseScore < $this->verification_score);
+        if($result) {
+            self::logStat("failOnScore", ["threshold" => $this->verification_score, "response" => $responseScore ]);
+        }
+        return $result;
     }
 
     /**
@@ -112,10 +118,27 @@ class TokenResponse
     {
         if ($action = $this->getAction()) {
             $responseAction = $this->getResponseAction();
-            return $action != $responseAction;
+            $result = ($action != $responseAction);
+            if($result) {
+                self::logStat("failOnAction", ["action" => $action, "response" => $responseAction]);
+            }
         } else {
             // no action provided, cannot check on it
-            return false;
+            $result = false;
+        }
+        return $result;
+    }
+
+    /**
+     * Log a captcha stat
+     */
+    public static function logStat(string $message, $reason) : void {
+        if(self::config()->get('log_stats')) {
+            $stat = [
+                "message" => $message,
+                "reason" => $reason
+            ];
+            Logger::log("captcha stat:" . json_encode($stat), "INFO");
         }
     }
 
@@ -201,7 +224,11 @@ class TokenResponse
      */
     public function isSuccess() : bool
     {
-        return isset($this->response['success']) && $this->response['success'];
+        $is = isset($this->response['success']) && $this->response['success'];
+        if(!$is) {
+            TokenResponse::logStat("isSuccess", false);
+        }
+        return $is;
     }
 
     /**
@@ -218,7 +245,11 @@ class TokenResponse
     public function isTimeout() : bool
     {
         $codes = $this->errorCodes();
-        return array_search(self::ERR_TIMEOUT_OR_DUPLCIATE, $codes) !== false;
+        $is = array_search(self::ERR_TIMEOUT_OR_DUPLCIATE, $codes) !== false;
+        if($is) {
+            TokenResponse::logStat("isTimeoutOrDuplicate", true);
+        }
+        return $is;
     }
 
     /**
@@ -227,6 +258,10 @@ class TokenResponse
     public function isBadRequest() : bool
     {
         $codes = $this->errorCodes();
-        return array_search(self::ERR_BAD_REQUEST, $codes) !== false;
+        $is = array_search(self::ERR_BAD_REQUEST, $codes) !== false;
+        if($is) {
+            TokenResponse::logStat("isBadRequest", true);
+        }
+        return $is;
     }
 }

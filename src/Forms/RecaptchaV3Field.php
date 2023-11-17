@@ -488,6 +488,7 @@ JS;
                     $this->storeResponseToSession($token, $response);
                     // all good
                     $this->setSubmittedValue("");
+                    TokenResponse::logStat("isValid", true);
                     return true;
                 } elseif ($response->isTimeout()) {
                     // on timeout always prompt for revalidation, in order to get a valid result to inspect
@@ -496,12 +497,12 @@ JS;
                     // Work out what action to take
                     switch ($rule->ActionToTake) {
                         case RecaptchaV3Rule::TAKE_ACTION_ALLOW:
-                            Logger::log("RecaptchaV3 verification failed. Passing validation as rule #{$rule->ID} sets actiontotake=" . RecaptchaV3Rule::TAKE_ACTION_ALLOW, "NOTICE");
+                            TokenResponse::logStat("rule", ["fail" => true, "rule" => $rule->ID, "takeaction" => RecaptchaV3Rule::TAKE_ACTION_ALLOW]);
                             return true;
                         case RecaptchaV3Rule::TAKE_ACTION_CAUTION:
                             // Allow an extension to throw a RecaptchaVerificationException or continue
                             $this->extend('recaptchaFailWithCaution', $rule, $response);
-                            Logger::log("RecaptchaV3 verification failed. Passing validation as rule #{$rule->ID} sets actiontotake=" . RecaptchaV3Rule::TAKE_ACTION_CAUTION, "NOTICE");
+                            TokenResponse::logStat("rule", ["fail" => true, "rule" => $rule->ID, "takeaction" => RecaptchaV3Rule::TAKE_ACTION_CAUTION]);
                             return true;
                         default:
                             throw new RecaptchaVerificationException(self::getMessagePossibleSpam());
@@ -509,11 +510,13 @@ JS;
                     }
                 } else {
                     // No rule, fall back to BLOCK (prompt to resubmit)
+                    TokenResponse::logStat("default", "block");
                     throw new RecaptchaVerificationException(self::getMessagePossibleSpam());
                 }
                 // end - TokenResponse handling
             } else {
                 // general failure
+                TokenResponse::logStat("tokenresponse", false);
                 throw new \Exception("Verification failed - no/bad response from verify API");
             }
         } catch (RecaptchaVerificationException $e) {
@@ -527,6 +530,7 @@ JS;
         $this->getForm()->sessionError($message);
         $validator->validationError($this->getName(), $message, ValidationResult::TYPE_ERROR);
         $this->setSubmittedValue("");
+        Logger::log("RecaptchaV3 failed verification: " . $message, "INFO");
         // fail validation
         return false;
     }
