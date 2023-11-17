@@ -10,7 +10,7 @@ use SilverStripe\Core\Injector\Injector;
  */
 class Logger
 {
-    public static function log($message, $level = "DEBUG")
+    public static function log(string $message, string $level = "DEBUG")
     {
         Injector::inst()->get(LoggerInterface::class)->log($level, $message);
     }

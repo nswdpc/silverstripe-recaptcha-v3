@@ -130,9 +130,9 @@ class RecaptchaV3Field extends HiddenField
     }
 
     /**
-     * @returns string
+     * Get the configured site key
      */
-    public function getSiteKey()
+    public function getSiteKey() : ?string
     {
         return $this->config()->get('site_key');
     }
@@ -173,9 +173,8 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Override the execute action configuration
-     * @returns RecaptchaV3Field
      */
-    public function setExecuteAction($action, $is_prefixed = false)
+    public function setExecuteAction(string $action, bool $is_prefixed = false) : self
     {
         $this->field_execute_action = $action;
         $this->has_prefixed_action = $is_prefixed;
@@ -186,7 +185,7 @@ class RecaptchaV3Field extends HiddenField
      * Get the execution action for this field, if none is set use configuration
      * @returns string
      */
-    public function getExecuteAction()
+    public function getExecuteAction() : string
     {
         return $this->field_execute_action  ?
                 $this->field_execute_action :
@@ -196,9 +195,8 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Returns the configured action name for this form
      * If a rule is present, this value is used
-     * @return string
      */
-    public function getRecaptchaAction()
+    public function getRecaptchaAction() : string
     {
         if ($rule = $this->getRecaptchaV3Rule()) {
             $action = $rule->Action;
@@ -216,7 +214,7 @@ class RecaptchaV3Field extends HiddenField
      * Returns the unique id to use in the customScript requirement
      * @returns string
      */
-    public function getUniqueId()
+    public function getUniqueId() : string
     {
         return "recaptcha_execute_{$this->ID()}";
     }
@@ -224,7 +222,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Set a score for this instance
      */
-    public function setScore($score)
+    public function setScore(float $score)
     {
         $score = TokenResponse::validateScore($score);
         $this->score = $score;
@@ -234,7 +232,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Score for field verification
      */
-    public function getScore()
+    public function getScore() : float
     {
         if ($rule = $this->getRecaptchaV3Rule()) {
             // a rule score is an int between 0 and 100
@@ -265,9 +263,8 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Return a rule defined by the tag set on this field
-     * @return RecaptchaV3Rule|null
      */
-    public function getRecaptchaV3Rule()
+    public function getRecaptchaV3Rule() : ?RecaptchaV3Rule
     {
         $tag = "";
         if (!$this->rule) {
@@ -302,7 +299,7 @@ class RecaptchaV3Field extends HiddenField
      * Tokens time out after 2 minutes, refreshing the token will assist in reducing token timeouts on longer forms
      * @returns string
      */
-    protected function actionScript()
+    protected function actionScript() : string
     {
         $site_key = $this->config()->get('site_key');
         $data = [
@@ -380,7 +377,7 @@ JS;
      * Store data from the TokenResponse model in session
      * This will be cleared when Form::clearFormState() is called as it uses .data
      */
-    protected function storeResponseToSession($token, TokenResponse $response)
+    protected function storeResponseToSession($token, TokenResponse $response) : void
     {
         $request = Controller::curr()->getRequest();
         $session = $request->getSession();
@@ -397,7 +394,7 @@ JS;
     /**
      * Remove any previous session data
      */
-    protected function clearSessionResponse($session = null)
+    protected function clearSessionResponse($session = null) : void
     {
         $session = $session ?? Controller::curr()->getRequest()->getSession();
         $session_key = $this->config()->get('session_key');
@@ -406,8 +403,9 @@ JS;
 
     /**
      * Get response from session
+     * @return mixed
      */
-    public function getResponseFromSession($key = "")
+    public function getResponseFromSession(string $key = "")
     {
         $request = Controller::curr()->getRequest();
         $session = $request->getSession();

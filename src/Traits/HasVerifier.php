@@ -19,7 +19,7 @@ trait HasVerifier
     /**
      * Set the verifier to use for this request
      */
-    public function setVerifier(Verifier $verifier)
+    public function setVerifier(Verifier $verifier) : self
     {
         $this->verifier = $verifier;
         return $this;
