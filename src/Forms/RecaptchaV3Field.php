@@ -85,6 +85,13 @@ class RecaptchaV3Field extends HiddenField
     private static $auto_create_rule = false;
 
 
+    /**
+     * Minimum refresh time for getting an updated/new token value
+     * @var int milliseconds
+     */
+    protected $minRefreshTime = 30000;
+
+
     public function __construct($name, $title = null, $value = null)
     {
         parent::__construct($name, $title, $value);
@@ -282,6 +289,25 @@ class RecaptchaV3Field extends HiddenField
     }
 
     /**
+     * Update the minimum refresh time, after which a token can be replaced with a new one
+     * if the relevant event(s) are called
+     * @param int $minRefreshTime milliseconds 5000 = 5s
+     */
+    public function setMinRefreshTime(int $minRefreshTime) : self {
+        if($minRefreshTime > 0) {
+            $this->minRefreshTime = $minRefreshTime;
+        }
+        return $this;
+    }
+
+    /**
+     * Get the refresh time for the token
+     */
+    public function getMinRefreshTime() : int {
+        return $this->minRefreshTime;
+    }
+
+    /**
      * Get the requirements for this particular field
      * @returns void
      */
@@ -308,8 +334,8 @@ class RecaptchaV3Field extends HiddenField
         $configuration = json_encode($data, JSON_UNESCAPED_SLASHES);
         $id = $this->ID();
         $field_name = $this->getName();
-        // refresh token after 30s
-        $threshold = 30000;
+        // token refresh
+        $minRefreshTime = $this->getMinRefreshTime();
 
         /*
          * when an error occurs and the form is re-loaded with values
@@ -327,7 +353,7 @@ grecaptcha.ready(function() {
 
     var recaptcha_require_refresh = function(f) {
         try {
-            var threshold = {$threshold};
+            var threshold = {$minRefreshTime};
             var iv = 0;
             var dlc = f.dataset.lastcheck;
             if(dlc) {

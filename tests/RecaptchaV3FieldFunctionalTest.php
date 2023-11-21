@@ -62,6 +62,10 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
 
         // Submit the form
         $response = $this->get('TestRecaptchaV3FormHumanController');
+
+        $needle = "threshold = " . TestRecaptchaV3FormHumanController::MIN_REFRESH_TIME . ";";
+        $this->assertStringContainsString($needle, $response->getBody());
+
         $submitResponse = $this->submitForm($form->FormName(), null, []);
         $sessionResponse = $field->getResponseFromSession();
 

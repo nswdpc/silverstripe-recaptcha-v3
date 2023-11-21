@@ -30,6 +30,8 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
 
     const FIELD_VALUE = 'test-field-for-human';
 
+    const MIN_REFRESH_TIME = 2020;
+
     /**
      * @var array
      */
@@ -62,6 +64,7 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
         $field->setExecuteAction("humantest/submit", true);
         $field->setVerifier($verifier);
         $field->setValue(self::FIELD_VALUE);
+        $field->setMinRefreshTime(self::MIN_REFRESH_TIME);
 
         $form = Form::create(
             $this,
