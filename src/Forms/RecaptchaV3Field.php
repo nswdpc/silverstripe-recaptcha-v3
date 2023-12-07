@@ -20,6 +20,12 @@ class RecaptchaV3Field extends HiddenField
     use HasVerifier;
 
     /**
+     * @var string
+     * See validate()
+     */
+    const VALIDATION_ERROR_CODE = "FORM_RECAPTCHAV3";
+
+    /**
      * Site key, configured in project
      * @param string
      */
@@ -525,9 +531,9 @@ JS;
             // set a general error
             $message = self::getMessageGeneralFailure();
         }
-        // set error on form
-        $this->getForm()->sessionError($message);
-        $validator->validationError($this->getName(), $message, ValidationResult::TYPE_ERROR);
+        // create a form-wide validation error
+        $validationResult = $validator->getResult();
+        $validationResult->addError($message, ValidationResult::TYPE_ERROR, self::VALIDATION_ERROR_CODE);
         $this->setSubmittedValue("");
         // fail validation
         return false;
