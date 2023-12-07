@@ -181,7 +181,7 @@ class TokenResponse
      * Get the current score value
      * @return float
      */
-    public function getScore()
+    public function getScore() : float
     {
         return $this->verification_score ? $this->verification_score : self::getDefaultScore();
     }

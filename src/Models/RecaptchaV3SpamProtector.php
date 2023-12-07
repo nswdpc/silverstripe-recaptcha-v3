@@ -97,7 +97,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * @param mixed $fieldMapping
      * @return void
      */
-    public function setFieldMapping($fieldMapping)
+    public function setFieldMapping($fieldMapping) : void
     {
         if (isset($fieldMapping['recaptchav3_options']['threshold'])) {
             // expected is an integer between 0 and 100
@@ -115,7 +115,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * If the configured value is out of bounds, the value of 70 is returned
      * @return int between 0 and 100 from configuration
      */
-    public static function getDefaultThreshold()
+    public static function getDefaultThreshold() : int
     {
         // returns a float between 0 and 1.0
         $threshold = TokenResponse::getDefaultScore();
@@ -128,7 +128,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
             // configuration value is out of bounds
             $threshold = 70;
         }
-        return $threshold;
+        return intval($threshold);
     }
 
     /**

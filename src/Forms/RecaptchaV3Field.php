@@ -98,6 +98,9 @@ class RecaptchaV3Field extends HiddenField
     protected $minRefreshTime = 30000;
 
 
+    /**
+     * @inheritdoc
+     */
     public function __construct($name, $title = null, $value = null)
     {
         parent::__construct($name, $title, $value);
@@ -154,9 +157,7 @@ class RecaptchaV3Field extends HiddenField
      * Returns a specific field holder template, for instance we may want to add some
      * buzz about the form being protected by Recaptcha, some links to assistance pages
      *
-     * @param array $properties
-     *
-     * @return DBHTMLText
+     * @inheritdoc
      */
     public function FieldHolder($properties = [])
     {
@@ -174,8 +175,7 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Returns the field, sets requirements for this form
-     * @param array $properties
-     * @return string
+     * @inheritdoc
      */
     public function Field($properties = [])
     {
@@ -196,7 +196,6 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Get the execution action for this field, if none is set use configuration
-     * @returns string
      */
     public function getExecuteAction() : string
     {
@@ -225,7 +224,6 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Returns the unique id to use in the customScript requirement
-     * @returns string
      */
     public function getUniqueId() : string
     {
@@ -235,7 +233,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Set a score for this instance
      */
-    public function setScore(float $score)
+    public function setScore(float $score) : self
     {
         $score = TokenResponse::validateScore($score);
         $this->score = $score;
@@ -262,7 +260,6 @@ class RecaptchaV3Field extends HiddenField
      * Set the tag to use on this field.
      * This is automatically set by the RecaptchaV3SpamProtector::getFormField
      * when it calls self::setForm()
-     * @return self
      */
     public function setRecaptchaV3RuleTag(string $tag) : self
     {
@@ -315,9 +312,8 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Get the requirements for this particular field
-     * @returns void
      */
-    protected function addRequirements()
+    protected function addRequirements() : void
     {
         $site_key = $this->config()->get('site_key');
         Requirements::javascript($this->config()->get('script_render'). "?render={$site_key}", "recaptchav3_api_with_site_key");
@@ -489,9 +485,7 @@ JS;
     /**
      * Validate the field
      * @see https://developers.google.com/recaptcha/docs/verify#error_code_reference
-     *
-     * @param Validator $validator
-     * @return bool
+     * @inheritdoc
      */
     public function validate($validator)
     {
