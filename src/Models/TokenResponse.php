@@ -43,12 +43,14 @@ class TokenResponse
     // token already checked or is outside the 2 minute timeout
     const ERR_TIMEOUT_OR_DUPLCIATE = 'timeout-or-duplicate';
 
+    private static $log_stats = false;
+
     /**
      * @param array $response the result from a call to site verify
      * @param float|null $score
      * @param string $action
      */
-    public function __construct(array $response, $score = null, $action = '')
+    public function __construct(array $response, ?float $score = null, string $action = '')
     {
         $this->response = $response;
         $this->action = self::formatAction($action);
@@ -58,7 +60,7 @@ class TokenResponse
     /**
      * Validate a score parameter and return a score that is within bounds for comparison
      */
-    public static function validateScore($score)
+    public static function validateScore(?float $score = null) : float
     {
         // null, return null (use configuration)
         if (is_null($score)) {
@@ -81,7 +83,7 @@ class TokenResponse
      * @see https://developers.google.com/recaptcha/docs/v3#actions
      * "Note: Actions may only contain alphanumeric characters and slashes, and must not be user-specific."
      */
-    public static function formatAction($action)
+    public static function formatAction(string $action) : string
     {
         $action = preg_replace("/[^a-z0-9\\/]/i", "", $action);
         return $action;
@@ -89,34 +91,54 @@ class TokenResponse
 
     /**
      * Return the response returned from the verification API
-     * @returns array
      */
-    public function getResponse()
+    public function getResponse() : array
     {
         return $this->response;
     }
 
     /**
      * Determins whether the response score suggests a lower quality action
-     * @returns boolean
      */
-    public function failOnScore()
+    public function failOnScore() : bool
     {
-        $response_score = $this->getResponseScore();
+        $responseScore = $this->getResponseScore();
         // if the response score is less than the allowed score, it's lower quality than we want
-        return $response_score < $this->verification_score;
+        $result = ($responseScore < $this->verification_score);
+        if($result) {
+            self::logStat("failOnScore", ["threshold" => $this->verification_score, "response" => $responseScore ]);
+        }
+        return $result;
     }
 
     /**
-     * @returns boolean
+     * Check for action mismatch
      */
-    public function failOnAction()
+    public function failOnAction() : bool
     {
         if ($action = $this->getAction()) {
-            return $action != $this->getResponseAction();
+            $responseAction = $this->getResponseAction();
+            $result = ($action != $responseAction);
+            if($result) {
+                self::logStat("failOnAction", ["action" => $action, "response" => $responseAction]);
+            }
         } else {
-            // no action provide, cannot check on it
-            return false;
+            // no action provided, cannot check on it
+            $result = false;
+        }
+        return $result;
+    }
+
+    /**
+     * Log a captcha stat
+     */
+    public static function logStat(string $message, $reason) : void {
+        if(self::config()->get('log_stats')) {
+            $stat = [
+                "message" => $message,
+                "reason" => $reason
+            ];
+            Logger::log("captcha stat:" . json_encode($stat), "INFO");
         }
     }
 
@@ -125,9 +147,8 @@ class TokenResponse
      * Whether the API responded with a success
      * Whether the action if provided matched the response action
      * Whether the score is above the threshold
-     * @return boolean
      */
-    public function isValid()
+    public function isValid() : bool
     {
 
         // if the API return a false on 'success'
@@ -137,7 +158,6 @@ class TokenResponse
 
         // the action passed in does not match the response action
         if ($this->failOnAction()) {
-            Logger::log("RecaptchaV3 failed - action mismatch", "NOTICE");
             return false;
         }
 
@@ -150,52 +170,50 @@ class TokenResponse
     }
 
     /**
-     * @returns string
+     * Get the current action value
      */
-    public function getAction()
+    public function getAction() : string
     {
         return $this->action;
     }
 
     /**
-     * Return the score threshold to use for verifying responses
+     * Get the current score value
      * @return float
      */
-    public function getScore()
+    public function getScore() : float
     {
         return $this->verification_score ? $this->verification_score : self::getDefaultScore();
     }
 
     /**
      * Returns the default score from configuration
-     * @return float
      */
-    public static function getDefaultScore()
+    public static function getDefaultScore() : float
     {
         return round(Config::inst()->get(self::class, 'score'), 2);
     }
 
     /**
-     * @returns string
+     * Get the action returned from the response
      */
-    public function getResponseAction()
+    public function getResponseAction() : string
     {
         return isset($this->response['action']) ? $this->response['action'] : '';
     }
 
     /**
      * Get score from response, 1.0 is very likely a good interaction, 0.0 is very likely a bot
-     * @returns string
      */
-    public function getResponseScore()
+    public function getResponseScore() : float
     {
         return isset($this->response['score']) ? $this->response['score'] : '';
     }
 
     /**
-     * @returns string
+     * Get response hostname
      */
-    public function getResponseHostname()
+    public function getResponseHostname() : string
     {
         return isset($this->response['hostname']) ? $this->response['hostname'] : '';
     }
@@ -203,36 +221,47 @@ class TokenResponse
     /**
      * Note: "whether this request was a valid reCAPTCHA token for your site"
      * This does not do a score check or return that the token/action is valid
-     * @returns boolean
      */
-    public function isSuccess()
+    public function isSuccess() : bool
     {
-        return isset($this->response['success']) && $this->response['success'];
+        $is = isset($this->response['success']) && $this->response['success'];
+        if(!$is) {
+            TokenResponse::logStat("isSuccess", false);
+        }
+        return $is;
     }
 
     /**
-     * @returns array
+     * Get all error codes
      */
-    public function errorCodes()
+    public function errorCodes() : array
     {
         return isset($this->response['error-codes']) && is_array($this->response['error-codes']) ? $this->response['error-codes'] : [];
     }
 
     /**
-     * @returns boolean
+     * Check if the token has timed out (or is a duplicate)
      */
-    public function isTimeout()
+    public function isTimeout() : bool
     {
         $codes = $this->errorCodes();
-        return array_search(self::ERR_TIMEOUT_OR_DUPLCIATE, $codes) !== false;
+        $is = array_search(self::ERR_TIMEOUT_OR_DUPLCIATE, $codes) !== false;
+        if($is) {
+            TokenResponse::logStat("isTimeoutOrDuplicate", true);
+        }
+        return $is;
     }
 
     /**
-     * @returns boolean
+     * Check for bad request
      */
-    public function isBadRequest()
+    public function isBadRequest() : bool
     {
         $codes = $this->errorCodes();
-        return array_search(self::ERR_BAD_REQUEST, $codes) !== false;
+        $is = array_search(self::ERR_BAD_REQUEST, $codes) !== false;
+        if($is) {
+            TokenResponse::logStat("isBadRequest", true);
+        }
+        return $is;
     }
 }

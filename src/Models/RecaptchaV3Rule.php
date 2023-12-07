@@ -135,13 +135,12 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
 
     /**
      * Get an **enabled** rule based on a tag
-     * @return RecaptchaV3Rule|null
      */
-    public static function getRuleByTag(string $tag)
+    public static function getRuleByTag(string $tag) : ?RecaptchaV3Rule
     {
-        $tags = self::getEnabledRules();
-        $tag = $tags->filter(['Tag' => $tag])->first();
-        return $tag;
+        $rules = self::getEnabledRules();
+        $rule = $rules->filter(['Tag' => $tag])->first();
+        return $rule;
     }
 
     /**
@@ -171,7 +170,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * Auto title, as tag value
      */
-    public function getTitle()
+    public function getTitle() : ?string
     {
         return $this->Tag;
     }
@@ -189,7 +188,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * Detailed version of record, use in Dropdown map()
      */
-    public function getTagDetailed()
+    public function getTagDetailed() : string
     {
         return _t(
             "NSWDPC\SpamProtection.RECAPTCHAV3_TAG_DETAILED",

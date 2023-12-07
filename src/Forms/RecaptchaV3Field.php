@@ -91,6 +91,16 @@ class RecaptchaV3Field extends HiddenField
     private static $auto_create_rule = false;
 
 
+    /**
+     * Minimum refresh time for getting an updated/new token value
+     * @var int milliseconds
+     */
+    protected $minRefreshTime = 30000;
+
+
+    /**
+     * @inheritdoc
+     */
     public function __construct($name, $title = null, $value = null)
     {
         parent::__construct($name, $title, $value);
@@ -136,9 +146,9 @@ class RecaptchaV3Field extends HiddenField
     }
 
     /**
-     * @returns string
+     * Get the configured site key
      */
-    public function getSiteKey()
+    public function getSiteKey() : ?string
     {
         return $this->config()->get('site_key');
     }
@@ -147,9 +157,7 @@ class RecaptchaV3Field extends HiddenField
      * Returns a specific field holder template, for instance we may want to add some
      * buzz about the form being protected by Recaptcha, some links to assistance pages
      *
-     * @param array $properties
-     *
-     * @return DBHTMLText
+     * @inheritdoc
      */
     public function FieldHolder($properties = [])
     {
@@ -167,8 +175,7 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Returns the field, sets requirements for this form
-     * @param array $properties
-     * @return string
+     * @inheritdoc
      */
     public function Field($properties = [])
     {
@@ -179,9 +186,8 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Override the execute action configuration
-     * @returns RecaptchaV3Field
      */
-    public function setExecuteAction($action, $is_prefixed = false)
+    public function setExecuteAction(string $action, bool $is_prefixed = false) : self
     {
         $this->field_execute_action = $action;
         $this->has_prefixed_action = $is_prefixed;
@@ -190,9 +196,8 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Get the execution action for this field, if none is set use configuration
-     * @returns string
      */
-    public function getExecuteAction()
+    public function getExecuteAction() : string
     {
         return $this->field_execute_action  ?
                 $this->field_execute_action :
@@ -202,9 +207,8 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Returns the configured action name for this form
      * If a rule is present, this value is used
-     * @return string
      */
-    public function getRecaptchaAction()
+    public function getRecaptchaAction() : string
     {
         if ($rule = $this->getRecaptchaV3Rule()) {
             $action = $rule->Action;
@@ -220,9 +224,8 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Returns the unique id to use in the customScript requirement
-     * @returns string
      */
-    public function getUniqueId()
+    public function getUniqueId() : string
     {
         return "recaptcha_execute_{$this->ID()}";
     }
@@ -230,7 +233,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Set a score for this instance
      */
-    public function setScore($score)
+    public function setScore(float $score) : self
     {
         $score = TokenResponse::validateScore($score);
         $this->score = $score;
@@ -240,7 +243,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Score for field verification
      */
-    public function getScore()
+    public function getScore() : float
     {
         if ($rule = $this->getRecaptchaV3Rule()) {
             // a rule score is an int between 0 and 100
@@ -257,7 +260,6 @@ class RecaptchaV3Field extends HiddenField
      * Set the tag to use on this field.
      * This is automatically set by the RecaptchaV3SpamProtector::getFormField
      * when it calls self::setForm()
-     * @return self
      */
     public function setRecaptchaV3RuleTag(string $tag) : self
     {
@@ -271,9 +273,8 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Return a rule defined by the tag set on this field
-     * @return RecaptchaV3Rule|null
      */
-    public function getRecaptchaV3Rule()
+    public function getRecaptchaV3Rule() : ?RecaptchaV3Rule
     {
         $tag = "";
         if (!$this->rule) {
@@ -291,10 +292,28 @@ class RecaptchaV3Field extends HiddenField
     }
 
     /**
-     * Get the requirements for this particular field
-     * @returns void
+     * Update the minimum refresh time, after which a token can be replaced with a new one
+     * if the relevant event(s) are called
+     * @param int $minRefreshTime milliseconds 5000 = 5s
      */
-    protected function addRequirements()
+    public function setMinRefreshTime(int $minRefreshTime) : self {
+        if($minRefreshTime > 0) {
+            $this->minRefreshTime = $minRefreshTime;
+        }
+        return $this;
+    }
+
+    /**
+     * Get the refresh time for the token
+     */
+    public function getMinRefreshTime() : int {
+        return $this->minRefreshTime;
+    }
+
+    /**
+     * Get the requirements for this particular field
+     */
+    protected function addRequirements() : void
     {
         $site_key = $this->config()->get('site_key');
         Requirements::javascript($this->config()->get('script_render'). "?render={$site_key}", "recaptchav3_api_with_site_key");
@@ -308,7 +327,7 @@ class RecaptchaV3Field extends HiddenField
      * Tokens time out after 2 minutes, refreshing the token will assist in reducing token timeouts on longer forms
      * @returns string
      */
-    protected function actionScript()
+    protected function actionScript() : string
     {
         $site_key = $this->config()->get('site_key');
         $data = [
@@ -317,8 +336,8 @@ class RecaptchaV3Field extends HiddenField
         $configuration = json_encode($data, JSON_UNESCAPED_SLASHES);
         $id = $this->ID();
         $field_name = $this->getName();
-        // refresh token after 30s
-        $threshold = 30000;
+        // token refresh
+        $minRefreshTime = $this->getMinRefreshTime();
 
         /*
          * when an error occurs and the form is re-loaded with values
@@ -336,7 +355,7 @@ grecaptcha.ready(function() {
 
     var recaptcha_require_refresh = function(f) {
         try {
-            var threshold = {$threshold};
+            var threshold = {$minRefreshTime};
             var iv = 0;
             var dlc = f.dataset.lastcheck;
             if(dlc) {
@@ -386,7 +405,7 @@ JS;
      * Store data from the TokenResponse model in session
      * This will be cleared when Form::clearFormState() is called as it uses .data
      */
-    protected function storeResponseToSession($token, TokenResponse $response)
+    protected function storeResponseToSession($token, TokenResponse $response) : void
     {
         $request = Controller::curr()->getRequest();
         $session = $request->getSession();
@@ -403,7 +422,7 @@ JS;
     /**
      * Remove any previous session data
      */
-    protected function clearSessionResponse($session = null)
+    protected function clearSessionResponse($session = null) : void
     {
         $session = $session ?? Controller::curr()->getRequest()->getSession();
         $session_key = $this->config()->get('session_key');
@@ -412,8 +431,9 @@ JS;
 
     /**
      * Get response from session
+     * @return mixed
      */
-    public function getResponseFromSession($key = "")
+    public function getResponseFromSession(string $key = "")
     {
         $request = Controller::curr()->getRequest();
         $session = $request->getSession();
@@ -465,9 +485,7 @@ JS;
     /**
      * Validate the field
      * @see https://developers.google.com/recaptcha/docs/verify#error_code_reference
-     *
-     * @param Validator $validator
-     * @return bool
+     * @inheritdoc
      */
     public function validate($validator)
     {
@@ -496,6 +514,7 @@ JS;
                     $this->storeResponseToSession($token, $response);
                     // all good
                     $this->setSubmittedValue("");
+                    TokenResponse::logStat("isValid", true);
                     return true;
                 } elseif ($response->isTimeout()) {
                     // on timeout always prompt for revalidation, in order to get a valid result to inspect
@@ -504,12 +523,12 @@ JS;
                     // Work out what action to take
                     switch ($rule->ActionToTake) {
                         case RecaptchaV3Rule::TAKE_ACTION_ALLOW:
-                            Logger::log("RecaptchaV3 verification failed. Passing validation as rule #{$rule->ID} sets actiontotake=" . RecaptchaV3Rule::TAKE_ACTION_ALLOW, "NOTICE");
+                            TokenResponse::logStat("rule", ["fail" => true, "rule" => $rule->ID, "takeaction" => RecaptchaV3Rule::TAKE_ACTION_ALLOW]);
                             return true;
                         case RecaptchaV3Rule::TAKE_ACTION_CAUTION:
                             // Allow an extension to throw a RecaptchaVerificationException or continue
                             $this->extend('recaptchaFailWithCaution', $rule, $response);
-                            Logger::log("RecaptchaV3 verification failed. Passing validation as rule #{$rule->ID} sets actiontotake=" . RecaptchaV3Rule::TAKE_ACTION_CAUTION, "NOTICE");
+                            TokenResponse::logStat("rule", ["fail" => true, "rule" => $rule->ID, "takeaction" => RecaptchaV3Rule::TAKE_ACTION_CAUTION]);
                             return true;
                         default:
                             throw new RecaptchaVerificationException(self::getMessagePossibleSpam());
@@ -517,11 +536,13 @@ JS;
                     }
                 } else {
                     // No rule, fall back to BLOCK (prompt to resubmit)
+                    TokenResponse::logStat("default", "block");
                     throw new RecaptchaVerificationException(self::getMessagePossibleSpam());
                 }
                 // end - TokenResponse handling
             } else {
                 // general failure
+                TokenResponse::logStat("tokenresponse", false);
                 throw new \Exception("Verification failed - no/bad response from verify API");
             }
         } catch (RecaptchaVerificationException $e) {
@@ -535,6 +556,7 @@ JS;
         $validationResult = $validator->getResult();
         $validationResult->addError($message, ValidationResult::TYPE_ERROR, self::VALIDATION_ERROR_CODE);
         $this->setSubmittedValue("");
+        Logger::log("RecaptchaV3 failed verification: " . $message, "INFO");
         // fail validation
         return false;
     }

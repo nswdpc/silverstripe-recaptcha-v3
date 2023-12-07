@@ -73,7 +73,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * Return the field for the spam protector
      * @return RecaptchaV3Field
      */
-    public function getFormField($name = null, $title = null, $value = null)
+    public function getFormField($name = null, $title = null, $value = null) : RecaptchaV3Field
     {
         if (!$name) {
             $name = $this->default_name;
@@ -97,7 +97,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * @param mixed $fieldMapping
      * @return void
      */
-    public function setFieldMapping($fieldMapping)
+    public function setFieldMapping($fieldMapping) : void
     {
         if (isset($fieldMapping['recaptchav3_options']['threshold'])) {
             // expected is an integer between 0 and 100
@@ -115,7 +115,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * If the configured value is out of bounds, the value of 70 is returned
      * @return int between 0 and 100 from configuration
      */
-    public static function getDefaultThreshold()
+    public static function getDefaultThreshold() : int
     {
         // returns a float between 0 and 1.0
         $threshold = TokenResponse::getDefaultScore();
@@ -128,7 +128,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
             // configuration value is out of bounds
             $threshold = 70;
         }
-        return $threshold;
+        return intval($threshold);
     }
 
     /**
@@ -136,7 +136,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * The values returned are a percentage - 100 = all, 0 = none
      * @return array
      */
-    public static function getRange()
+    public static function getRange() : array
     {
         $min = 0;
         $max = 100;
@@ -174,9 +174,8 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
 
     /**
      * Get a dropdown field to allow user-selection of a score for a form
-     * @return DropdownField
      */
-    public static function getRangeField($name, $value = null)
+    public static function getRangeField($name, $value = null) : DropdownField
     {
         return DropdownField::create(
             $name,
@@ -196,9 +195,8 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
 
     /**
      * Get a CompositeField explaining more about the threshold selection
-     * @return CompositeField
      */
-    public static function getRangeCompositeField($name, $value = null)
+    public static function getRangeCompositeField($name, $value = null) : CompositeField
     {
         return CompositeField::create(
             self::getRangeField($name, $value),
@@ -216,9 +214,8 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
 
     /**
      * Get a text field to allow user entry of an action for a form
-     * @return TextField
      */
-    public static function getActionField($name, $value = null)
+    public static function getActionField($name, $value = null) : TextField
     {
         return TextField::create(
             $name,

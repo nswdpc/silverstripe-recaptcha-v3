@@ -47,6 +47,22 @@ class RecaptchaV3FieldTest extends SapphireTest
         $this->assertEquals(round($threshold / 100, 2), $field->getScore(), "Score is correct");
     }
 
+    public function testMinRefreshTime()
+    {
+        $field = RecaptchaV3Field::create('TestMinRefreshTime', 'Min Refresh Time Test');
+        $expected = 2000;
+        $field->setMinRefreshTime($expected);
+        $this->assertEquals($expected, $field->getMinRefreshTime());
+    }
+
+    public function testInvalidMinRefreshTime()
+    {
+        $field = RecaptchaV3Field::create('TestInvalidMinRefreshTime', 'Invalid Min Refresh Time Test');
+        $expected = $field->getMinRefreshTime();
+        $field->setMinRefreshTime(-1000);
+        $this->assertEquals($expected, $field->getMinRefreshTime());
+    }
+
     /**
      * Test the execute action handling on the field, with/without prefix
      */
@@ -97,11 +113,6 @@ class RecaptchaV3FieldTest extends SapphireTest
             $this->assertEquals("Score should not be < 0", $e->getMessage());
         }
 
-        try {
-            $field->setScore('abc123');
-        } catch (\Exception $e) {
-            $this->assertEquals("Score should be a number between 0.0 and 1.0", $e->getMessage());
-        }
     }
 
     public function testVerifier()

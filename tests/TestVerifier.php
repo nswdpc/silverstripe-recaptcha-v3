@@ -28,7 +28,7 @@ class TestVerifier extends Verifier
     /**
      * @return bool
      */
-    public function setIsHuman(bool $is)
+    public function setIsHuman(bool $is) : self
     {
         $this->responseValue = $is;
         if ($is) {
@@ -73,7 +73,7 @@ class TestVerifier extends Verifier
      * Create a test verification response with whatever settings are present on this instance
      * @inheritdoc
      */
-    public function check($token, $score = null, $action = "")
+    public function check(string $token, ?float $score = null, string $action = "") : ?TokenResponse
     {
         $decoded = $this->getTestResponse($action);
         return new TokenResponse($decoded, $score, $action);

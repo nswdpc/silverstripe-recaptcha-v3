@@ -27,10 +27,9 @@ class Verifier
      * @param string $token
      * @param float|null $score
      * @param string $action used to verify the action
-     * @returns boolean|TokenResponse
      * @throws \Exception
      */
-    public function check($token, $score = null, $action = "")
+    public function check(string $token, ?float $score = null, string $action = "") : ?TokenResponse
     {
         $secret_key = $this->config()->get('secret_key');
         if (!$secret_key) {
@@ -56,8 +55,9 @@ class Verifier
             $this->config()->get('url_verify'),
             [ 'form_params' => $data ]
         );
-        if ($response->getStatusCode() != 200) {
-            return false;
+        $statusCode = $response->getStatusCode();
+        if ($statusCode != 200) {
+            throw new \Exception("Verification check returned {$statusCode}, expected 200");
         }
         $body = $response->getBody();
         if ($body) {
@@ -68,13 +68,13 @@ class Verifier
             }
         }
         // failed in the decode or response collection
-        return false;
+        return null;
     }
 
     /**
      * Get the remote addr from the request in a method not dissimilar to Zend/Laminas
      */
-    protected function getRemoteAddr()
+    protected function getRemoteAddr() : string
     {
         if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             // forwarded IP address
