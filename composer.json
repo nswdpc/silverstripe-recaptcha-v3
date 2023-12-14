@@ -41,5 +41,10 @@
                 "src/"
             ]
         }
+    },
+    "extra": {
+        "expose": [
+            "client/static"
+        ]
     }
 }
