@@ -12,6 +12,11 @@ NSWDPC\SpamProtection\RecaptchaV3Field:
   site_key: ''
   # Global action prefix for the field
   execute_action: 'submit'
+  # auto create a RecaptchaV3Rule record for the tag assigned to this field
+  auto_create_rule: false
+Silverstripe\Forms\Form:
+  extensions:
+    - 'NSWDPC\SpamProtection\FormExtension'
 NSWDPC\SpamProtection\RecaptchaV3SpamProtector:
   # How the badge is displayed
   # Options: '','field','form','page'
@@ -27,4 +32,4 @@ NSWDPC\SpamProtection\TurnstileField:
   # Provided by the Turnstile admin project
   site_key: ''
   # Global action prefix for the field
-  execute_action: 'submit''
+  execute_action: 'submit'

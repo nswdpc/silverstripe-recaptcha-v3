@@ -22,7 +22,7 @@ class TestRecaptchaV3Field extends RecaptchaV3Field {
     /**
      * Set a test verifier to use for this test
      */
-    public function setVerifier(Verifier $verifier) {
+    public function setVerifier(Verifier $verifier) : self {
         if(!($verifier instanceof TestRecaptchaV3Verifier)) {
             throw \InvalidArgumentException("Verifier parameter should be an instance of TestRecaptchaV3Verifier");
         }

@@ -13,11 +13,17 @@ use SilverStripe\View\Requirements;
  * When the form field is validated after submission, the token is verified
  * @author James
  */
-class RecaptchaV3Field extends HiddenField {
-
+class RecaptchaV3Field extends HiddenField
+{
     use HasVerifier;
 
     use CaptchaSupport;
+
+    /**
+     * @var string
+     * See validate()
+     */
+    const VALIDATION_ERROR_CODE = "FORM_RECAPTCHAV3";
 
     /**
      * Site key, configured in project
@@ -60,16 +66,17 @@ class RecaptchaV3Field extends HiddenField {
 
     /**
      * Returns the unique id to use in the customScript requirement
-     * @returns string
      */
-    public function getUniqueId() : string {
+    public function getUniqueId() : string
+    {
         return "recaptcha_execute_{$this->ID()}";
     }
 
     /**
      * Set a score for this instance
      */
-    public function setScore($score) : self {
+    public function setScore($score) : self
+    {
         $score = RecaptchaV3TokenResponse::validateScore($score);
         $this->score = $score;
         return $this;
@@ -78,8 +85,12 @@ class RecaptchaV3Field extends HiddenField {
     /**
      * Score for field verification
      */
-    public function getScore() : ?float {
-        if(is_null($this->score)) {
+    public function getScore() : float
+    {
+        if ($rule = $this->getRecaptchaV3Rule()) {
+            // a rule score is an int between 0 and 100
+            return round($rule->Score / 100, 2);
+        } elseif (is_null($this->score)) {
             // use configured value if none set
             return Config::inst()->get(RecaptchaV3TokenResponse::class, 'score');
         } else {
@@ -117,7 +128,7 @@ class RecaptchaV3Field extends HiddenField {
     protected function addRequirements() : void {
         $this->requireClientAPIScript();
         // load the template Javascript for this field
-        Requirements::customScript(  $this->actionScript(), $this->getUniqueId() );
+        Requirements::customScript($this->actionScript(), $this->getUniqueId());
     }
 
     /**
@@ -126,7 +137,8 @@ class RecaptchaV3Field extends HiddenField {
      * Tokens time out after 2 minutes, refreshing the token will assist in reducing token timeouts on longer forms
      * @returns string
      */
-    protected function actionScript() : string {
+    protected function actionScript() : string
+    {
         $site_key = $this->config()->get('site_key');
         $data = [
             'action' => $this->getCaptchaAction()
@@ -134,8 +146,8 @@ class RecaptchaV3Field extends HiddenField {
         $configuration = json_encode($data, JSON_UNESCAPED_SLASHES);
         $id = $this->ID();
         $field_name = $this->getName();
-        // refresh token after 30s
-        $threshold = 30000;
+        // token refresh
+        $minRefreshTime = $this->getMinRefreshTime();
 
         /*
          * when an error occurs and the form is re-loaded with values
@@ -144,7 +156,7 @@ class RecaptchaV3Field extends HiddenField {
          */
         $refresh_on_error = "";
 
-        if(($form = $this->getForm()) && ($errors = $form->getSessionValidationResult()) && !$errors->isValid()) {
+        if (($form = $this->getForm()) && ($errors = $form->getSessionValidationResult()) && !$errors->isValid()) {
             $refresh_on_error = "recaptcha_execute_handler(form);";
         }
 
@@ -153,7 +165,7 @@ grecaptcha.ready(function() {
 
     var recaptcha_require_refresh = function(f) {
         try {
-            var threshold = {$threshold};
+            var threshold = {$minRefreshTime};
             var iv = 0;
             var dlc = f.dataset.lastcheck;
             if(dlc) {

@@ -5,7 +5,9 @@ namespace NSWDPC\SpamProtection;
 use Silverstripe\Core\Config\Config;
 use Silverstripe\Core\Config\Configurable;
 use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\LiteralField;
 use SilverStripe\SpamProtection\SpamProtector;
 
 /**
@@ -104,6 +106,20 @@ abstract class CaptchaSpamProtector implements SpamProtector
     }
 
     /**
+     * Return an HTML list explaining response scores
+     */
+    public static function getRuleSummary() : string
+    {
+        return "<h3>" . _t('NSWDPC\SpamProtection.SCORE_EXAMPLE_HEADER', 'Verification score guide') . "</h3>"
+        . "<ul>"
+        . "<li>10: " . _t('NSWDPC\SpamProtection.SCORE_10', 'Very likely a bot/automated request') . "</li>"
+        . "<li>30: " . _t('NSWDPC\SpamProtection.SCORE_30', 'Likely a bot/automated request') . "</li>"
+        . "<li>70: " . _t('NSWDPC\SpamProtection.SCORE_70', 'Likely a non-automated request') . "</li>"
+        . "<li>90: " . _t('NSWDPC\SpamProtection.SCORE_90', 'Very likely a non-automated request') . "</li>"
+        . "</ul>";
+    }
+
+    /**
      * Get a dropdown field to allow user-selection of a score for a form
      * @return DropdownField
      */
@@ -121,6 +137,25 @@ abstract class CaptchaSpamProtector implements SpamProtector
             _t(
                 'NSWDPC\SpamProtection.SCORE_DESCRIPTION_HUMAN',
                 "Setting the threshold to 100 will block almost all submissions"
+            )
+        );
+    }
+
+    /**
+     * Get a CompositeField explaining more about the threshold selection
+     */
+    public static function getRangeCompositeField($name, $value = null) : CompositeField
+    {
+        return CompositeField::create(
+            self::getRangeField($name, $value),
+            LiteralField::create(
+                'ThresholdCompositeLiteral',
+                self::getRuleSummary()
+            )
+        )->setTitle(
+            _t(
+                'NSWDPC\SpamProtection.SCORE_COMPOSITE_TITLE',
+                'Form spam threshold handling'
             )
         );
     }

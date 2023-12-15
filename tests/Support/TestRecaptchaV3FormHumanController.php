@@ -2,6 +2,7 @@
 
 namespace NSWDPC\SpamProtection\Tests\Support;
 
+use NSWDPC\SpamProtection\RecaptchaV3Field;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\TestOnly;
@@ -27,6 +28,10 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
      */
     private static $url_segment = 'TestRecaptchaV3FormHumanController';
 
+    const FIELD_VALUE = 'test-field-for-human';
+
+    const MIN_REFRESH_TIME = 2020;
+
     /**
      * @var array
      */
@@ -38,24 +43,29 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
     /**
      * @return Form
      */
-    public function Form() {
+    public function Form()
+    {
         return $this->RecaptchaV3HumanTestForm();
     }
 
     /**
      * @return Form
      */
-    public function RecaptchaV3HumanTestForm() {
+    public function RecaptchaV3HumanTestForm()
+    {
 
         // Create a mock test verifier
         $verifier = TestRecaptchaV3Verifier::create();
         $verifier->setIsHuman( true );
 
-        $field = TestRecaptchaV3Field::create('FunctionalVerificationTestHuman');
+        // Create field, set verifier as TestRecaptchaV3Verifier
+        $field = RecaptchaV3Field::create('FunctionalVerificationTestHuman');
         $field->setExecuteAction("humantest/submit", true);
         $field->setVerifier($verifier);
+        $field->setValue(self::FIELD_VALUE);
+        $field->setMinRefreshTime(self::MIN_REFRESH_TIME);
 
-        return Form::create(
+        $form = Form::create(
             $this,
             "RecaptchaV3HumanTestForm",
             FieldList::create(
@@ -65,6 +75,11 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
                 FormAction::create("testRecaptchaVerify")
             )
         );
+
+        // Ensure rule is correctly set
+        $field->setForm($form);
+
+        return $form;
     }
 
     /**
@@ -77,6 +92,6 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
 
     public function getViewer($action = null)
     {
-        return new SSViewer( $this->template );
+        return new SSViewer($this->template);
     }
 }

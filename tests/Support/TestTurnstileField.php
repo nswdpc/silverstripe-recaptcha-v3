@@ -21,7 +21,7 @@ class TestTurnstileField extends TurnstileField {
     /**
      * Set a test verifier to use for this test
      */
-    public function setVerifier(Verifier $verifier) {
+    public function setVerifier(Verifier $verifier) : self {
         if(!($verifier instanceof TestTurnstileVerifier)) {
             throw \InvalidArgumentException("Verifier parameter should be an instance of TestTurnstileVerifier");
         }

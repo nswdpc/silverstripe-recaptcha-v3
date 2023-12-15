@@ -1,7 +1,9 @@
 # Badge display
 
 (reCAPTCHA only)
- 
+
++ [Index](./001_index.md)
+
 You can place the badge in one of four locations using the `NSWDPC\SpamProtection\RecaptchaV3SpamProtector.badge_display` configuration value:
 
 ```yaml
@@ -34,7 +36,7 @@ The default badge is hidden using CSS. Calling `$ReCAPTCHAv3PrivacyInformation` 
 ## Form
 
 Value: 'form'
- 
+
 Provided you have a custom form template, the [replacement text](https://developers.google.com/recaptcha/docs/faq#id-like-to-hide-the-recaptcha-badge.-what-is-allowed) can be displayed in the form template, in a location of your choice:
 
 ```html

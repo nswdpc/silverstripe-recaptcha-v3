@@ -30,9 +30,10 @@ class TestRecaptchaV3Verifier extends RecaptchaV3Verifier {
     /**
      * @return bool
      */
-    public function setIsHuman(bool $is) {
+    public function setIsHuman(bool $is) : self
+    {
         $this->responseValue = $is;
-        if($is) {
+        if ($is) {
             $this->responseScore = self::RESPONSE_HUMAN_SCORE;
             $this->responseValue = true;
         } else {
@@ -45,16 +46,16 @@ class TestRecaptchaV3Verifier extends RecaptchaV3Verifier {
     /**
      * Get a test response emulating a successful request
      */
-    public function getTestResponse($action) : array {
-
+    public function getTestResponse($action) : array
+    {
         $dt = new \DateTime();
         $dt->modify('-15 seconds');
-        $timestamp = $dt->format( \DateTimeInterface::ISO8601 );
+        $timestamp = $dt->format(\DateTimeInterface::ISO8601);
 
         $success = true;
         $hostname = "localhost";
         $errorcodes = [];
-        if(!$this->responseValue) {
+        if (!$this->responseValue) {
             $errorcodes[] = 'an-error-code';
         }
 

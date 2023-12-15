@@ -1,5 +1,4 @@
-/node_modules/
+/client/node_modules
 /vendor/
 .DS_Store
-.directory
-.php-cs-fixer.cache
+/.php-cs-fixer.cache

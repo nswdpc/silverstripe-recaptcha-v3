@@ -24,7 +24,7 @@ class RecaptchaV3SpamProtector extends CaptchaSpamProtector implements TemplateG
     /**
      * @var string
      */
-    protected $execute_action = "autoprotection/submit";//default execute action
+    protected $execute_action = "";//default execute action
 
     /**
      * @var int
@@ -39,7 +39,6 @@ class RecaptchaV3SpamProtector extends CaptchaSpamProtector implements TemplateG
      */
     private static $badge_display = "";
 
-
     const BADGE_DISPLAY_DEFAULT = '';// use the reCAPTCHAv3 library default (fixed bottom right)
     const BADGE_DISPLAY_FIELD = 'field';// display the badge text in the form, above the actions
     const BADGE_DISPLAY_FORM = 'form';// badge is displayed in form. NB: requires custom form template
@@ -49,14 +48,11 @@ class RecaptchaV3SpamProtector extends CaptchaSpamProtector implements TemplateG
      * Return the field for the spam protector
      * @return RecaptchaV3Field
      */
-    public function getFormField($name = null, $title = null, $value = null)
+    public function getFormField($name = null, $title = null, $value = null) : RecaptchaV3Field
     {
-        if(!$name) {
-            $name = $this->default_name;
-        }
         $field = Injector::inst()->createWithArgs(
-                RecaptchaV3Field::class,
-                ['name' => $name, 'title' => $title, 'value' => $value]
+            RecaptchaV3Field::class,
+            ['name' => $name, 'title' => $title, 'value' => $value]
         );
 
         // check if the threshold provided is in bounds
@@ -71,7 +67,8 @@ class RecaptchaV3SpamProtector extends CaptchaSpamProtector implements TemplateG
     /**
      * @inheritdoc
      */
-    public static function get_template_global_variables() {
+    public static function get_template_global_variables()
+    {
         return [
             'ReCAPTCHAv3PrivacyInformation' => 'get_privacy_information',
             'ReCAPTCHAv3BadgeDisplay' => 'get_badge_display',
@@ -81,10 +78,11 @@ class RecaptchaV3SpamProtector extends CaptchaSpamProtector implements TemplateG
     /**
      * Return the privacy information from a template
      */
-    public static function get_privacy_information() {
+    public static function get_privacy_information()
+    {
         $displayOption = self::config()->get('badge_display');
         $value = '';
-        switch($displayOption) {
+        switch ($displayOption) {
             case self::BADGE_DISPLAY_FORM:
             case self::BADGE_DISPLAY_FIELD:
             case self::BADGE_DISPLAY_PAGE:
@@ -105,14 +103,16 @@ class RecaptchaV3SpamProtector extends CaptchaSpamProtector implements TemplateG
      * Return some information for templates to display the RecaptchaV3Badge
      * Returns an empty string, 'field', 'form' or 'page'
      */
-    public static function get_badge_display() : string {
+    public static function get_badge_display() : string
+    {
         return self::config()->get('badge_display');
     }
 
     /**
      * Hide badge via custom css
      */
-    public static function hideBadge() : void {
+    public static function hideBadge() : void
+    {
         $css = ".grecaptcha-badge { visibility: hidden; }";
         Requirements::customCSS($css, 'recaptcha_badge_hide');
     }

@@ -31,6 +31,71 @@ trait CaptchaSupport {
     protected $field_execute_action = "";
 
     /**
+     * Tag used to find the rule for validation
+     * @var string
+     */
+    protected $recaptchaV3RuleTag = '';
+
+    /**
+     * Rule used for validation
+     * @var RecaptchaV3Rule|null
+     */
+    protected $rule = null;
+
+    /**
+     * When true, a non-enabled RecaptchaV3Rule record will be created with a tag matching
+     * the recaptchaV3RuleTag value assigned to this field
+     * @var bool
+     */
+    private static $auto_create_rule = false;
+
+
+    /**
+     * Minimum refresh time for getting an updated/new token value
+     * @var int milliseconds
+     */
+    protected $minRefreshTime = 30000;
+
+    /**
+     * @inheritdoc
+     * Return rule attribute for visual validation
+     */
+    public function getDefaultAttributes($attributes = null) : array
+    {
+        $defaultAttributes = parent::getDefaultAttributes($attributes);
+        $rule = $this->getRecaptchaV3Rule();
+        if ($rule && $rule->exists()) {
+            $defaultAttributes['data-rule'] = $rule->ID;
+        }
+        return $defaultAttributes;
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * Automatically sets the tag to be used for rule retrieval if none has been set on the field
+     * See {@link FormExtension::getRecaptchaV3RuleTag()}
+     *
+     * If no tag/rule is found, the system default settings are used.
+     *
+     * Note: if your form  modifies the form name after initial construction
+     * and then calls setForm() again the tag will change. You can work around this
+     * by returning an unchanging tag in a Form method 'getRecaptchaV3Tag'
+     *
+     * If the recaptchav3 action changes between loading the form and submitting the form,
+     * then field validation will fail (see TokenResponse::failOnAction() method)
+     *
+     * See {@link self::getRecaptchaV3Rule()}
+     */
+    public function setForm($form)
+    {
+        if (!$this->recaptchaV3RuleTag) {
+            $this->setRecaptchaV3RuleTag($form->getRecaptchaV3RuleTag());
+        }
+        return parent::setForm($form);
+    }
+
+    /**
      * @returns string
      */
     public function getSiteKey() : ?string
@@ -57,21 +122,6 @@ trait CaptchaSupport {
         }
 
         return $context->renderWith($this->getFieldHolderTemplates());
-    }
-
-    /**
-     * Implementations add their own requirements for loading a JS API script and any CSS required
-     */
-    public function addRequirements() : void {
-
-    }
-
-    /**
-     * The implementation provides its own per instance script handling
-     * This is used for explicit per-field event handling
-     */
-    protected function actionScript() : string {
-        return '';
     }
 
     /**
@@ -106,6 +156,21 @@ trait CaptchaSupport {
     }
 
     /**
+     * Returns the configured action name for this field, override in implementation
+     * @returns string
+     */
+    public function getCaptchaAction() : string {
+        return "";
+    }
+
+    /**
+     * This method is retained for BC
+     */
+    public function getRecaptchaAction() : string {
+        return $this->getCaptchaAction();
+    }
+
+    /**
      * Returns the unique id to use in the customScript requirement
      * @returns string
      */
@@ -131,58 +196,116 @@ trait CaptchaSupport {
     }
 
     /**
-     * Returns the configured action name for this field, override in implementation
-     * @returns string
+     * Set the tag to use on this field.
+     * This is automatically set by the RecaptchaV3SpamProtector::getFormField
+     * when it calls self::setForm()
      */
-    public function getCaptchaAction() : string {
-        return "";
+    public function setRecaptchaV3RuleTag(string $tag) : self
+    {
+        if ($this->recaptchaV3RuleTag && ($tag != $this->recaptchaV3RuleTag)) {
+            // invalidate the rule as the tag changed
+            $this->rule = null;
+        }
+        $this->recaptchaV3RuleTag = $tag;
+        return $this;
     }
 
     /**
-     * This method is retained for BC
+     * Return a rule defined by the tag set on this field
      */
-    public function getRecaptchaAction() : string {
-        return $this->getCaptchaAction();
+    public function getRecaptchaV3Rule() : ?RecaptchaV3Rule
+    {
+        $tag = "";
+        if (!$this->rule) {
+            if ($tag = $this->recaptchaV3RuleTag) {
+                $this->rule = RecaptchaV3Rule::getRuleByTag($tag);
+            }
+
+            if ($tag && !$this->rule && $this->config()->get('auto_create_rule')) {
+                // create from tag but do not enable it
+                // for inspection by site owner who can enabled it manually
+                RecaptchaV3Rule::createFromTag($tag, false);
+            }
+        }
+        return $this->rule;
     }
 
     /**
-     * Stores data from the TokenResponse model in session, for later analysis, only if a response is valid
+     * Update the minimum refresh time, after which a token can be replaced with a new one
+     * if the relevant event(s) are called
+     * @param int $minRefreshTime milliseconds 5000 = 5s
+     */
+    public function setMinRefreshTime(int $minRefreshTime) : self {
+        if($minRefreshTime > 0) {
+            $this->minRefreshTime = $minRefreshTime;
+        }
+        return $this;
+    }
+
+    /**
+     * Get the refresh time for the token
+     */
+    public function getMinRefreshTime() : int {
+        return $this->minRefreshTime;
+    }
+
+    /**
+     * Implementations add their own requirements for loading a JS API script and any CSS required
+     */
+    public function addRequirements() : void {
+
+    }
+
+    /**
+     * The implementation provides its own per instance script handling
+     * This is used for explicit per-field event handling
+     */
+    protected function actionScript() : string {
+        return '';
+    }
+
+    /**
+     * Store data from the TokenResponse model in session
      * This will be cleared when Form::clearFormState() is called as it uses .data
      */
-    protected function storeResponseToSession($token, TokenResponse $response) : void {
+    protected function storeResponseToSession($token, TokenResponse $response) : void
+    {
         $request = Controller::curr()->getRequest();
         $session = $request->getSession();
         $data = [
             'token' => $token,
-            'score' => $response->getResponseScore(),// @var float|null
+            'score' => $response->getResponseScore(),// the verification score from the API
+            'threshold' => $response->getScore(),// the threshold set for the test
             'hostname' => $response->getResponseHostname(),
             'action' => $response->getResponseAction()
         ];
-        $session->set( $this->config()->get('session_key'), $data);
+        $session->set($this->config()->get('session_key'), $data);
     }
 
     /**
      * Remove any previous session data
      */
-    protected function clearSessionResponse($session = null) : void {
+    protected function clearSessionResponse($session = null) : void
+    {
         $session = $session ?? Controller::curr()->getRequest()->getSession();
         $session_key = $this->config()->get('session_key');
-        $session->clear( $session_key );
+        $session->clear($session_key);
     }
 
     /**
      * Get response from session
      * @return mixed
      */
-    public function getResponseFromSession($key = "") {
+    public function getResponseFromSession(string $key = "")
+    {
         $request = Controller::curr()->getRequest();
         $session = $request->getSession();
         $session_key = $this->config()->get('session_key');
         // store score for this token to session
-        $data = $session->get( $session_key );//
+        $data = $session->get($session_key);//
         // clear session once retrieved
         $this->clearSessionResponse($session);
-        if(isset($data[$key])) {
+        if (isset($data[$key])) {
             return $data[$key];
         } else {
             return $data;
@@ -192,7 +315,8 @@ trait CaptchaSupport {
     /**
      * Return the message when possible spam/bot found
      */
-    public static function getMessagePossibleSpam() : string {
+    public static function getMessagePossibleSpam() : string
+    {
         return _t(
             'NSWDPC\SpamProtection.TOKEN_POSSIBLE_SPAM',
             'We have detected that the form may be a spam submission. Please try to submit the form again.'
@@ -202,7 +326,8 @@ trait CaptchaSupport {
     /**
      * Return the message when general failure occurs
      */
-    public static function getMessageGeneralFailure() : string {
+    public static function getMessageGeneralFailure() : string
+    {
         return _t(
             'NSWDPC\SpamProtection.TOKEN_VERIFICATION_GENERAL_ERROR',
             'Sorry, the form submission failed. You may like to try again.'
@@ -212,7 +337,8 @@ trait CaptchaSupport {
     /**
      * Return the message when a timeout occurs
      */
-    public static function getMessageTimeout() : string {
+    public static function getMessageTimeout() : string
+    {
         return _t(
             'NSWDPC\SpamProtection.TOKEN_TIMEOUT',
             'Please check the information provided and submit the form again.'
@@ -247,9 +373,11 @@ trait CaptchaSupport {
                 throw new \Exception( "CaptchaSupport::validate() - no token found" );
             }
 
+            $rule = $this->getRecaptchaV3Rule();
             $action = $this->getCaptchaAction();
             $verifier = $this->getVerifier();
             $response = $verifier->check($token, $this->getScore(), $action);
+
             // handle the response when it is a {@link NSWDPC\SpamProtection\TokenResponse}
             if($response instanceof TokenResponse) {
                 // successful verification
@@ -258,17 +386,35 @@ trait CaptchaSupport {
                     $this->storeResponseToSession($token, $response);
                     // all good
                     $this->setSubmittedValue("");
+                    TokenResponse::logStat("isValid", true);
                     return true;
-                }
-                // timeout
-                if($response->isTimeout()) {
+                } elseif ($response->isTimeout()) {
                     // > timeout to submit form
                     throw new VerificationException( static::getMessageTimeout() );
+                } elseif ($rule) {
+                    // Work out what action to take
+                    switch ($rule->ActionToTake) {
+                        case RecaptchaV3Rule::TAKE_ACTION_ALLOW:
+                            TokenResponse::logStat("rule", ["fail" => true, "rule" => $rule->ID, "takeaction" => RecaptchaV3Rule::TAKE_ACTION_ALLOW]);
+                            return true;
+                        case RecaptchaV3Rule::TAKE_ACTION_CAUTION:
+                            // Allow an extension to throw a RecaptchaVerificationException or continue
+                            $this->extend('recaptchaFailWithCaution', $rule, $response);
+                            TokenResponse::logStat("rule", ["fail" => true, "rule" => $rule->ID, "takeaction" => RecaptchaV3Rule::TAKE_ACTION_CAUTION]);
+                            return true;
+                        default:
+                            throw new VerificationException(self::getMessagePossibleSpam());
+                            break;
+                    }
+                } else {
+                    // No rule, fall back to BLOCK (prompt to resubmit)
+                    TokenResponse::logStat("default", "block");
+                    throw new VerificationException( static::getMessagePossibleSpam() );
                 }
-                throw new VerificationException( static::getMessagePossibleSpam() );
+            } else {
+                // general failure
+                throw new \Exception("Verification failed - no/bad response from verify API");
             }
-            // general failure
-            throw new \Exception("Verification failed - no/bad response from verify API");
         } catch (VerificationException $e) {
             // catch actual verification fails
             $message = $e->getMessage();
@@ -278,10 +424,11 @@ trait CaptchaSupport {
             $message = static::getMessageGeneralFailure();
             Logger::log("General exception..." . $e->getMessage(), "NOTICE" );
         }
-        // set error on form
-        $this->getForm()->sessionError( $message );
-        $validator->validationError( $this->getName(), $message, ValidationResult::TYPE_ERROR );
+        // create a form-wide validation error
+        $validationResult = $validator->getResult();
+        $validationResult->addError($message, ValidationResult::TYPE_ERROR, self::VALIDATION_ERROR_CODE);
         $this->setSubmittedValue("");
+        Logger::log("Failed verification: " . $message, "INFO");
         // fail validation
         return false;
     }

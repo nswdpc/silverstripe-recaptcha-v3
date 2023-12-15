@@ -22,6 +22,12 @@ class TurnstileField extends HiddenField {
     use CaptchaSupport;
 
     /**
+     * @var string
+     * See validate()
+     */
+    const VALIDATION_ERROR_CODE = "FORM_TURNSTILE";
+
+    /**
      * Site key, configured in project
      * @param string
      */

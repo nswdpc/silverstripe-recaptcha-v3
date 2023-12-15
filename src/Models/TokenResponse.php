@@ -52,12 +52,15 @@ abstract class TokenResponse {
     // An internal error happened while validating the response
     const ERR_INTERNAL_ERROR = 'internal-error';
 
+    private static $log_stats = false;
+
     /**
      * @param array $response the result from a call to the siteverify endpoint
      * @param float|null $score some implementations do not support a score
      * @param string $action
      */
-    public function __construct(array $response, float $score = null, $action = '') {
+    public function __construct(array $response, ?float $score = null, string $action = '')
+    {
         $this->response = $response;
         $this->action = static::formatAction($action);
         $this->verification_score = static::validateScore($score);
@@ -75,69 +78,93 @@ abstract class TokenResponse {
 
     /**
      * Return the response returned from the verification API
-     * @returns array
      */
-    public function getResponse() : array {
+    public function getResponse() : array
+    {
         return $this->response;
     }
 
     /**
      * Determines whether the response score suggests a lower quality action
-     * @returns bool
      */
-    public function failOnScore() : bool {
+    public function failOnScore() : bool
+    {
         $response_score = $this->getResponseScore();
         // if the response score is less than the allowed score, it's lower quality than we want
-        return $response_score < $this->verification_score;
+        $result = ($responseScore < $this->verification_score);
+        if($result) {
+            self::logStat("failOnScore", ["threshold" => $this->verification_score, "response" => $responseScore ]);
+        }
+        return $result;
     }
 
     /**
-     * @returns bool
+     * Check for action mismatch
      */
-    public function failOnAction() : bool {
-        if($action = $this->getAction()) {
+    public function failOnAction() : bool
+    {
+        if ($action = $this->getAction()) {
             $responseAction = $this->getResponseAction();
-            Logger::log("Action is {$action}, response action is {$responseAction}" );
-            return $action != $responseAction;
+            $result = ($action != $responseAction);
+            if($result) {
+                self::logStat("failOnAction", ["action" => $action, "response" => $responseAction]);
+            }
         } else {
-            // no action provide, cannot check on it
-            return false;
+            // no action provided, cannot check on it
+            $result = false;
+        }
+        return $result;
+    }
+
+    /**
+     * Log a captcha stat
+     */
+    public static function logStat(string $message, $reason) : void
+    {
+        if(self::config()->get('log_stats')) {
+            $stat = [
+                "message" => $message,
+                "reason" => $reason
+            ];
+            Logger::log("captcha stat:" . json_encode($stat), "INFO");
         }
     }
 
     /**
-     * Validte based on implementation rules whether a response is valid
+     * Validate based on implementation rules whether a response is valid
      * @return bool
      */
     abstract public function isValid() : bool;
 
     /**
-     * @returns string
+     * Get the current action value
      */
-    public function getAction() : string {
+    public function getAction() : string
+    {
         return $this->action;
     }
 
     /**
-     * Return the score threshold to use for verifying responses
+     * Get the current score value
      * @return float
      */
-    public function getScore() : float {
+    public function getScore() : float
+    {
         return $this->verification_score ? $this->verification_score : static::getDefaultScore();
     }
 
     /**
      * Returns the default score from configuration
-     * @return float
      */
     public static function getDefaultScore() : float {
         return round(Config::inst()->get(static::class, 'score'), 2);
     }
 
     /**
-     * @returns string
+     * Get the action returned from the response
      */
-    public function getResponseAction() : string {
+    public function getResponseAction() : string
+    {
         return isset($this->response['action']) ? $this->response['action'] : '';
     }
 
@@ -145,53 +172,71 @@ abstract class TokenResponse {
      * Get score from response, if the implementation supports it
      * @returns float
      */
-    public function getResponseScore() : ?float {
+    public function getResponseScore() : ?float
+    {
         return isset($this->response['score']) ? $this->response['score'] : null;
     }
 
     /**
-     * @returns string
+     * Get response hostname
      */
-    public function getResponseHostname() : string {
+    public function getResponseHostname() : string
+    {
         return isset($this->response['hostname']) ? $this->response['hostname'] : '';
     }
 
     /**
      * Note: "whether this request was a valid reCAPTCHA token for your site"
      * This does not do a score check or return that the token/action is valid
-     * @returns boolean
      */
-    public function isSuccess() : bool {
-        return isset($this->response['success']) && $this->response['success'];
+    public function isSuccess() : bool
+    {
+        $is = isset($this->response['success']) && $this->response['success'];
+        if(!$is) {
+            TokenResponse::logStat("isSuccess", false);
+        }
+        return $is;
     }
 
     /**
-     * @returns array
+     * Get all error codes
      */
-    public function errorCodes() : array {
+    public function errorCodes() : array
+    {
         return isset($this->response['error-codes']) && is_array($this->response['error-codes']) ? $this->response['error-codes'] : [];
     }
 
     /**
-     * @returns bool
+     * Check if the token has timed out (or is a duplicate)
      */
-    public function isTimeout() : bool {
+    public function isTimeout() : bool
+    {
         $codes = $this->errorCodes();
-        return array_search( self::ERR_TIMEOUT_OR_DUPLCIATE, $codes) !== false;
+        $is = array_search(self::ERR_TIMEOUT_OR_DUPLCIATE, $codes) !== false;
+        if($is) {
+            TokenResponse::logStat("isTimeoutOrDuplicate", true);
+        }
+        return $is;
+    }
+
+    /**
+     * Check for bad request
+     */
+    public function isBadRequest() : bool
+    {
+        $codes = $this->errorCodes();
+        $is = array_search(self::ERR_BAD_REQUEST, $codes) !== false;
+        if($is) {
+            TokenResponse::logStat("isBadRequest", true);
+        }
+        return $is;
     }
 
     /**
      * @returns bool
      */
-    public function isBadRequest() : bool {
-        $codes = $this->errorCodes();
-        return array_search( self::ERR_BAD_REQUEST, $codes) !== false;
-    }
-
-    /**
-     * @returns bool
-     */
-    public function isInternalError() : bool {
+    public function isInternalError() : bool
+    {
         $codes = $this->errorCodes();
         return array_search( self::ERR_INTERNAL_ERROR, $codes) !== false;
     }
