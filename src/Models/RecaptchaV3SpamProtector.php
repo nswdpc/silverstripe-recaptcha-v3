@@ -44,8 +44,8 @@ class RecaptchaV3SpamProtector extends CaptchaSpamProtector implements TemplateG
     const BADGE_DISPLAY_FORM = 'form';// badge is displayed in form. NB: requires custom form template
     const BADGE_DISPLAY_PAGE = 'page';// display the badge text in the page somewhere
 
-    /**
-     * Return the field for the spam protector
+    /*
+     * Return the RecaptchaV3Field instance to use for this form
      * @return RecaptchaV3Field
      */
     public function getFormField($name = null, $title = null, $value = null) : RecaptchaV3Field

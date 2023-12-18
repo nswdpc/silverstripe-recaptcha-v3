@@ -240,5 +240,4 @@ abstract class TokenResponse {
         $codes = $this->errorCodes();
         return array_search( self::ERR_INTERNAL_ERROR, $codes) !== false;
     }
-
 }

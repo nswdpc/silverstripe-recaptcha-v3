@@ -10,6 +10,12 @@ The module provides form fields that can be added to a form manually or added au
 + Granular rules for protected forms
 + Manage badge placement
 
+## Features
+
++ Project-based threshold set via Configuration API
++ Granular rules for protected forms
++ Manage badge placement
+
 ## Installation
 
 Install via composer

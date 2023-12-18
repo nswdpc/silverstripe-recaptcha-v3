@@ -81,7 +81,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Set a score for this instance
      */
-    public function setScore($score) : self
+    public function setScore(float $score) : self
     {
         $score = RecaptchaV3TokenResponse::validateScore($score);
         $this->score = $score;
