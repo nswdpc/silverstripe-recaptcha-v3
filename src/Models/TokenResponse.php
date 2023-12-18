@@ -89,7 +89,7 @@ abstract class TokenResponse {
      */
     public function failOnScore() : bool
     {
-        $response_score = $this->getResponseScore();
+        $responseScore = $this->getResponseScore();
         // if the response score is less than the allowed score, it's lower quality than we want
         $result = ($responseScore < $this->verification_score);
         if($result) {
