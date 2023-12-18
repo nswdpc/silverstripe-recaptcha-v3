@@ -39,4 +39,12 @@ class TurnstileSpamProtector extends CaptchaSpamProtector
         return $field;
     }
 
+    /**
+     * @inheritdoc
+      * Turnstile does not support a score / threshold setting
+     */
+    public static function getDefaultThreshold() : ?int {
+        return null;
+    }
+
 }
