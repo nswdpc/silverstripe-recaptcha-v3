@@ -17,28 +17,37 @@ class TurnstileFieldTest extends SapphireTest
     protected $usesDatabase = false;
 
     /**
-     * Test the execute action handling on the field, with/without prefix
+     * Test the execute action handling on the field, where the action
+     * already has a prefix
      */
-    public function testExecuteAction()
+    public function testExecuteActionPrefixed()
     {
-        $expectedAction = "test_action";
+        $expectedAction = $action = "test_action";
         $field = TurnstileField::create('TestExecuteAction', 'Execute action test');
-        $field->setExecuteAction($expectedAction, true);
+        $field->setExecuteAction($action, true);
         $executeAction = $field->getExecuteAction();
         $this->assertEquals($expectedAction, $executeAction);
 
         $captchaAction = $field->getCaptchaAction();
-        $this->assertEquals($expectedAction, $captchaAction);
+        $this->assertEquals(TurnstileTokenResponse::formatAction($expectedAction), $captchaAction);
 
-        $expectedAction = "unprefixedaction";
-        $field = TurnstileField::create('TestExecuteAction', 'Execute action test without prefix');
-        $field->setExecuteAction($expectedAction, false);
+    }
+
+    /**
+     * Test the execute action handling on the field where the field
+     * ID() is prefixed onto the selected execute action
+     */
+    public function testExecuteActionUnprefixed()
+    {
+        $fieldName = 'TestExecuteAction';
+        $action = "unprefixedaction";
+        $expectedAction = "{$fieldName}_{$action}";
+        $field = TurnstileField::create($fieldName, 'Execute action test without prefix');
+        $field->setExecuteAction($action, false);
         $executeAction = $field->getExecuteAction();
         $this->assertEquals($expectedAction, $executeAction);
-
         $captchaAction = $field->getCaptchaAction();
-        $expectedCaptchaAction = substr($field->ID() . "_" . $expectedAction, 0, 32);
-        $this->assertEquals( $expectedCaptchaAction, $captchaAction);
+        $this->assertEquals(TurnstileTokenResponse::formatAction($expectedAction), $captchaAction);
 
     }
 

@@ -55,6 +55,12 @@ class RecaptchaV3Field extends HiddenField
     protected $fieldHolderTemplate = "RecaptchaV3Field_holder";
 
     /**
+     * @var string
+     * Delimiter for action
+     */
+    const ACTION_DELIMITER = "/";
+
+    /**
      * Return the RecaptchaV3Verifier to use for this request
      */
     public function getVerifier() : ?Verifier {
@@ -99,15 +105,11 @@ class RecaptchaV3Field extends HiddenField
     }
 
     /**
-     * Returns the configured action name for this form field
+     * Returns the configured action for this form field, formatted to reCAPTCHAv3 rules
      * @returns string
      */
     public function getCaptchaAction() : string {
-        $prefix = "";
-        if(!$this->has_prefixed_action) {
-            $prefix = $this->ID() . "/";
-        }
-        return RecaptchaV3TokenResponse::formatAction($prefix . $this->getExecuteAction());
+        return RecaptchaV3TokenResponse::formatAction($this->getExecuteAction());
     }
 
     /**

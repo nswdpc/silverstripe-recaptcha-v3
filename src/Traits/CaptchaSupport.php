@@ -150,9 +150,19 @@ trait CaptchaSupport {
      * @returns string
      */
     public function getExecuteAction() : string {
-        return $this->field_execute_action  ?
-                $this->field_execute_action :
-                $this->config()->get('execute_action');
+        if ($rule = $this->getRecaptchaV3Rule()) {
+            $action = $rule->Action;
+        } else {
+            $action = $this->field_execute_action  ?
+                    $this->field_execute_action :
+                    $this->config()->get('execute_action');
+            $prefix = "";
+            if (!$this->has_prefixed_action) {
+                $prefix = $this->ID() . self::ACTION_DELIMITER;
+            }
+            $action = $prefix . $action;
+        }
+        return $action;
     }
 
     /**
@@ -160,14 +170,14 @@ trait CaptchaSupport {
      * @returns string
      */
     public function getCaptchaAction() : string {
-        return "";
+        throw new \RuntimeException("Implementations using this trait must implement the getCaptchaAction method");
     }
 
     /**
-     * This method is retained for BC
+     * @deprecated this method is preserved for BC, use getExecuteAction instead
      */
     public function getRecaptchaAction() : string {
-        return $this->getCaptchaAction();
+        return $this->getExecuteAction();
     }
 
     /**

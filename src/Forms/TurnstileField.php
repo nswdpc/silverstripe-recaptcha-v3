@@ -72,6 +72,12 @@ class TurnstileField extends HiddenField {
     protected $fieldHolderTemplate = "TurnstileField_holder";
 
     /**
+     * @var string
+     * Delimiter for action. / not allowed in Turnstile
+     */
+    const ACTION_DELIMITER = "_";
+
+    /**
      * Return the TurnstileVerifier to use for this request
      */
     public function getVerifier() : ?Verifier {
@@ -82,15 +88,11 @@ class TurnstileField extends HiddenField {
     }
 
     /**
-     * Returns the configured action name for this form field
+     * Returns the configured action for this form field, formatted to Turnstile rules
      * @returns string
      */
     public function getCaptchaAction() : string {
-        $prefix = "";
-        if(!$this->has_prefixed_action) {
-            $prefix = $this->ID() . "_";// prefix with underscore suffix
-        }
-        return TurnstileTokenResponse::formatAction($prefix . $this->getExecuteAction());
+        return TurnstileTokenResponse::formatAction($this->getExecuteAction());
     }
 
     /**

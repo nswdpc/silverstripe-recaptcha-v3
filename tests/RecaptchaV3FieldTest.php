@@ -35,7 +35,7 @@ class RecaptchaV3FieldTest extends SapphireTest
         $field = $protector->getFormField('Test', 'Test');
 
         $this->assertInstanceOf(RecaptchaV3Field::class, $field, 'Field is a RecaptchaV3Field');
-        $this->assertEquals($executeAction, $field->getRecaptchaAction(), 'Execute action is correct');
+        $this->assertEquals($executeAction, $field->getCaptchaAction(), 'Execute action is correct');
         $this->assertEquals(round($threshold / 100, 2), $field->getScore(), "Score is correct");
     }
 
@@ -56,28 +56,36 @@ class RecaptchaV3FieldTest extends SapphireTest
     }
 
     /**
-     * Test the execute action handling on the field, with/without prefix
+     * Test the execute action handling on the field, where the action
+     * already has a prefix
      */
-    public function testExecuteAction()
+    public function testExecuteActionPrefixed()
     {
-        $expectedAction = "test/action";
+        $expectedAction = $action = "test/action";//prefixed
         $field = RecaptchaV3Field::create('TestExecuteAction', 'Execute action test');
-        $field->setExecuteAction($expectedAction, true);
+        $field->setExecuteAction($action, true);
         $executeAction = $field->getExecuteAction();
         $this->assertEquals($expectedAction, $executeAction);
+        $recaptchaAction = $field->getCaptchaAction();
+        $this->assertEquals(RecaptchaV3TokenResponse::formatAction($expectedAction), $recaptchaAction);
 
-        $recaptchaAction = $field->getRecaptchaAction();
-        $this->assertEquals($expectedAction, $recaptchaAction);
+    }
 
-        $expectedAction = "unprefixedaction";
-        $field = RecaptchaV3Field::create('TestExecuteAction', 'Execute action test without prefix');
-        $field->setExecuteAction($expectedAction, false);
+    /**
+     * Test the execute action handling on the field where the field
+     * ID() is prefixed onto the selected execute action
+     */
+    public function testExecuteActionUnprefixed()
+    {
+        $fieldName = 'TestExecuteAction';
+        $action = "unprefixedaction";
+        $expectedAction = "{$fieldName}/{$action}";
+        $field = RecaptchaV3Field::create($fieldName, 'Execute action test without prefix');
+        $field->setExecuteAction($action, false);
         $executeAction = $field->getExecuteAction();
         $this->assertEquals($expectedAction, $executeAction);
-
-        $recaptchaAction = $field->getRecaptchaAction();
-
-        $this->assertEquals($field->ID() . "/" . $expectedAction, $recaptchaAction);
+        $recaptchaAction = $field->getCaptchaAction();
+        $this->assertEquals(RecaptchaV3TokenResponse::formatAction($expectedAction), $recaptchaAction);
     }
 
     public function testUniqueID()
