@@ -45,7 +45,13 @@ RecaptchaV3Handler.prototype = {
   },
   // Attempt to retrieve a token
   execute: function(evt) {
+    if(evt) {
+      evt.stopPropagation();
+    }
     if(!this.requireRefresh()) {
+      return null;
+    }
+    if(this.field.dataset.isPending == '1') {
       return null;
     }
     this.field.dataset.isPending = '1';
@@ -81,7 +87,6 @@ RecaptchaV3Handler.prototype = {
       }
     ).forEach(
       (input) => {
-        console.log(input);
         input.addEventListener(
             'focus',
             function(evt) {
