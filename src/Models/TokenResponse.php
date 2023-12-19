@@ -90,6 +90,13 @@ class TokenResponse
     }
 
     /**
+     * Is this an empty action?
+     */
+    public static function isEmptyAction(?string $action) : bool {
+        return is_null($action) || $action === '';
+    }
+
+    /**
      * Return the response returned from the verification API
      */
     public function getResponse() : array
