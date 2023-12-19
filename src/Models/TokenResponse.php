@@ -86,7 +86,7 @@ class TokenResponse
     public static function formatAction(string $action) : string
     {
         $action = preg_replace("/[^a-z0-9\\/]/i", "", $action);
-        return $action;
+        return trim($action);
     }
 
     /**
