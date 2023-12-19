@@ -44,6 +44,12 @@ class RecaptchaV3Field extends HiddenField
     private static $execute_action = "submit";
 
     /**
+     * Used as fallback value for default, it specified/configured value is not valid
+     * @var string
+    */
+    const DEFAULT_ACTION = 'submit';
+
+    /**
      * Per instance execute_action
      * @param string
      */
@@ -118,6 +124,19 @@ class RecaptchaV3Field extends HiddenField
             $defaultAttributes['data-rule'] = $rule->ID;
         }
         return $defaultAttributes;
+    }
+
+    /**
+     * Get default action, either from configuration or the fallback class constant
+     * @return string
+     */
+    public static function getDefaultAction() : string
+    {
+        $action = self::config()->get('execute_action');
+        if(TokenResponse::isEmptyAction($action)) {
+            $action = self::DEFAULT_ACTION;
+        }
+        return $action;
     }
 
     /**
@@ -201,7 +220,7 @@ class RecaptchaV3Field extends HiddenField
     {
         return $this->field_execute_action  ?
                 $this->field_execute_action :
-                $this->config()->get('execute_action');
+                self::getDefaultAction();
     }
 
     /**
