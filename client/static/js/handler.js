@@ -93,6 +93,12 @@ RecaptchaV3Handler.prototype = {
                 _self.execute(evt);
             }
         );
+        input.addEventListener(
+            'change',
+            function(evt) {
+                _self.execute(evt);
+            }
+        );
       }
     );
     return this;
