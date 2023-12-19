@@ -39,9 +39,9 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     protected $execute_action = "";//default execute action
 
     /**
-     * @var string
+     * @var null|int
      */
-    protected $threshold = -1;//default threshold (use config value)
+    protected $threshold = null;//default threshold (use config value)
 
     /**
      * Badge display options: empty string, 'form' or 'page'
@@ -55,6 +55,13 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     const BADGE_DISPLAY_FIELD = 'field';// display the badge text in the form, above the actions
     const BADGE_DISPLAY_FORM = 'form';// badge is displayed in form. NB: requires custom form template
     const BADGE_DISPLAY_PAGE = 'page';// display the badge text in the page somewhere
+
+    /**
+     * Used as fallback value for default, it specified value is not valid
+     * @deprecated use
+     * @var int
+    */
+    const DEFAULT_THRESHOLD = 50;
 
     /*
      * Return the RecaptchaV3Field instance to use for this form
@@ -82,7 +89,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
         $field = $this->getRecaptchaV3Field($name, $title, $value);
 
         // check if the threshold provided is in bounds
-        if ($this->threshold < 0 || $this->threshold > 100) {
+        if(!self::isValidThreshold($this->threshold)) {
             $this->threshold = self::getDefaultThreshold();
         }
         $field->setScore(round(($this->threshold / 100), 2)); // format for the reCAPTCHA API 0.00->1.00
@@ -124,11 +131,18 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
         // round to the number of steps expected here
         $steps = Config::inst()->get(self::class, 'steps');
         $threshold = round($threshold / $steps) * $steps;
-        if ($threshold < 0 || $threshold > 100) {
+        if (!self::isValidThreshold($threshold)) {
             // configuration value is out of bounds
-            $threshold = 70;
+            $threshold = self::DEFAULT_THRESHOLD;
         }
         return intval($threshold);
+    }
+
+    /**
+     * Check if a threshold is valid
+     */
+    public static function isValidThreshold(?int $threshold) : bool {
+        return !is_null($threshold) && $threshold >=0 && $threshold <= 100;
     }
 
     /**
