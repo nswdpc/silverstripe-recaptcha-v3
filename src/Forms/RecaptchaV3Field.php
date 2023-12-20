@@ -317,6 +317,8 @@ class RecaptchaV3Field extends HiddenField
     {
         $site_key = $this->config()->get('site_key');
         Requirements::javascript($this->config()->get('script_render'). "?render={$site_key}", "recaptchav3_api_with_site_key");
+        // the handler script
+        Requirements::javascript('nswdpc/silverstripe-recaptcha-v3:client/static/js/handler.js');
         // load the template Javascript for this field
         Requirements::customScript($this->actionScript(), $this->getUniqueId());
     }
@@ -329,75 +331,44 @@ class RecaptchaV3Field extends HiddenField
      */
     protected function actionScript() : string
     {
-        $site_key = $this->config()->get('site_key');
-        $data = [
+        $siteKey = $this->config()->get('site_key');
+        $configuration = [
             'action' => $this->getRecaptchaAction()
         ];
-        $configuration = json_encode($data, JSON_UNESCAPED_SLASHES);
-        $id = $this->ID();
-        $field_name = $this->getName();
-        // token refresh
+
         $minRefreshTime = $this->getMinRefreshTime();
 
         /*
          * when an error occurs and the form is re-loaded with values
-         * the user may press submit again with no token sent due to lack of focus()
+         * the user may press submit again with no token sent due to no events being fired
          * refresh the token right away in that case
          */
-        $refresh_on_error = "";
-
+        $refreshOnError = "";
         if (($form = $this->getForm()) && ($errors = $form->getSessionValidationResult()) && !$errors->isValid()) {
-            $refresh_on_error = "recaptcha_execute_handler(form);";
+            $refreshOnError = ".execute()";
         }
 
-        $js = <<<JS
-grecaptcha.ready(function() {
+        $options = json_encode([
+            'id' => $this->ID(),
+            'siteKey' => $siteKey,
+            'configuration' => $configuration,
+            'threshold' => $minRefreshTime
+        ]);
 
-    var recaptcha_require_refresh = function(f) {
-        try {
-            var threshold = {$minRefreshTime};
-            var iv = 0;
-            var dlc = f.dataset.lastcheck;
-            if(dlc) {
-                iv = Date.now() - dlc;
-            }
-        } catch (e) {}
-        return iv > threshold || f.querySelector('input[name="{$field_name}"]').value == '';
-    }
-
-    var recaptcha_execute_handler = function(f) {
-        if(!recaptcha_require_refresh(f)) {
-            return;
-        }
-        grecaptcha.execute(
-            '{$site_key}',
-            {$configuration}
-        ).then(
-            function(token) {
-                f.querySelector('input[name="{$field_name}"]').value = token;
-                f.setAttribute('data-lastcheck', Date.now());
-            }
-        ).catch(
-            function(fail) {
-                console.warn(fail);
-            }
-        );
-    };
-    var elm = document.getElementById('{$id}');
-    if(!elm) {
-        return;
-    }
-    var form = elm.form;
-    {$refresh_on_error}
-    for (i = 0; i < form.elements.length; i++) {
-        if(form.elements[i].type != 'submit') {
-            form.elements[i].addEventListener('focus', function(evt) {
-                recaptcha_execute_handler(this.form);
+        if($siteKey) {
+            $js = <<<JS
+            grecaptcha.ready(function() {
+                try {
+                    let handler = new RecaptchaV3Handler();
+                    handler.init({$options}).bindEvents(){$refreshOnError};
+                } catch (e) {
+                    console.warn(e);
+                }
             });
+            JS;
+        } else {
+            $js = "console.warn('no site key configured');";
         }
-    }
-});
-JS;
         return $js;
     }
 
