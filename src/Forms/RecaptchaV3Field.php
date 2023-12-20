@@ -317,7 +317,7 @@ class RecaptchaV3Field extends HiddenField
     {
         $site_key = $this->config()->get('site_key');
         Requirements::javascript($this->config()->get('script_render'). "?render={$site_key}", "recaptchav3_api_with_site_key");
-        // the hanlder script
+        // the handler script
         Requirements::javascript('nswdpc/silverstripe-recaptcha-v3:client/static/js/handler.js');
         // load the template Javascript for this field
         Requirements::customScript($this->actionScript(), $this->getUniqueId());
@@ -340,7 +340,7 @@ class RecaptchaV3Field extends HiddenField
 
         /*
          * when an error occurs and the form is re-loaded with values
-         * the user may press submit again with no token sent due to lack of focus()
+         * the user may press submit again with no token sent due to no events being fired
          * refresh the token right away in that case
          */
         $refreshOnError = "";
