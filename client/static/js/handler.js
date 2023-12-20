@@ -10,7 +10,7 @@ RecaptchaV3Handler.prototype = {
   // Initiate
   init: function(options) {
     if(!options.siteKey) {
-      throw new 'no site key present';
+      throw new Error('no site key present');
     }
     this.siteKey = options.siteKey;
     if(options.configuration) {
@@ -24,7 +24,7 @@ RecaptchaV3Handler.prototype = {
       this.field = document.getElementById(options.id);
     }
     if(!this.field) {
-        throw 'field ' + options.id + ' does not exist';
+        throw new Error('field ' + options.id + ' does not exist');
     }
     return this;
   },
