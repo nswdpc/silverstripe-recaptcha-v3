@@ -51,9 +51,6 @@ RecaptchaV3Handler.prototype = {
     if(!this.requireRefresh()) {
       return null;
     }
-    if(this.field.dataset.isPending == '1') {
-      return null;
-    }
     this.field.dataset.isPending = '1';
     let _self = this;
     grecaptcha.execute(
