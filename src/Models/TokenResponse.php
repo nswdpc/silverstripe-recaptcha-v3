@@ -86,7 +86,14 @@ class TokenResponse
     public static function formatAction(string $action) : string
     {
         $action = preg_replace("/[^a-z0-9\\/]/i", "", $action);
-        return $action;
+        return trim($action);
+    }
+
+    /**
+     * Is this an empty action?
+     */
+    public static function isEmptyAction(?string $action) : bool {
+        return is_null($action) || $action === '';
     }
 
     /**
