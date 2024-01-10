@@ -38,7 +38,12 @@
                 "tests/"
             ],
             "NSWDPC\\SpamProtection\\": [
-                "src/"
+                "src/Controllers",
+                "src/Extensions",
+                "src/Forms",
+                "src/Models",
+                "src/Services",
+                "src/Traits"
             ]
         }
     },
