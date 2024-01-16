@@ -45,9 +45,6 @@ RecaptchaV3Handler.prototype = {
   },
   // Attempt to retrieve a token
   execute: function(evt) {
-    if(evt instanceof Event) {
-      evt.stopPropagation();
-    }
     if(!this.requireRefresh()) {
       return null;
     }
