@@ -318,8 +318,8 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
             ]
         );
 
-        $fields->insertBefore($tagField, 'Enabled');
-        $fields->insertBefore($autoCreatedField, 'Action');
+        $fields->insertBefore('Enabled', $tagField);
+        $fields->insertBefore('Action', $autoCreatedField);
 
         return $fields;
     }
