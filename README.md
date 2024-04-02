@@ -22,10 +22,7 @@ composer require nswdpc/silverstripe-recaptcha-v3
 
 ## Requirements
 
-See [composer.json](./composer.json), but in summary:
-
-+ silverstripe/framework ^4.10.0
-+ silverstripe/spamprotection ^3
+See [composer.json](./composer.json)
 
 ## Form spam protection
 
