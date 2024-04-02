@@ -4,7 +4,7 @@ This module handles verification of the quality of website interactions using re
 
 You can also use the module to verify tokens/actions from non-form interactions with your website.
 
-> The default score for verification is 0.7, you can change this in project configuration
+> The default score for verification is 0.5, you can change this in project configuration
 
 ## Features
 
