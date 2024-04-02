@@ -105,11 +105,16 @@ NSWDPC\SpamProtection\RecaptchaV3SpamProtector:
 
 ## Token retrieval
 
-The behaviour triggering a token retrieval from the reCAPTCHAv3 API is a focus() event on the form. This avoids submit event race conditions with e.g frontend form validators.
+The behaviour triggering a token retrieval from the reCAPTCHAv3 API is a focus() event on the form.
+This avoids submit event race conditions with e.g frontend form validators.
 
-When the first field in a form is focused, a token will be retrieved. If another field is focused in the form after 30 seconds, the token will be refreshed.
+> Safari does not support focus event on form elements such as radios and checks. A change() event handler is used to support this.
 
-The latest token will be submitted with the form and validated, if it has expired, the visitor will be prompted to check and resubmit the form.
+When the first field in a form is focused, a token will be retrieved. If another field is focused in the form after the configured refresh time, the token will be refreshed.
+
+The latest token will be submitted with the form and validated, if it has expired (tokens have a 2 minute lifetime), the visitor will be prompted to check and resubmit the form with a fresh token.
+
+Token values are verified and give a score by the reCAPTCHAv3 API. Scores that meet the minimum threshold requirements will pass validation.
 
 ## License
 
