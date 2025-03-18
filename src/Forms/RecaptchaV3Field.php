@@ -538,15 +538,16 @@ class RecaptchaV3Field extends HiddenField
         } catch (RecaptchaVerificationException $e) {
             // catch actual verification fails
             $message = $e->getMessage();
+            Logger::log("RecaptchaV3 failed verification: " . $message, "INFO");
         } catch (\Exception $e) {
             // set a general error
+            Logger::log("RecaptchaV3 general error: " . $e->getMessage(), "NOTICE");
             $message = self::getMessageGeneralFailure();
         }
         // create a form-wide validation error
         $validationResult = $validator->getResult();
         $validationResult->addError($message, ValidationResult::TYPE_ERROR, self::VALIDATION_ERROR_CODE);
         $this->setSubmittedValue("");
-        Logger::log("RecaptchaV3 failed verification: " . $message, "INFO");
         // fail validation
         return false;
     }
