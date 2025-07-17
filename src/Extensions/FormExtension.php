@@ -27,6 +27,7 @@ class FormExtension extends Extension
         $tag = '';
         // Allow a form to specify a tag via code
         if ($this->getOwner()->hasMethod('getRecaptchaV3Tag')) {
+            /** @phpstan-ignore method.notFound */
             $tag = $this->getOwner()->getRecaptchaV3Tag();
         }
 
