@@ -42,9 +42,9 @@ class VerificationController extends Controller
     /**
      * 403 on / requests
      */
-    public function index(HTTPRequest $request) : HTTPResponse
+    public function index(HTTPRequest $request): HTTPResponse
     {
-        $response = HTTPResponse::create(json_encode(["result"=>"FAIL"]), 403);
+        $response = HTTPResponse::create(json_encode(["result" => "FAIL"]), 403);
         $response->addHeader('Content-Type', 'application/json');
         return $response;
     }
@@ -53,7 +53,7 @@ class VerificationController extends Controller
      * The relative link for this controller
      */
     #[\Override]
-    public function Link($action = null) : string
+    public function Link($action = null): string
     {
         return Controller::join_links(
             Director::baseURL(),
@@ -65,7 +65,7 @@ class VerificationController extends Controller
     /**
      * Score for verification
      */
-    public function getScore() : float
+    public function getScore(): float
     {
         return Config::inst()->get(TokenResponse::class, 'score');
     }
@@ -78,7 +78,7 @@ class VerificationController extends Controller
      * Tokens time out after 2 minutes
      * @return HTTPResponse  Response contains  a JSON encoded response object with a key of 'result' and a value or 'OK' or 'FAIL'
      */
-    public function check(HTTPRequest $request) : HTTPResponse
+    public function check(HTTPRequest $request): HTTPResponse
     {
         try {
             // the token is required

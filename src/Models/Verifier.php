@@ -29,7 +29,7 @@ class Verifier
      * @param string $action used to verify the action
      * @throws \Exception
      */
-    public function check(string $token, ?float $score = null, string $action = "") : ?TokenResponse
+    public function check(string $token, ?float $score = null, string $action = ""): ?TokenResponse
     {
         $secret_key = $this->config()->get('secret_key');
         if (!$secret_key) {
@@ -76,7 +76,7 @@ class Verifier
     /**
      * Get the remote addr from the request in a method not dissimilar to Zend/Laminas
      */
-    protected function getRemoteAddr() : string
+    protected function getRemoteAddr(): string
     {
         if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             // forwarded IP address

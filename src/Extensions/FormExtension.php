@@ -11,7 +11,6 @@ use SilverStripe\Core\Extension;
  */
 class FormExtension extends Extension
 {
-
     /**
      * Get the tag to use for this form, for the purpose of finding
      * a RecaptchaV3Rule record matching the tag
@@ -23,7 +22,7 @@ class FormExtension extends Extension
      *
      * The tag is returned in lowercase
      */
-    public function getRecaptchaV3RuleTag() : string
+    public function getRecaptchaV3RuleTag(): string
     {
         $tag = '';
         // Allow a form to specify a tag via code
@@ -36,7 +35,7 @@ class FormExtension extends Extension
             $tag = $this->getOwner()->config()->get('captcha_tag');
         }
 
-        if(!$tag) {
+        if (!$tag) {
             // fall back to form name
             $tag = $this->getOwner()->FormName();
         }

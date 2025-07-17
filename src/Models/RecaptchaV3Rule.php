@@ -3,13 +3,10 @@
 namespace NSWDPC\SpamProtection;
 
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Core\Config\Configurable;
-use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\DropdownField;
-use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
 use SilverStripe\ORM\DataList;
@@ -28,21 +25,20 @@ use SilverStripe\ORM\ValidationException;
  */
 class RecaptchaV3Rule extends DataObject implements PermissionProvider
 {
+    /**
+     * @var string
+     */
+    public const TAKE_ACTION_BLOCK = 'Block';
 
     /**
      * @var string
      */
-    const TAKE_ACTION_BLOCK = 'Block';
+    public const TAKE_ACTION_CAUTION = 'Caution';
 
     /**
      * @var string
      */
-    const TAKE_ACTION_CAUTION = 'Caution';
-
-    /**
-     * @var string
-     */
-    const TAKE_ACTION_ALLOW = 'Allow';
+    public const TAKE_ACTION_ALLOW = 'Allow';
 
     private static string $singular_name = 'Captcha Rule';
 
@@ -100,7 +96,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * Check if a Tag exists
      */
-    public function checkTagExists(string $tag) : bool
+    public function checkTagExists(string $tag): bool
     {
         $tags = RecaptchaV3Rule::get()->filter(['Tag' => $tag]);
         if ($this->exists()) {
@@ -113,7 +109,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * Get all enabled rules
      */
-    public static function getEnabledRules() : DataList
+    public static function getEnabledRules(): DataList
     {
         return RecaptchaV3Rule::get()
                 ->filter(['Enabled' => 1])
@@ -123,7 +119,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * Get an **enabled** rule based on a tag
      */
-    public static function getRuleByTag(string $tag) : ?RecaptchaV3Rule
+    public static function getRuleByTag(string $tag): ?RecaptchaV3Rule
     {
         $rules = self::getEnabledRules();
         /** @phpstan-ignore return.type */
@@ -136,7 +132,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
      * @param string $tag the tag to assign to a Rule
      * @param bool $enabled whether the rule created will be enabled
      */
-    public static function createFromTag(string $tag, bool $enabled = false) : self
+    public static function createFromTag(string $tag, bool $enabled = false): self
     {
         $rule = RecaptchaV3Rule::get()->filter(['Tag' => $tag])->first();
         if (!empty($rule->ID)) {
@@ -158,7 +154,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
      * Auto title, as tag value
      */
     #[\Override]
-    public function getTitle() : ?string
+    public function getTitle(): ?string
     {
         return $this->Tag;
     }
@@ -166,7 +162,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * Return enabled as yes/no
      */
-    public function getEnabledNice() : string
+    public function getEnabledNice(): string
     {
         return $this->Enabled == 1 ?
             _t("NSWDPC\SpamProtection.ENABLED_YES", "Yes") :
@@ -176,7 +172,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * Detailed version of record, use in Dropdown map()
      */
-    public function getTagDetailed() : string
+    public function getTagDetailed(): string
     {
         return _t(
             "NSWDPC\SpamProtection.RECAPTCHAV3_TAG_DETAILED",

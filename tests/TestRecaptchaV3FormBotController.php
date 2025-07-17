@@ -4,7 +4,6 @@ namespace NSWDPC\SpamProtection\Tests;
 
 use NSWDPC\SpamProtection\RecaptchaV3Field;
 use SilverStripe\Control\Controller;
-use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\TestOnly;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
@@ -17,7 +16,6 @@ use SilverStripe\View\SSViewer;
  */
 class TestRecaptchaV3FormBotController extends Controller implements TestOnly
 {
-
     /**
      * @var string
      */
@@ -31,7 +29,7 @@ class TestRecaptchaV3FormBotController extends Controller implements TestOnly
         'testRecaptchaVerify'
     ];
 
-    const FIELD_VALUE = 'test-field-for-bot';
+    public const FIELD_VALUE = 'test-field-for-bot';
 
     /**
      * @return Form

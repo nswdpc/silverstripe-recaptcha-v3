@@ -5,7 +5,6 @@ namespace NSWDPC\SpamProtection;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\View\Requirements;
 use SilverStripe\ORM\ValidationResult;
-use SilverStripe\ORM\ValidationException;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Control\Controller;
 
@@ -23,7 +22,7 @@ class RecaptchaV3Field extends HiddenField
      * @var string
      * See validate()
      */
-    const VALIDATION_ERROR_CODE = "FORM_RECAPTCHAV3";
+    public const VALIDATION_ERROR_CODE = "FORM_RECAPTCHAV3";
 
     /**
      * Site key, configured in project
@@ -44,7 +43,7 @@ class RecaptchaV3Field extends HiddenField
      * Used as fallback value for default, it specified/configured value is not valid
      * @var string
     */
-    const DEFAULT_ACTION = 'submit';
+    public const DEFAULT_ACTION = 'submit';
 
     /**
      * Per instance execute_action
@@ -111,7 +110,7 @@ class RecaptchaV3Field extends HiddenField
      * Return rule attribute for visual validation
      */
     #[\Override]
-    public function getDefaultAttributes() : array
+    public function getDefaultAttributes(): array
     {
         $defaultAttributes = parent::getDefaultAttributes();
         $rule = $this->getRecaptchaV3Rule();
@@ -125,10 +124,10 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Get default action, either from configuration or the fallback class constant
      */
-    public static function getDefaultAction() : string
+    public static function getDefaultAction(): string
     {
         $action = self::config()->get('execute_action');
-        if(TokenResponse::isEmptyAction($action)) {
+        if (TokenResponse::isEmptyAction($action)) {
             $action = self::DEFAULT_ACTION;
         }
 
@@ -165,7 +164,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Get the configured site key
      */
-    public function getSiteKey() : ?string
+    public function getSiteKey(): ?string
     {
         return $this->config()->get('site_key');
     }
@@ -206,7 +205,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Override the execute action configuration
      */
-    public function setExecuteAction(string $action, bool $is_prefixed = false) : self
+    public function setExecuteAction(string $action, bool $is_prefixed = false): self
     {
         $this->field_execute_action = $action;
         $this->has_prefixed_action = $is_prefixed;
@@ -216,7 +215,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Get the execution action for this field, if none is set use configuration
      */
-    public function getExecuteAction() : string
+    public function getExecuteAction(): string
     {
         return $this->field_execute_action ?: self::getDefaultAction();
     }
@@ -225,7 +224,7 @@ class RecaptchaV3Field extends HiddenField
      * Returns the configured action name for this form
      * If a rule is present, this value is used
      */
-    public function getRecaptchaAction() : string
+    public function getRecaptchaAction(): string
     {
         if (($rule = $this->getRecaptchaV3Rule()) instanceof \NSWDPC\SpamProtection\RecaptchaV3Rule) {
             $action = $rule->Action;
@@ -244,7 +243,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Returns the unique id to use in the customScript requirement
      */
-    public function getUniqueId() : string
+    public function getUniqueId(): string
     {
         return "recaptcha_execute_{$this->ID()}";
     }
@@ -252,7 +251,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Set a score for this instance
      */
-    public function setScore(float $score) : self
+    public function setScore(float $score): self
     {
         $score = TokenResponse::validateScore($score);
         $this->score = $score;
@@ -262,7 +261,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Score for field verification
      */
-    public function getScore() : float
+    public function getScore(): float
     {
         if (($rule = $this->getRecaptchaV3Rule()) instanceof \NSWDPC\SpamProtection\RecaptchaV3Rule) {
             // a rule score is an int between 0 and 100
@@ -280,7 +279,7 @@ class RecaptchaV3Field extends HiddenField
      * This is automatically set by the RecaptchaV3SpamProtector::getFormField
      * when it calls self::setForm()
      */
-    public function setRecaptchaV3RuleTag(string $tag) : self
+    public function setRecaptchaV3RuleTag(string $tag): self
     {
         if ($this->recaptchaV3RuleTag && ($tag != $this->recaptchaV3RuleTag)) {
             // invalidate the rule as the tag changed
@@ -294,7 +293,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Return a rule defined by the tag set on this field
      */
-    public function getRecaptchaV3Rule() : ?RecaptchaV3Rule
+    public function getRecaptchaV3Rule(): ?RecaptchaV3Rule
     {
         $tag = "";
         if (!$this->rule) {
@@ -317,8 +316,9 @@ class RecaptchaV3Field extends HiddenField
      * if the relevant event(s) are called
      * @param int $minRefreshTime milliseconds 5000 = 5s
      */
-    public function setMinRefreshTime(int $minRefreshTime) : self {
-        if($minRefreshTime > 0) {
+    public function setMinRefreshTime(int $minRefreshTime): self
+    {
+        if ($minRefreshTime > 0) {
             $this->minRefreshTime = $minRefreshTime;
         }
 
@@ -328,14 +328,15 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Get the refresh time for the token
      */
-    public function getMinRefreshTime() : int {
+    public function getMinRefreshTime(): int
+    {
         return $this->minRefreshTime;
     }
 
     /**
      * Get the requirements for this particular field
      */
-    protected function addRequirements() : void
+    protected function addRequirements(): void
     {
         $site_key = $this->config()->get('site_key');
         Requirements::javascript($this->config()->get('script_render'). "?render={$site_key}");
@@ -351,7 +352,7 @@ class RecaptchaV3Field extends HiddenField
      * Tokens time out after 2 minutes, refreshing the token will assist in reducing token timeouts on longer forms
      * @returns string
      */
-    protected function actionScript() : string
+    protected function actionScript(): string
     {
         $siteKey = $this->config()->get('site_key');
         $configuration = [
@@ -377,7 +378,7 @@ class RecaptchaV3Field extends HiddenField
             'threshold' => $minRefreshTime
         ]);
 
-        if($siteKey) {
+        if ($siteKey) {
             $js = <<<JS
             grecaptcha.ready(function() {
                 try {
@@ -399,7 +400,7 @@ class RecaptchaV3Field extends HiddenField
      * Store data from the TokenResponse model in session
      * This will be cleared when Form::clearFormState() is called as it uses .data
      */
-    protected function storeResponseToSession($token, TokenResponse $response) : void
+    protected function storeResponseToSession($token, TokenResponse $response): void
     {
         $request = Controller::curr()->getRequest();
         $session = $request->getSession();
@@ -416,7 +417,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Remove any previous session data
      */
-    protected function clearSessionResponse($session = null) : void
+    protected function clearSessionResponse($session = null): void
     {
         $session ??= Controller::curr()->getRequest()->getSession();
         $session_key = $this->config()->get('session_key');
@@ -446,7 +447,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Return the message when possible spam/bot found
      */
-    public static function getMessagePossibleSpam() : string
+    public static function getMessagePossibleSpam(): string
     {
         return _t(
             'NSWDPC\SpamProtection.TOKEN_POSSIBLE_SPAM',
@@ -457,7 +458,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Return the message when general failure occurs
      */
-    public static function getMessageGeneralFailure() : string
+    public static function getMessageGeneralFailure(): string
     {
         return _t(
             'NSWDPC\SpamProtection.TOKEN_VERIFICATION_GENERAL_ERROR',
@@ -468,7 +469,7 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Return the message when a timeout occurs
      */
-    public static function getMessageTimeout() : string
+    public static function getMessageTimeout(): string
     {
         return _t(
             'NSWDPC\SpamProtection.TOKEN_TIMEOUT',

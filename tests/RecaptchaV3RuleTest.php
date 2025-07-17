@@ -6,8 +6,6 @@ use NSWDPC\SpamProtection\FormExtension;
 use NSWDPC\SpamProtection\RecaptchaV3Rule;
 use NSWDPC\SpamProtection\RecaptchaV3SpamProtector;
 use NSWDPC\SpamProtection\RecaptchaV3Field;
-use NSWDPC\SpamProtection\Verifier;
-use NSWDPC\SpamProtection\TokenResponse;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\Forms\Form;
@@ -18,7 +16,6 @@ use SilverStripe\Forms\Form;
  */
 class RecaptchaV3RuleTest extends SapphireTest
 {
-
     /**
      * @inheritdoc
      */

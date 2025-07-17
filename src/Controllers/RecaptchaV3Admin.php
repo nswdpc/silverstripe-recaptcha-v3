@@ -10,7 +10,6 @@ use SilverStripe\Admin\ModelAdmin;
  */
 class RecaptchaV3Admin extends ModelAdmin
 {
-
     private static string $url_segment = 'form-spam';
 
     private static string $menu_title = 'Form spam';

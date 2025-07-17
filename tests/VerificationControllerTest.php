@@ -4,7 +4,6 @@ namespace NSWDPC\SpamProtection\Tests;
 
 use NSWDPC\SpamProtection\Verifier;
 use NSWDPC\SpamProtection\TokenResponse;
-use NSWDPC\SpamProtection\RecaptchaV3Field;
 use NSWDPC\SpamProtection\VerificationController;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
@@ -15,7 +14,6 @@ use SilverStripe\Dev\FunctionalTest;
  */
 class VerificationControllerTest extends FunctionalTest
 {
-
     /**
      * @inheritdoc
      */

@@ -12,9 +12,9 @@ use NSWDPC\SpamProtection\Verifier;
  */
 class TestVerifier extends Verifier
 {
-    const RESPONSE_HUMAN_SCORE = 0.9;
+    public const RESPONSE_HUMAN_SCORE = 0.9;
 
-    const RESPONSE_BOT_SCORE = 0.1;
+    public const RESPONSE_BOT_SCORE = 0.1;
 
     /**
      * @var float
@@ -43,7 +43,7 @@ class TestVerifier extends Verifier
     /**
      * Get a test response emulating a successful request
      */
-    public function getTestResponse($action) : array
+    public function getTestResponse($action): array
     {
         $dt = new \DateTime();
         $dt->modify('-15 seconds');
@@ -70,7 +70,7 @@ class TestVerifier extends Verifier
      * @inheritdoc
      */
     #[\Override]
-    public function check(string $token, ?float $score = null, string $action = "") : ?TokenResponse
+    public function check(string $token, ?float $score = null, string $action = ""): ?TokenResponse
     {
         $decoded = $this->getTestResponse($action);
         return new TokenResponse($decoded, $score, $action);

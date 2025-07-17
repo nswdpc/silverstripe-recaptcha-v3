@@ -5,8 +5,6 @@ namespace NSWDPC\SpamProtection\Tests;
 use NSWDPC\SpamProtection\Verifier;
 use NSWDPC\SpamProtection\TokenResponse;
 use NSWDPC\SpamProtection\RecaptchaV3Field;
-use NSWDPC\SpamProtection\RecaptchaV3Rule;
-use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\FunctionalTest;
 
 /**
@@ -14,7 +12,6 @@ use SilverStripe\Dev\FunctionalTest;
  */
 class RecaptchaV3FieldFunctionalTest extends FunctionalTest
 {
-
     /**
      * @inheritdoc
      */

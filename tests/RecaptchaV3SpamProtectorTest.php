@@ -2,10 +2,7 @@
 
 namespace NSWDPC\SpamProtection\Tests;
 
-use NSWDPC\SpamProtection\RecaptchaV3Rule;
 use NSWDPC\SpamProtection\RecaptchaV3SpamProtector;
-use NSWDPC\SpamProtection\RecaptchaV3Field;
-use NSWDPC\SpamProtection\Verifier;
 use NSWDPC\SpamProtection\TokenResponse;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Forms\CompositeField;
