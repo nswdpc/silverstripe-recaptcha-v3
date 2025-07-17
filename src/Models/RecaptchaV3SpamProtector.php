@@ -46,13 +46,14 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      */
     private static string $badge_display = "";
 
-    public const BADGE_DISPLAY_DEFAULT = '';
     // use the reCAPTCHAv3 library default (fixed bottom right)
-    public const BADGE_DISPLAY_FIELD = 'field';
+    public const BADGE_DISPLAY_DEFAULT = '';
     // display the badge text in the form, above the actions
-    public const BADGE_DISPLAY_FORM = 'form';
+    public const BADGE_DISPLAY_FIELD = 'field';
     // badge is displayed in form. NB: requires custom form template
-    public const BADGE_DISPLAY_PAGE = 'page';// display the badge text in the page somewhere
+    public const BADGE_DISPLAY_FORM = 'form';
+    // display the badge text in the page somewhere
+    public const BADGE_DISPLAY_PAGE = 'page';
 
     /**
      * Used as fallback value for default, it specified value is not valid
