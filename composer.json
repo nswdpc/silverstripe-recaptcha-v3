@@ -12,7 +12,8 @@
     ],
     "license": "BSD-3-Clause",
     "require": {
-        "silverstripe/spamprotection": "^4"
+        "silverstripe/spamprotection": "^4",
+        "silverstripe/admin": "^2"
     },
     "require-dev": {
         "cambis/silverstripe-rector": "^2",
