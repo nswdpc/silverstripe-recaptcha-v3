@@ -7,7 +7,6 @@ use NSWDPC\SpamProtection\RecaptchaV3Rule;
 use NSWDPC\SpamProtection\RecaptchaV3SpamProtector;
 use NSWDPC\SpamProtection\RecaptchaV3Field;
 use SilverStripe\Dev\SapphireTest;
-use SilverStripe\ORM\ValidationException;
 use SilverStripe\Forms\Form;
 
 /**
