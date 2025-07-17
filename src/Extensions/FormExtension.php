@@ -40,6 +40,7 @@ class FormExtension extends Extension
             // fall back to form name
             $tag = $this->getOwner()->FormName();
         }
+
         return strtolower((string) $tag);
     }
 }

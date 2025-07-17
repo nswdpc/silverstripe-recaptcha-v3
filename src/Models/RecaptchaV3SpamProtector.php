@@ -48,10 +48,13 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
 
     // use the reCAPTCHAv3 library default (fixed bottom right)
     public const BADGE_DISPLAY_DEFAULT = '';
+
     // display the badge text in the form, above the actions
     public const BADGE_DISPLAY_FIELD = 'field';
+
     // badge is displayed in form. NB: requires custom form template
     public const BADGE_DISPLAY_FORM = 'form';
+
     // display the badge text in the page somewhere
     public const BADGE_DISPLAY_PAGE = 'page';
 

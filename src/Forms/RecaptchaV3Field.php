@@ -217,7 +217,7 @@ class RecaptchaV3Field extends HiddenField
      */
     public function getExecuteAction(): string
     {
-        return $this->field_execute_action ?: self::getDefaultAction();
+        return $this->field_execute_action !== '' && $this->field_execute_action !== '0' ? $this->field_execute_action : self::getDefaultAction();
     }
 
     /**

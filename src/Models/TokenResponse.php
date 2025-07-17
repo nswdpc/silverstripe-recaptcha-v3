@@ -165,6 +165,7 @@ class TokenResponse
         if ($this->failOnAction()) {
             return false;
         }
+
         // if the score does not meet requirements for quality
         return !$this->failOnScore();
     }
