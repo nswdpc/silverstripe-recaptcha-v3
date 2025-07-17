@@ -66,7 +66,7 @@ class RecaptchaV3RuleTest extends SapphireTest
                 'Score' => 80
             ]);
             $id = $rule->write();
-        } catch (ValidationException $validationException) {
+        } catch (\SilverStripe\Core\Validation\ValidationException $validationException) {
             $this->assertEquals(
                 _t(
                     "NSWDPC\SpamProtection.TAG_EXISTS_ERROR",
@@ -95,7 +95,7 @@ class RecaptchaV3RuleTest extends SapphireTest
                 'Score' => 80
             ]);
             $id = $rule->write();
-        } catch (ValidationException $validationException) {
+        } catch (\SilverStripe\Core\Validation\ValidationException $validationException) {
             $this->assertEquals(
                 _t(
                     "NSWDPC\SpamProtection.TAG_REQUIRED_FOR_RULE",

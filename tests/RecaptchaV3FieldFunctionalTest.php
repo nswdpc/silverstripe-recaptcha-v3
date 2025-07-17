@@ -68,7 +68,7 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
         $sessionResponse = $field->getResponseFromSession();
 
         $this->assertNotEmpty($sessionResponse);
-        $this->assertEquals($field->Value(), $sessionResponse['token']);
+        $this->assertEquals($field->getValue(), $sessionResponse['token']);
         $this->assertEquals(TestVerifier::RESPONSE_HUMAN_SCORE, $sessionResponse['score']);
         $this->assertEquals('localhost', $sessionResponse['hostname']);
         $this->assertEquals('humantest/submit', $sessionResponse['action']);
