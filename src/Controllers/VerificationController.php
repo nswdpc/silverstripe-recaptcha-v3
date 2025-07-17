@@ -2,9 +2,9 @@
 
 namespace NSWDPC\SpamProtection;
 
-use Silverstripe\Control\Director;
-use Silverstripe\Control\Controller;
-use Silverstripe\Control\HTTPRequest;
+use SilverStripe\Control\Director;
+use SilverStripe\Control\Controller;
+use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Config\Config;
 
@@ -49,7 +49,7 @@ class VerificationController extends Controller
      */
     public function index(HTTPRequest $request) : HTTPResponse
     {
-        $response = new HTTPResponse(json_encode(["result"=>"FAIL"]), 403);
+        $response = HTTPResponse::create(json_encode(["result"=>"FAIL"]), 403);
         $response->addHeader('Content-Type', 'application/json');
         return $response;
     }
@@ -90,7 +90,7 @@ class VerificationController extends Controller
             $token = $request->postVar('token');
             if (!$this->config()->get('enabled') || !$token) {
                 // bad request
-                $response = new HTTPResponse(json_encode([
+                $response = HTTPResponse::create(json_encode([
                     "result" => "FAIL",
                     "threshold" => null,
                     "score" => null,
@@ -112,7 +112,7 @@ class VerificationController extends Controller
                 // a verification response from API
                 if ($result->isValid()) {
                     // all good
-                    $response = new HTTPResponse(json_encode([
+                    $response = HTTPResponse::create(json_encode([
                         "result" => "OK",
                         "threshold" => $score,
                         "score" => $result->getResponseScore(),
@@ -122,7 +122,7 @@ class VerificationController extends Controller
                     return $response;
                 } else {
                     // bad request / timeout / verification failed
-                    $response = new HTTPResponse(json_encode([
+                    $response = HTTPResponse::create(json_encode([
                         "result" => "FAIL",
                         "threshold" => $score,
                         "score" => $result->getResponseScore(),
@@ -136,7 +136,7 @@ class VerificationController extends Controller
             // general failure on checking
             throw new \Exception("Failed to verify");
         } catch (\Exception $e) {
-            $response = new HTTPResponse(json_encode([
+            $response = HTTPResponse::create(json_encode([
                 "result" => "FAIL",
                 "threshold" => null,
                 "score" => null,

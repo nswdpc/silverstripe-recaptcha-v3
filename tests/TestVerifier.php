@@ -25,10 +25,7 @@ class TestVerifier extends Verifier
      */
     protected $responseValue = true;
 
-    /**
-     * @return bool
-     */
-    public function setIsHuman(bool $is) : self
+    public function setIsHuman(bool $is): self
     {
         $this->responseValue = $is;
         if ($is) {

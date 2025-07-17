@@ -2,6 +2,7 @@
 
 namespace NSWDPC\SpamProtection\Tests;
 
+use NSWDPC\SpamProtection\RecaptchaV3Field;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\TestOnly;
@@ -68,6 +69,9 @@ class TestRecaptchaV3FormWithRuleController extends Controller implements TestOn
         // Use FormSpamProtectionExtension
         $form->enableSpamProtection($options);
         $recaptchaField = $form->HiddenFields()->dataFieldByName($options['name']);
+        if(!$recaptchaField instanceof RecaptchaV3Field) {
+            throw new \UnexpectedValueException("Field is not a RecaptchaV3Field");
+        }
         // use the TestVerifier
         $verifier = TestVerifier::create();
         $verifier->setIsHuman(true);
@@ -86,6 +90,6 @@ class TestRecaptchaV3FormWithRuleController extends Controller implements TestOn
 
     public function getViewer($action = null)
     {
-        return new SSViewer($this->template);
+        return SSViewer::create($this->template);
     }
 }

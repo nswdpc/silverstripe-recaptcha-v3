@@ -2,8 +2,8 @@
 
 namespace NSWDPC\SpamProtection;
 
-use Silverstripe\Core\Config\Config;
-use Silverstripe\Core\Config\Configurable;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Config\Configurable;
 
 /**
  * Represents a token response from the result of a call to the Recatpcha3
@@ -67,10 +67,6 @@ class TokenResponse
             $score = self::getDefaultScore();
         }
 
-        // not a number
-        if (!is_float($score) && !is_int($score)) {
-            throw new \Exception("Score should be a number between 0.0 and 1.0");
-        }
         if ($score > 1) {
             throw new \Exception("Score should not be > 1");
         } elseif ($score < 0) {

@@ -2,7 +2,7 @@
 
 namespace NSWDPC\SpamProtection;
 
-use Silverstripe\Core\Extension;
+use SilverStripe\Core\Extension;
 
 /**
  * Get a form spam rule for this form

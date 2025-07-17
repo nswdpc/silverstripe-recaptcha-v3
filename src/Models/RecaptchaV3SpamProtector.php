@@ -2,8 +2,8 @@
 
 namespace NSWDPC\SpamProtection;
 
-use Silverstripe\Core\Config\Config;
-use Silverstripe\Core\Config\Configurable;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\CompositeField;
@@ -29,7 +29,6 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     private static $steps = 5;
 
     /**
-     * @var int
      */
     private static $default_name = "recaptcha_protector";
 
@@ -47,7 +46,6 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * Badge display options: empty string, 'form' or 'page'
      * If page it is up to you to to include NSWDPC/SpamProtection/PageBadge in your template in the appropriate location
      * See: https://developers.google.com/recaptcha/docs/faq#id-like-to-hide-the-recaptcha-badge.-what-is-allowed
-     * @param string
      */
     private static $badge_display = "";
 
@@ -83,7 +81,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     public function getFormField($name = null, $title = null, $value = null) : RecaptchaV3Field
     {
         if (!$name) {
-            $name = $this->default_name;
+            $name = static::config()->get('default_name');
         }
         // Get the spam protection field to use
         $field = $this->getRecaptchaV3Field($name, $title, $value);
@@ -130,7 +128,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
         $threshold = $threshold * 100;
         // round to the number of steps expected here
         $steps = Config::inst()->get(self::class, 'steps');
-        $threshold = round($threshold / $steps) * $steps;
+        $threshold = (int)round($threshold / $steps) * $steps;
         if (!self::isValidThreshold($threshold)) {
             // configuration value is out of bounds
             $threshold = self::DEFAULT_THRESHOLD;
@@ -271,12 +269,10 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
                 return ArrayData::create([
                     'DisplayOption' => $displayOption
                 ])->renderWith('NSWDPC/SpamProtection/PrivacyInformation');
-                break;
             case self::BADGE_DISPLAY_DEFAULT:
             default:
                 // reCAPTCHAv3 handles badge display
                 return '';
-                break;
         }
     }
 

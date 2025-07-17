@@ -73,6 +73,7 @@ class RecaptchaV3RuleFunctionalTest extends FunctionalTest
         $form = $controller->Form();
         // the field created for the test
         $field = $form->HiddenFields()->fieldByName('RecaptchaV3FieldWithRule');
+        $this->assertInstanceOf(RecaptchaV3Field::class, $field);
         $ruleUsed = $field->getRecaptchaV3Rule();
         $this->assertInstanceOf(RecaptchaV3Rule::class, $ruleUsed, "Rule is a RecaptchaV3Rule");
         $this->assertEquals($rule->ID, $ruleUsed->ID, "Rule is the rule created");

@@ -12,7 +12,7 @@ trait HasVerifier
 {
 
     /**
-     * @var NSWDPC\SpamProtection\Verifier|null
+     * @var \NSWDPC\SpamProtection\Verifier|null
      */
     protected $verifier = null;
 

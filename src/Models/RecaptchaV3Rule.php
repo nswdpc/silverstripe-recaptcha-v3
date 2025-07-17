@@ -2,10 +2,10 @@
 
 namespace NSWDPC\SpamProtection;
 
-use Silverstripe\Core\Config\Config;
-use Silverstripe\Core\Config\Configurable;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\Forms\CheckBoxField;
+use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\DropdownField;
@@ -140,6 +140,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     {
         $rules = self::getEnabledRules();
         $rule = $rules->filter(['Tag' => $tag])->first();
+        /** @phpstan-ignore return.type */
         return $rule;
     }
 
@@ -336,14 +337,14 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
         }
 
         if (!$this->Tag) {
-            throw new ValidationException(
+            throw ValidationException::create(
                 _t(
                     "NSWDPC\SpamProtection.TAG_REQUIRED_FOR_RULE",
                     "This rule requires a tag"
                 )
             );
         } elseif ($this->checkTagExists($this->Tag)) {
-            throw new ValidationException(
+            throw ValidationException::create(
                 _t(
                     "NSWDPC\SpamProtection.TAG_EXISTS_ERROR",
                     "The tag '{tag}' already exists. Please edit it.",

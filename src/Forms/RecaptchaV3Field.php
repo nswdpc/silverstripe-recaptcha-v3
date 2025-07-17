@@ -2,7 +2,7 @@
 
 namespace NSWDPC\SpamProtection;
 
-use Silverstripe\Forms\HiddenField;
+use SilverStripe\Forms\HiddenField;
 use SilverStripe\View\Requirements;
 use SilverStripe\ORM\ValidationResult;
 use SilverStripe\ORM\ValidationException;
@@ -27,19 +27,16 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Site key, configured in project
-     * @param string
      */
     private static $site_key = '';
 
     /**
      * Script to use to load recaptcha API
-     * @param string
      */
     private static $script_render = "https://www.google.com/recaptcha/api.js";
 
     /**
      * Default action name to use
-     * @param string
      */
     private static $execute_action = "submit";
 
@@ -51,7 +48,6 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Per instance execute_action
-     * @param string
      */
     private $field_execute_action = "";
 
@@ -62,7 +58,6 @@ class RecaptchaV3Field extends HiddenField
 
     /**
      * Field holder template to use
-     * @param string
      */
     protected $fieldHolderTemplate = "RecaptchaV3Field_holder";
 
@@ -116,9 +111,9 @@ class RecaptchaV3Field extends HiddenField
      * @inheritdoc
      * Return rule attribute for visual validation
      */
-    public function getDefaultAttributes($attributes = null) : array
+    public function getDefaultAttributes() : array
     {
-        $defaultAttributes = parent::getDefaultAttributes($attributes);
+        $defaultAttributes = parent::getDefaultAttributes();
         $rule = $this->getRecaptchaV3Rule();
         if ($rule && $rule->exists()) {
             $defaultAttributes['data-rule'] = $rule->ID;
@@ -335,7 +330,7 @@ class RecaptchaV3Field extends HiddenField
     protected function addRequirements() : void
     {
         $site_key = $this->config()->get('site_key');
-        Requirements::javascript($this->config()->get('script_render'). "?render={$site_key}", "recaptchav3_api_with_site_key");
+        Requirements::javascript($this->config()->get('script_render'). "?render={$site_key}");
         // the handler script
         Requirements::javascript('nswdpc/silverstripe-recaptcha-v3:client/static/js/handler.js');
         // load the template Javascript for this field
@@ -522,7 +517,6 @@ class RecaptchaV3Field extends HiddenField
                             return true;
                         default:
                             throw new RecaptchaVerificationException(self::getMessagePossibleSpam());
-                            break;
                     }
                 } else {
                     // No rule, fall back to BLOCK (prompt to resubmit)

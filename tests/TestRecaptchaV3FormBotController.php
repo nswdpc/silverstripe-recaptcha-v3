@@ -90,6 +90,6 @@ class TestRecaptchaV3FormBotController extends Controller implements TestOnly
 
     public function getViewer($action = null)
     {
-        return new SSViewer($this->template);
+        return SSViewer::create($this->template);
     }
 }
