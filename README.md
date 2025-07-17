@@ -122,7 +122,7 @@ Token values are verified and give a score by the reCAPTCHAv3 API. Scores that m
 
 ## Maintainers
 
-+ [dpcdigital@NSWDPC:~$](https://dpc.nsw.gov.au)
++ PD Web Team
 
 ## Bugtracker
 
