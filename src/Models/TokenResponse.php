@@ -21,20 +21,20 @@ class TokenResponse
 {
     use Configurable;
 
-    private static $score = 0.5;//default score
+    private static float $score = 0.5;
 
-    private $response = [];
+    private string $action;
 
-    private $action = '';
-
-    private $verification_score = null;
+    private float $verification_score;
 
     // the 'secret' key (the secret key in your Recaptcha config) in the request is missing or bad
     const ERR_MISSING_INPUT_SECRET = 'missing-input-secret';
+
     const ERR_INVALID_INPUT_SECRET = 'invalid-input-secret';
 
     // the 'response' key (the token) in the request is missing or bad
     const ERR_MISSING_INPUT_RESPONSE = 'missing-input-response';
+
     const ERR_INVALID_INPUT_RESPONSE = 'invalid-input-response';
 
     // general bad request
@@ -43,16 +43,13 @@ class TokenResponse
     // token already checked or is outside the 2 minute timeout
     const ERR_TIMEOUT_OR_DUPLCIATE = 'timeout-or-duplicate';
 
-    private static $log_stats = false;
+    private static bool $log_stats = false;
 
     /**
      * @param array $response the result from a call to site verify
-     * @param float|null $score
-     * @param string $action
      */
-    public function __construct(array $response, ?float $score = null, string $action = '')
+    public function __construct(private array $response, ?float $score = null, string $action = '')
     {
-        $this->response = $response;
         $this->action = self::formatAction($action);
         $this->verification_score = self::validateScore($score);
     }
@@ -72,6 +69,7 @@ class TokenResponse
         } elseif ($score < 0) {
             throw new \Exception("Score should not be < 0");
         }
+
         return $score;
     }
 
@@ -82,7 +80,7 @@ class TokenResponse
     public static function formatAction(string $action) : string
     {
         $action = preg_replace("/[^a-z0-9\\/]/i", "", $action);
-        return trim($action);
+        return trim((string) $action);
     }
 
     /**
@@ -111,6 +109,7 @@ class TokenResponse
         if($result) {
             self::logStat("failOnScore", ["threshold" => $this->verification_score, "response" => $responseScore ]);
         }
+
         return $result;
     }
 
@@ -119,9 +118,9 @@ class TokenResponse
      */
     public function failOnAction() : bool
     {
-        if ($action = $this->getAction()) {
+        if (($action = $this->getAction()) !== '') {
             $responseAction = $this->getResponseAction();
-            $result = ($action != $responseAction);
+            $result = ($action !== $responseAction);
             if($result) {
                 self::logStat("failOnAction", ["action" => $action, "response" => $responseAction]);
             }
@@ -129,6 +128,7 @@ class TokenResponse
             // no action provided, cannot check on it
             $result = false;
         }
+
         return $result;
     }
 
@@ -163,13 +163,8 @@ class TokenResponse
         if ($this->failOnAction()) {
             return false;
         }
-
         // if the score does not meet requirements for quality
-        if ($this->failOnScore()) {
-            return false;
-        }
-
-        return true;
+        return !$this->failOnScore();
     }
 
     /**
@@ -182,11 +177,10 @@ class TokenResponse
 
     /**
      * Get the current score value
-     * @return float
      */
     public function getScore() : float
     {
-        return $this->verification_score ? $this->verification_score : self::getDefaultScore();
+        return $this->verification_score ?: self::getDefaultScore();
     }
 
     /**
@@ -202,7 +196,7 @@ class TokenResponse
      */
     public function getResponseAction() : string
     {
-        return isset($this->response['action']) ? $this->response['action'] : '';
+        return $this->response['action'] ?? '';
     }
 
     /**
@@ -210,7 +204,7 @@ class TokenResponse
      */
     public function getResponseScore() : float
     {
-        return isset($this->response['score']) ? $this->response['score'] : '';
+        return $this->response['score'] ?? '';
     }
 
     /**
@@ -218,7 +212,7 @@ class TokenResponse
      */
     public function getResponseHostname() : string
     {
-        return isset($this->response['hostname']) ? $this->response['hostname'] : '';
+        return $this->response['hostname'] ?? '';
     }
 
     /**
@@ -231,6 +225,7 @@ class TokenResponse
         if(!$is) {
             TokenResponse::logStat("isSuccess", false);
         }
+
         return $is;
     }
 
@@ -248,10 +243,11 @@ class TokenResponse
     public function isTimeout() : bool
     {
         $codes = $this->errorCodes();
-        $is = array_search(self::ERR_TIMEOUT_OR_DUPLCIATE, $codes) !== false;
+        $is = in_array(self::ERR_TIMEOUT_OR_DUPLCIATE, $codes);
         if($is) {
             TokenResponse::logStat("isTimeoutOrDuplicate", true);
         }
+
         return $is;
     }
 
@@ -261,10 +257,11 @@ class TokenResponse
     public function isBadRequest() : bool
     {
         $codes = $this->errorCodes();
-        $is = array_search(self::ERR_BAD_REQUEST, $codes) !== false;
+        $is = in_array(self::ERR_BAD_REQUEST, $codes);
         if($is) {
             TokenResponse::logStat("isBadRequest", true);
         }
+
         return $is;
     }
 }

@@ -23,15 +23,9 @@ class TestRecaptchaV3FormBotController extends Controller implements TestOnly
      */
     protected $template = 'BlankPage';
 
-    /**
-     * @var string
-     */
-    private static $url_segment = 'TestRecaptchaV3FormBotController';
+    private static string $url_segment = 'TestRecaptchaV3FormBotController';
 
-    /**
-     * @var array
-     */
-    private static $allowed_actions = [
+    private static array $allowed_actions = [
         'Form',
         'RecaptchaV3BotTestForm',
         'testRecaptchaVerify'
@@ -83,11 +77,12 @@ class TestRecaptchaV3FormBotController extends Controller implements TestOnly
     /**
      * store data on submission
      */
-    public function testRecaptchaVerify($data, $form = null)
+    public function testRecaptchaVerify($data, $form = null): \SilverStripe\Control\HTTPResponse
     {
         return $this->redirectBack();
     }
 
+    #[\Override]
     public function getViewer($action = null)
     {
         return SSViewer::create($this->template);

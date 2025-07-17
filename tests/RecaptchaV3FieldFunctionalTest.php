@@ -18,7 +18,7 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
     /**
      * @inheritdoc
      */
-    protected static $fixture_file = null;
+    protected static $fixture_file;
 
     /**
      * @inheritdoc
@@ -41,6 +41,7 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
     /**
      * @inheritdoc
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -48,7 +49,7 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
         TokenResponse::config()->set('score', 0.5);
     }
 
-    public function testFormSubmissionHuman()
+    public function testFormSubmissionHuman(): void
     {
         // validate the controller has the test field and verifier
         $controller = TestRecaptchaV3FormHumanController::create();
@@ -63,10 +64,10 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
         // Submit the form
         $response = $this->get('TestRecaptchaV3FormHumanController');
 
-        $needle = "\"threshold\":" . TestRecaptchaV3FormHumanController::MIN_REFRESH_TIME;
+        $needle = '"threshold":' . TestRecaptchaV3FormHumanController::MIN_REFRESH_TIME;
         $this->assertStringContainsString($needle, $response->getBody());
 
-        $submitResponse = $this->submitForm($form->FormName(), null, []);
+        $this->submitForm($form->FormName(), null, []);
         $sessionResponse = $field->getResponseFromSession();
 
         $this->assertNotEmpty($sessionResponse);
@@ -79,7 +80,7 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
     /**
      * Test a human being blocked
      */
-    public function testFormSubmissionFalsePositive()
+    public function testFormSubmissionFalsePositive(): void
     {
         TokenResponse::config()->set('score', 1);
 
@@ -94,16 +95,16 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
         $this->assertInstanceOf(TestVerifier::class, $field->getVerifier(), "Field verifier is a TestVerifier");
 
         // Submit the form
-        $response = $this->get('TestRecaptchaV3FormHumanController');
+        $this->get('TestRecaptchaV3FormHumanController');
         $submitResponse = $this->submitForm($form->FormName(), 'action_testRecaptchaVerify', []);
         $sessionResponse = $field->getResponseFromSession();
 
         $this->assertEmpty($sessionResponse, 'Session response is empty');
 
-        $this->assertTrue(strpos($submitResponse->getBody(), RecaptchaV3Field::getMessagePossibleSpam()) !== false, "Message contains possible spam response");
+        $this->assertTrue(str_contains($submitResponse->getBody(), RecaptchaV3Field::getMessagePossibleSpam()), "Message contains possible spam response");
     }
 
-    public function testFormSubmissionBot()
+    public function testFormSubmissionBot(): void
     {
         // validate the controller has the test field and verifier
         $controller = TestRecaptchaV3FormBotController::create();
@@ -116,12 +117,12 @@ class RecaptchaV3FieldFunctionalTest extends FunctionalTest
         $this->assertInstanceOf(TestVerifier::class, $field->getVerifier(), "Field verifier is a TestVerifier");
 
         // Submit the form
-        $response = $this->get('TestRecaptchaV3FormBotController');
+        $this->get('TestRecaptchaV3FormBotController');
         $submitResponse = $this->submitForm($form->FormName(), 'action_testRecaptchaVerify', []);
         $sessionResponse = $field->getResponseFromSession();
 
         $this->assertEmpty($sessionResponse, 'Session response is empty');
 
-        $this->assertTrue(strpos($submitResponse->getBody(), RecaptchaV3Field::getMessagePossibleSpam()) !== false, "Message contains possible spam response");
+        $this->assertTrue(str_contains($submitResponse->getBody(), RecaptchaV3Field::getMessagePossibleSpam()), "Message contains possible spam response");
     }
 }

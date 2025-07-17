@@ -28,17 +28,17 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Site key, configured in project
      */
-    private static $site_key = '';
+    private static string $site_key = '';
 
     /**
      * Script to use to load recaptcha API
      */
-    private static $script_render = "https://www.google.com/recaptcha/api.js";
+    private static string $script_render = "https://www.google.com/recaptcha/api.js";
 
     /**
      * Default action name to use
      */
-    private static $execute_action = "submit";
+    private static string $execute_action = "submit";
 
     /**
      * Used as fallback value for default, it specified/configured value is not valid
@@ -49,12 +49,12 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Per instance execute_action
      */
-    private $field_execute_action = "";
+    private string $field_execute_action = "";
 
     /**
      * Session key for storing recaatcha response
      */
-    private static $session_key = "RecaptchaV3";
+    private static string $session_key = "RecaptchaV3";
 
     /**
      * Field holder template to use
@@ -65,12 +65,12 @@ class RecaptchaV3Field extends HiddenField
     /**
      * Score for this field, if not provided, the configuration value will be used
      */
-    private $score = null;
+    private ?float $score = null;
 
     /**
      * If the action is already prefixed, don't auto-prefix it with the field ID
      */
-    private $has_prefixed_action = false;
+    private bool $has_prefixed_action = false;
 
     /**
      * Tag used to find the rule for validation
@@ -82,14 +82,13 @@ class RecaptchaV3Field extends HiddenField
      * Rule used for validation
      * @var RecaptchaV3Rule|null
      */
-    protected $rule = null;
+    protected $rule;
 
     /**
      * When true, a non-enabled RecaptchaV3Rule record will be created with a tag matching
      * the recaptchaV3RuleTag value assigned to this field
-     * @var bool
      */
-    private static $auto_create_rule = false;
+    private static bool $auto_create_rule = false;
 
 
     /**
@@ -111,6 +110,7 @@ class RecaptchaV3Field extends HiddenField
      * @inheritdoc
      * Return rule attribute for visual validation
      */
+    #[\Override]
     public function getDefaultAttributes() : array
     {
         $defaultAttributes = parent::getDefaultAttributes();
@@ -118,12 +118,12 @@ class RecaptchaV3Field extends HiddenField
         if ($rule && $rule->exists()) {
             $defaultAttributes['data-rule'] = $rule->ID;
         }
+
         return $defaultAttributes;
     }
 
     /**
      * Get default action, either from configuration or the fallback class constant
-     * @return string
      */
     public static function getDefaultAction() : string
     {
@@ -131,6 +131,7 @@ class RecaptchaV3Field extends HiddenField
         if(TokenResponse::isEmptyAction($action)) {
             $action = self::DEFAULT_ACTION;
         }
+
         return $action;
     }
 
@@ -151,11 +152,13 @@ class RecaptchaV3Field extends HiddenField
      *
      * See {@link self::getRecaptchaV3Rule()}
      */
+    #[\Override]
     public function setForm($form)
     {
         if (!$this->recaptchaV3RuleTag) {
             $this->setRecaptchaV3RuleTag($form->getRecaptchaV3RuleTag());
         }
+
         return parent::setForm($form);
     }
 
@@ -173,13 +176,14 @@ class RecaptchaV3Field extends HiddenField
      *
      * @inheritdoc
      */
+    #[\Override]
     public function FieldHolder($properties = [])
     {
         $context = $this;
 
         $this->extend('onBeforeRenderHolder', $context, $properties);
 
-        if (count($properties)) {
+        if (count($properties) !== 0) {
             $context = $this->customise($properties);
         }
 
@@ -191,6 +195,7 @@ class RecaptchaV3Field extends HiddenField
      * Returns the field, sets requirements for this form
      * @inheritdoc
      */
+    #[\Override]
     public function Field($properties = [])
     {
         $field = parent::Field($properties);
@@ -213,9 +218,7 @@ class RecaptchaV3Field extends HiddenField
      */
     public function getExecuteAction() : string
     {
-        return $this->field_execute_action  ?
-                $this->field_execute_action :
-                self::getDefaultAction();
+        return $this->field_execute_action ?: self::getDefaultAction();
     }
 
     /**
@@ -224,15 +227,17 @@ class RecaptchaV3Field extends HiddenField
      */
     public function getRecaptchaAction() : string
     {
-        if ($rule = $this->getRecaptchaV3Rule()) {
+        if (($rule = $this->getRecaptchaV3Rule()) instanceof \NSWDPC\SpamProtection\RecaptchaV3Rule) {
             $action = $rule->Action;
         } else {
             $prefix = "";
             if (!$this->has_prefixed_action) {
                 $prefix = $this->ID() . "/";
             }
+
             $action = $prefix . $this->getExecuteAction();
         }
+
         return TokenResponse::formatAction($action);
     }
 
@@ -259,7 +264,7 @@ class RecaptchaV3Field extends HiddenField
      */
     public function getScore() : float
     {
-        if ($rule = $this->getRecaptchaV3Rule()) {
+        if (($rule = $this->getRecaptchaV3Rule()) instanceof \NSWDPC\SpamProtection\RecaptchaV3Rule) {
             // a rule score is an int between 0 and 100
             return round($rule->Score / 100, 2);
         } elseif (is_null($this->score)) {
@@ -281,6 +286,7 @@ class RecaptchaV3Field extends HiddenField
             // invalidate the rule as the tag changed
             $this->rule = null;
         }
+
         $this->recaptchaV3RuleTag = $tag;
         return $this;
     }
@@ -302,6 +308,7 @@ class RecaptchaV3Field extends HiddenField
                 RecaptchaV3Rule::createFromTag($tag, false);
             }
         }
+
         return $this->rule;
     }
 
@@ -314,6 +321,7 @@ class RecaptchaV3Field extends HiddenField
         if($minRefreshTime > 0) {
             $this->minRefreshTime = $minRefreshTime;
         }
+
         return $this;
     }
 
@@ -383,6 +391,7 @@ class RecaptchaV3Field extends HiddenField
         } else {
             $js = "console.warn('no site key configured');";
         }
+
         return $js;
     }
 
@@ -409,7 +418,7 @@ class RecaptchaV3Field extends HiddenField
      */
     protected function clearSessionResponse($session = null) : void
     {
-        $session = $session ?? Controller::curr()->getRequest()->getSession();
+        $session ??= Controller::curr()->getRequest()->getSession();
         $session_key = $this->config()->get('session_key');
         $session->clear($session_key);
     }
@@ -472,6 +481,7 @@ class RecaptchaV3Field extends HiddenField
      * @see https://developers.google.com/recaptcha/docs/verify#error_code_reference
      * @inheritdoc
      */
+    #[\Override]
     public function validate($validator)
     {
         try {
@@ -504,7 +514,7 @@ class RecaptchaV3Field extends HiddenField
                 } elseif ($response->isTimeout()) {
                     // on timeout always prompt for revalidation, in order to get a valid result to inspect
                     throw new RecaptchaVerificationException(self::getMessageTimeout());
-                } elseif ($rule) {
+                } elseif ($rule instanceof \NSWDPC\SpamProtection\RecaptchaV3Rule) {
                     // Work out what action to take
                     switch ($rule->ActionToTake) {
                         case RecaptchaV3Rule::TAKE_ACTION_ALLOW:
@@ -523,6 +533,7 @@ class RecaptchaV3Field extends HiddenField
                     TokenResponse::logStat("default", "block");
                     throw new RecaptchaVerificationException(self::getMessagePossibleSpam());
                 }
+
                 // end - TokenResponse handling
             } else {
                 // general failure
@@ -538,6 +549,7 @@ class RecaptchaV3Field extends HiddenField
             Logger::log("RecaptchaV3 general error: " . $e->getMessage(), "NOTICE");
             $message = self::getMessageGeneralFailure();
         }
+
         // create a form-wide validation error
         $validationResult = $validator->getResult();
         $validationResult->addError($message, ValidationResult::TYPE_ERROR, self::VALIDATION_ERROR_CODE);

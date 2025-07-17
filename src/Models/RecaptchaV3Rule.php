@@ -19,6 +19,12 @@ use SilverStripe\ORM\ValidationException;
 /**
  * Custom rules model for form spam protection, accessed via tags
  * @author James
+ * @property ?string $Tag
+ * @property bool $Enabled
+ * @property int $Score
+ * @property ?string $Action
+ * @property ?string $ActionToTake
+ * @property bool $AutoCreated
  */
 class RecaptchaV3Rule extends DataObject implements PermissionProvider
 {
@@ -38,21 +44,14 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
      */
     const TAKE_ACTION_ALLOW = 'Allow';
 
-    /**
-     * @var string
-     */
-    private static $singular_name = 'Captcha Rule';
+    private static string $singular_name = 'Captcha Rule';
 
-    /**
-     * @var string
-     */
-    private static $plural_name = 'Captcha Rules';
+    private static string $plural_name = 'Captcha Rules';
 
     /**
      * A list of system tags that can be used for common actions
-     * @var array
      */
-    private static $system_tags = [
+    private static array $system_tags = [
         'lostpassword',
         'changepassword',
         'login',
@@ -60,10 +59,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
         'newslettersubscribe'
     ];
 
-    /**
-     * @var array
-     */
-    private static $db = [
+    private static array $db = [
         'Tag' => 'Varchar(64)',
         'Enabled' => 'Boolean',
         'Score' => 'Int',// 0-100
@@ -72,10 +68,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
         'AutoCreated' => 'Boolean'// whether this rule was auto created
     ];
 
-    /**
-     * @var array
-     */
-    private static $summary_fields = [
+    private static array $summary_fields = [
         'Tag' => 'Tag',
         'Enabled.Nice' => 'Enabled?',
         'Score' => 'Threshold score',
@@ -84,20 +77,14 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
         'AutoCreated.Nice' => 'Auto-created?'
     ];
 
-    /**
-     * @var array
-     */
-    private static $defaults = [
+    private static array $defaults = [
         'Enabled' => 0, // not enabled by default
         'Action' => '',
         'ActionToTake' => 'Block',
         'AutoCreated' => 0
     ];
 
-    /**
-     * @var array
-     */
-    private static $indexes = [
+    private static array $indexes = [
         'Tag' => [
             'columns' => ['Tag'],
             'type' => 'unique'
@@ -107,9 +94,8 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
 
     /**
      * Defines the database table name
-     * @var string
      */
-    private static $table_name = 'RecaptchaV3Rule';
+    private static string $table_name = 'RecaptchaV3Rule';
 
     /**
      * Check if a Tag exists
@@ -120,6 +106,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
         if ($this->exists()) {
             $tags = $tags->exclude(['ID' => $this->ID]);
         }
+
         return $tags->count() > 0;
     }
 
@@ -139,9 +126,8 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     public static function getRuleByTag(string $tag) : ?RecaptchaV3Rule
     {
         $rules = self::getEnabledRules();
-        $rule = $rules->filter(['Tag' => $tag])->first();
         /** @phpstan-ignore return.type */
-        return $rule;
+        return $rules->filter(['Tag' => $tag])->first();
     }
 
     /**
@@ -171,6 +157,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * Auto title, as tag value
      */
+    #[\Override]
     public function getTitle() : ?string
     {
         return $this->Tag;
@@ -207,6 +194,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * Define CMS fields
      */
+    #[\Override]
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
@@ -244,6 +232,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
             foreach ($systemTags as $systemTag) {
                 $selectTagOptions[ $systemTag ] = $systemTag;
             }
+
             $selectTag = DropdownField::create(
                 'SelectTag',
                 _t(
@@ -328,6 +317,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * Event handler called before writing to the database.
      */
+    #[\Override]
     public function onBeforeWrite()
     {
         parent::onBeforeWrite();
@@ -376,6 +366,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * @inheritdoc
      */
+    #[\Override]
     public function canView($member = null)
     {
         return Permission::checkMember($member, 'RECAPTCHAV3_RULE_VIEW');
@@ -384,6 +375,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * @inheritdoc
      */
+    #[\Override]
     public function canCreate($member = null, $context = [])
     {
         return Permission::checkMember($member, 'RECAPTCHAV3_RULE_CREATE');
@@ -392,6 +384,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * @inheritdoc
      */
+    #[\Override]
     public function canEdit($member = null)
     {
         return Permission::checkMember($member, 'RECAPTCHAV3_RULE_EDIT');
@@ -400,6 +393,7 @@ class RecaptchaV3Rule extends DataObject implements PermissionProvider
     /**
      * @inheritdoc
      */
+    #[\Override]
     public function canDelete($member = null)
     {
         return Permission::checkMember($member, 'RECAPTCHAV3_RULE_DELETE');

@@ -21,7 +21,7 @@ class RecaptchaV3RuleFunctionalTest extends FunctionalTest
     /**
      * @inheritdoc
      */
-    protected static $fixture_file = null;
+    protected static $fixture_file;
 
     /**
      * @inheritdoc
@@ -53,7 +53,7 @@ class RecaptchaV3RuleFunctionalTest extends FunctionalTest
     /**
      * Test a form submission using a rule for verification
      */
-    public function testFormSubmissionWithRule()
+    public function testFormSubmissionWithRule(): void
     {
 
         // Create a rule for this form
@@ -84,8 +84,8 @@ class RecaptchaV3RuleFunctionalTest extends FunctionalTest
         $this->assertInstanceOf(TestVerifier::class, $field->getVerifier(), "Field verifier is a TestVerifier");
 
         // Submit the form
-        $response = $this->get('TestRecaptchaV3FormWithRuleController');
-        $submitResponse = $this->submitForm($form->FormName(), 'action_testRecaptchaVerify', []);
+        $this->get('TestRecaptchaV3FormWithRuleController');
+        $this->submitForm($form->FormName(), 'action_testRecaptchaVerify', []);
         $sessionResponse = $field->getResponseFromSession();
 
         $this->assertNotEmpty($sessionResponse, 'Session response is not empty');

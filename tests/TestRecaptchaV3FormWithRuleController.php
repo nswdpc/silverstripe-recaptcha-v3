@@ -23,15 +23,9 @@ class TestRecaptchaV3FormWithRuleController extends Controller implements TestOn
      */
     protected $template = 'BlankPage';
 
-    /**
-     * @var string
-     */
-    private static $url_segment = 'TestRecaptchaV3FormWithRuleController';
+    private static string $url_segment = 'TestRecaptchaV3FormWithRuleController';
 
-    /**
-     * @var array
-     */
-    private static $allowed_actions = [
+    private static array $allowed_actions = [
         'Form',
         'TestFormSubmissionWithRule',
         'testRecaptchaVerify'
@@ -72,9 +66,11 @@ class TestRecaptchaV3FormWithRuleController extends Controller implements TestOn
         if(!$recaptchaField instanceof RecaptchaV3Field) {
             throw new \UnexpectedValueException("Field is not a RecaptchaV3Field");
         }
+
         // use the TestVerifier
         $verifier = TestVerifier::create();
         $verifier->setIsHuman(true);
+
         $recaptchaField->setVerifier($verifier);
         $recaptchaField->setValue(self::FIELD_VALUE);
         return $form;
@@ -83,11 +79,12 @@ class TestRecaptchaV3FormWithRuleController extends Controller implements TestOn
     /**
      * store data on submission
      */
-    public function testRecaptchaVerify($data, $form = null)
+    public function testRecaptchaVerify($data, $form = null): \SilverStripe\Control\HTTPResponse
     {
         return $this->redirectBack();
     }
 
+    #[\Override]
     public function getViewer($action = null)
     {
         return SSViewer::create($this->template);

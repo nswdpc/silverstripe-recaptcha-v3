@@ -14,7 +14,7 @@ trait HasVerifier
     /**
      * @var \NSWDPC\SpamProtection\Verifier|null
      */
-    protected $verifier = null;
+    protected $verifier;
 
     /**
      * Set the verifier to use for this request
@@ -34,6 +34,7 @@ trait HasVerifier
         if (!$this->verifier) {
             $this->verifier = Injector::inst()->get(Verifier::class);
         }
+
         return $this->verifier;
     }
 }

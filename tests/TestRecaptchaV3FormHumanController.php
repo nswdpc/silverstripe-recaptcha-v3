@@ -23,19 +23,13 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
      */
     protected $template = 'BlankPage';
 
-    /**
-     * @var string
-     */
-    private static $url_segment = 'TestRecaptchaV3FormHumanController';
+    private static string $url_segment = 'TestRecaptchaV3FormHumanController';
 
     const FIELD_VALUE = 'test-field-for-human';
 
     const MIN_REFRESH_TIME = 2020;
 
-    /**
-     * @var array
-     */
-    private static $allowed_actions = [
+    private static array $allowed_actions = [
         'Form',
         'RecaptchaV3HumanTestForm',
         'testRecaptchaVerify'
@@ -86,11 +80,12 @@ class TestRecaptchaV3FormHumanController extends Controller implements TestOnly
     /**
      * store data on submission
      */
-    public function testRecaptchaVerify($data, $form = null)
+    public function testRecaptchaVerify($data, $form = null): \SilverStripe\Control\HTTPResponse
     {
         return $this->redirectBack();
     }
 
+    #[\Override]
     public function getViewer($action = null)
     {
         return SSViewer::create($this->template);

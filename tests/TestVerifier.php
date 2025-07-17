@@ -13,6 +13,7 @@ use NSWDPC\SpamProtection\Verifier;
 class TestVerifier extends Verifier
 {
     const RESPONSE_HUMAN_SCORE = 0.9;
+
     const RESPONSE_BOT_SCORE = 0.1;
 
     /**
@@ -35,6 +36,7 @@ class TestVerifier extends Verifier
             $this->responseScore = self::RESPONSE_BOT_SCORE;
             $this->responseValue = false;
         }
+
         return $this;
     }
 
@@ -45,16 +47,15 @@ class TestVerifier extends Verifier
     {
         $dt = new \DateTime();
         $dt->modify('-15 seconds');
-        $timestamp = $dt->format(\DateTimeInterface::ISO8601);
 
-        $success = true;
+        $timestamp = $dt->format(\DateTimeInterface::ISO8601);
         $hostname = "localhost";
         $errorcodes = [];
         if (!$this->responseValue) {
             $errorcodes[] = 'an-error-code';
         }
 
-        $response = [
+        return [
             "success" => $this->responseValue, // whether this request was a valid reCAPTCHA token for your site
             "score" => $this->responseScore, // the score for this request (0.0 - 1.0)
             "action" => $action, // the action name for this request (important to verify)
@@ -62,14 +63,13 @@ class TestVerifier extends Verifier
             "hostname" => $hostname, // the hostname of the site where the reCAPTCHA was solved
             "error-codes" => $errorcodes // optional
         ];
-
-        return $response;
     }
 
     /**
      * Create a test verification response with whatever settings are present on this instance
      * @inheritdoc
      */
+    #[\Override]
     public function check(string $token, ?float $score = null, string $action = "") : ?TokenResponse
     {
         $decoded = $this->getTestResponse($action);

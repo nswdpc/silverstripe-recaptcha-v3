@@ -7,6 +7,7 @@ use SilverStripe\Core\Extension;
 /**
  * Get a form spam rule for this form
  * @author James
+ * @extends \SilverStripe\Core\Extension<(\SilverStripe\Forms\Form & static)>
  */
 class FormExtension extends Extension
 {
@@ -21,25 +22,24 @@ class FormExtension extends Extension
      * of Form::FormName() is used
      *
      * The tag is returned in lowercase
-     *
-     * @return string
      */
     public function getRecaptchaV3RuleTag() : string
     {
         $tag = '';
         // Allow a form to specify a tag via code
-        if ($this->owner->hasMethod('getRecaptchaV3Tag')) {
-            $tag = $this->owner->getRecaptchaV3Tag();
+        if ($this->getOwner()->hasMethod('getRecaptchaV3Tag')) {
+            $tag = $this->getOwner()->getRecaptchaV3Tag();
         }
+
         if (!$tag) {
             // allow a form to set a tag via config API
-            $tag = $this->owner->config()->get('captcha_tag');
+            $tag = $this->getOwner()->config()->get('captcha_tag');
         }
+
         if(!$tag) {
             // fall back to form name
-            $tag = $this->owner->FormName();
+            $tag = $this->getOwner()->FormName();
         }
-        $tag = strtolower($tag);
-        return $tag;
+        return strtolower((string) $tag);
     }
 }

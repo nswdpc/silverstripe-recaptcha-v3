@@ -23,14 +23,11 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
 {
     use Configurable;
 
-    /**
-     * @var int
-     */
-    private static $steps = 5;
+    private static int $steps = 5;
 
     /**
      */
-    private static $default_name = "recaptcha_protector";
+    private static string $default_name = "recaptcha_protector";
 
     /**
      * @var string
@@ -40,18 +37,21 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     /**
      * @var null|int
      */
-    protected $threshold = null;//default threshold (use config value)
+    protected $threshold;//default threshold (use config value)
 
     /**
      * Badge display options: empty string, 'form' or 'page'
      * If page it is up to you to to include NSWDPC/SpamProtection/PageBadge in your template in the appropriate location
      * See: https://developers.google.com/recaptcha/docs/faq#id-like-to-hide-the-recaptcha-badge.-what-is-allowed
      */
-    private static $badge_display = "";
+    private static string $badge_display = "";
 
-    const BADGE_DISPLAY_DEFAULT = '';// use the reCAPTCHAv3 library default (fixed bottom right)
-    const BADGE_DISPLAY_FIELD = 'field';// display the badge text in the form, above the actions
-    const BADGE_DISPLAY_FORM = 'form';// badge is displayed in form. NB: requires custom form template
+    const BADGE_DISPLAY_DEFAULT = '';
+    // use the reCAPTCHAv3 library default (fixed bottom right)
+    const BADGE_DISPLAY_FIELD = 'field';
+    // display the badge text in the form, above the actions
+    const BADGE_DISPLAY_FORM = 'form';
+    // badge is displayed in form. NB: requires custom form template
     const BADGE_DISPLAY_PAGE = 'page';// display the badge text in the page somewhere
 
     /**
@@ -67,22 +67,21 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      */
     protected function getRecaptchaV3Field($name = null, $title = null, $value = null) : RecaptchaV3Field
     {
-        $field = Injector::inst()->createWithArgs(
+        return Injector::inst()->createWithArgs(
             RecaptchaV3Field::class,
             ['name' => $name, 'title' => $title, 'value' => $value]
         );
-        return $field;
     }
 
     /**
      * Return the field for the spam protector
-     * @return RecaptchaV3Field
      */
     public function getFormField($name = null, $title = null, $value = null) : RecaptchaV3Field
     {
         if (!$name) {
             $name = static::config()->get('default_name');
         }
+
         // Get the spam protection field to use
         $field = $this->getRecaptchaV3Field($name, $title, $value);
 
@@ -90,6 +89,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
         if(!self::isValidThreshold($this->threshold)) {
             $this->threshold = self::getDefaultThreshold();
         }
+
         $field->setScore(round(($this->threshold / 100), 2)); // format for the reCAPTCHA API 0.00->1.00
         $field->setExecuteAction($this->execute_action, true);
         return $field;
@@ -100,7 +100,6 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      * provided by {@link FormSpamProtectionExtension::enableSpamProtection}
      * These values can be overridden by an enabled RecaptchaV3Rule matching the FormName the field is in
      * @param mixed $fieldMapping
-     * @return void
      */
     public function setFieldMapping($fieldMapping) : void
     {
@@ -125,7 +124,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
         // returns a float between 0 and 1.0
         $threshold = TokenResponse::getDefaultScore();
         // convert to int
-        $threshold = $threshold * 100;
+        $threshold *= 100;
         // round to the number of steps expected here
         $steps = Config::inst()->get(self::class, 'steps');
         $threshold = (int)round($threshold / $steps) * $steps;
@@ -133,6 +132,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
             // configuration value is out of bounds
             $threshold = self::DEFAULT_THRESHOLD;
         }
+
         return intval($threshold);
     }
 
@@ -146,7 +146,6 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     /**
      * Return range of allowed thresholds for use in forms
      * The values returned are a percentage - 100 = all, 0 = none
-     * @return array
      */
     public static function getRange() : array
     {
@@ -156,16 +155,18 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
         $default = self::getDefaultThreshold();
         $i = 5;
         $range = [];
-        $range [ $min ] = $min . " (" . _t(__CLASS__ . ".BLOCK_LESS", "block less") . ")";
+        $range [ $min ] = $min . " (" . _t(self::class . ".BLOCK_LESS", "block less") . ")";
         while ($i < $max) {
             $value = $i;
             if ($i == $default) {
-                $value .= " (" . _t(__CLASS__ . ".DEFAULT_FOR_THIS_SITE", "default for this website") . ")";
+                $value .= " (" . _t(self::class . ".DEFAULT_FOR_THIS_SITE", "default for this website") . ")";
             }
+
             $range[ $i ] = $value;
             $i += $steps;
         }
-        $range [ $max ] = $max . " (" . _t(__CLASS__ . ".BLOCK_MORE", "block more") . ")";
+
+        $range [ $max ] = $max . " (" . _t(self::class . ".BLOCK_MORE", "block more") . ")";
         return $range;
     }
 
@@ -237,7 +238,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
             _t(
                 'NSWDPC\SpamProtection.ACTION_DESCRIPTION',
                 'This is used for analytics and trend analysis. '
-                . ' Allowed characters are \'a-z 0-9 /\' '
+                . " Allowed characters are 'a-z 0-9 /' "
                 . 'and it may not be personally identifiable'
             )
         );
@@ -260,7 +261,6 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     public static function get_privacy_information()
     {
         $displayOption = self::config()->get('badge_display');
-        $value = '';
         switch ($displayOption) {
             case self::BADGE_DISPLAY_FORM:
             case self::BADGE_DISPLAY_FIELD:

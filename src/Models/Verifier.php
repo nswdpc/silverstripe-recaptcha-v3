@@ -17,15 +17,15 @@ class Verifier
 
     use Injectable;
 
-    private static $url_verify = "https://www.google.com/recaptcha/api/siteverify";
-    private static $secret_key = '';
-    private static $trusted_proxies = [];
+    private static string $url_verify = "https://www.google.com/recaptcha/api/siteverify";
+
+    private static string $secret_key = '';
+
+    private static array $trusted_proxies = [];
 
     /**
      * Check a token returned from a RecaptchaV3
      * Each token is valid for 2 minutes
-     * @param string $token
-     * @param float|null $score
      * @param string $action used to verify the action
      * @throws \Exception
      */
@@ -44,7 +44,7 @@ class Verifier
 
         // try to get a remote addy
         $remote_ip = $this->getRemoteAddr();
-        if ($remote_ip) {
+        if ($remote_ip !== '') {
             $data['remoteip'] = $remote_ip;
         }
 
@@ -59,6 +59,7 @@ class Verifier
         if ($statusCode != 200) {
             throw new \Exception("Verification check returned {$statusCode}, expected 200");
         }
+
         $body = $response->getBody();
         if ($body) {
             $decoded = json_decode($body, true);
@@ -67,6 +68,7 @@ class Verifier
                 return new TokenResponse($decoded, $score, $action);
             }
         }
+
         // failed in the decode or response collection
         return null;
     }
@@ -78,10 +80,10 @@ class Verifier
     {
         if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             // forwarded IP address
-            $x_forwarded_for = trim(strip_tags($_SERVER['HTTP_X_FORWARDED_FOR']));
+            $x_forwarded_for = trim(strip_tags((string) $_SERVER['HTTP_X_FORWARDED_FOR']));
             $trusted = $this->config()->get('trusted_proxies');
             $ips = explode(",", $x_forwarded_for);
-            if (empty($ips)) {
+            if ($ips === []) {
                 // none found
                 return "";
             } elseif (count($ips) == 1) {
@@ -100,7 +102,7 @@ class Verifier
             }
         } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
             // use REMOTE_ADDR
-            $remote_addr = trim(strip_tags($_SERVER['REMOTE_ADDR']));
+            $remote_addr = trim(strip_tags((string) $_SERVER['REMOTE_ADDR']));
         } else {
             $remote_addr = "";
         }

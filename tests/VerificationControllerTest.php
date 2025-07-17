@@ -24,6 +24,7 @@ class VerificationControllerTest extends FunctionalTest
     /**
      * @inheritdoc
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -35,7 +36,7 @@ class VerificationControllerTest extends FunctionalTest
     /**
      * Test verification against a human with the requested threshold
      */
-    public function testVerificationControllerHuman()
+    public function testVerificationControllerHuman(): void
     {
 
         // and test verifier
@@ -70,7 +71,7 @@ class VerificationControllerTest extends FunctionalTest
     /**
      * Test verification against a human with the configured threshold
      */
-    public function testVerificationControllerScoreConfigured()
+    public function testVerificationControllerScoreConfigured(): void
     {
 
         // and test verifier
@@ -104,7 +105,7 @@ class VerificationControllerTest extends FunctionalTest
     /**
      * Test verification against a bot
      */
-    public function testVerificationControllerBot()
+    public function testVerificationControllerBot(): void
     {
 
         // and test verifier

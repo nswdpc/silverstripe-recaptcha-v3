@@ -22,27 +22,22 @@ class VerificationController extends Controller
 
     /**
      * If this is true, this controller is enabled
-     * @var bool
      */
-    private static $enabled = false;
+    private static bool $enabled = false;
 
     /**
      * urlsegment for this controller
-     * @var string
      */
-    private static $url_segment = "recaptchaverify";
+    private static string $url_segment = "recaptchaverify";
 
-    /**
-     * @var array
-     */
-    private static $allowed_actions = [
+    private static array $allowed_actions = [
         'check' => true
     ];
 
     /**
      * @var Verifier
      */
-    protected $verifier = null;
+    protected $verifier;
 
     /**
      * 403 on / requests
@@ -57,6 +52,7 @@ class VerificationController extends Controller
     /**
      * The relative link for this controller
      */
+    #[\Override]
     public function Link($action = null) : string
     {
         return Controller::join_links(
@@ -99,11 +95,13 @@ class VerificationController extends Controller
                 $response->addHeader('Content-Type', 'application/json');
                 return $response;
             }
+
             $action = $request->postVar('action');
             $score = $request->postVar('score');
             if (!$score) {
                 $score = $this->getScore();
             }
+
             $this->getVerifier();
             $result = $this->verifier->check($token, $score, $action);
             $this->verifier = null;
@@ -135,7 +133,7 @@ class VerificationController extends Controller
 
             // general failure on checking
             throw new \Exception("Failed to verify");
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             $response = HTTPResponse::create(json_encode([
                 "result" => "FAIL",
                 "threshold" => null,
@@ -143,7 +141,7 @@ class VerificationController extends Controller
                 "errorcodes" => []
             ]), 500);
             $response->addHeader('Content-Type', 'application/json');
-            $response->addHeader('X-Error-Message', $e->getMessage());
+            $response->addHeader('X-Error-Message', $exception->getMessage());
             return $response;
         } finally {
             $this->verifier = null;
