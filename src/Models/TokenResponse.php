@@ -15,7 +15,7 @@ use SilverStripe\Core\Config\Configurable;
  * invalid-input-response	The response parameter is invalid or malformed.
  * bad-request	The request is invalid or malformed.
  * timeout-or-duplicate	The response is no longer valid: either is too old or has been used previously.
- * @author James <james.ellis@dpc.nsw.gov.au>
+ * @author James
  */
 class TokenResponse
 {

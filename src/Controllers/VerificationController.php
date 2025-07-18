@@ -14,7 +14,7 @@ use SilverStripe\Core\Config\Config;
  * Note that if you check a token that is already checked you will get
  * a 'timeout-or-duplicate' error
  * This controller can be used for non form submission actions, e.g check a user action
- * @author James <james.ellis@dpc.nsw.gov.au>
+ * @author James
  */
 class VerificationController extends Controller
 {

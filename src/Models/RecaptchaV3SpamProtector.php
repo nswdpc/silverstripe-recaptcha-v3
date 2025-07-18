@@ -17,7 +17,7 @@ use SilverStripe\View\TemplateGlobalProvider;
 /**
  * Spam protector class, when set and you call $form->enableSpamProtection()
  * The RecaptchaV3Field will be added to the form
- * @author James Ellis <james.ellis@dpc.nsw.gov.au>
+ * @author James
  */
 class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
 {
