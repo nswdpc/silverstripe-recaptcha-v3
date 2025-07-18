@@ -4,7 +4,7 @@ namespace NSWDPC\SpamProtection;
 
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\View\Requirements;
-use SilverStripe\ORM\ValidationResult;
+use SilverStripe\Core\Validation\ValidationResult;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Control\Controller;
 
@@ -483,15 +483,17 @@ class RecaptchaV3Field extends HiddenField
      * @inheritdoc
      */
     #[\Override]
-    public function validate($validator)
+    public function validate(): ValidationResult
     {
         try {
+
+            $validator = parent::validate();
 
             // clear previous attempts
             $this->clearSessionResponse();
             $message = '';
             // the token set by the script in executionScript()
-            $token = $this->Value();
+            $token = $this->getValue();
             // no token submitted with form
             if (!$token) {
                 throw new \Exception("No token for this field ({$this->getName()})");
@@ -511,7 +513,7 @@ class RecaptchaV3Field extends HiddenField
                     // all good
                     $this->setSubmittedValue("");
                     TokenResponse::logStat("isValid", true);
-                    return true;
+                    return $validator;
                 } elseif ($response->isTimeout()) {
                     // on timeout always prompt for revalidation, in order to get a valid result to inspect
                     throw new RecaptchaVerificationException(self::getMessageTimeout());
@@ -520,12 +522,12 @@ class RecaptchaV3Field extends HiddenField
                     switch ($rule->ActionToTake) {
                         case RecaptchaV3Rule::TAKE_ACTION_ALLOW:
                             TokenResponse::logStat("rule", ["fail" => true, "rule" => $rule->ID, "takeaction" => RecaptchaV3Rule::TAKE_ACTION_ALLOW]);
-                            return true;
+                            return $validator;
                         case RecaptchaV3Rule::TAKE_ACTION_CAUTION:
                             // Allow an extension to throw a RecaptchaVerificationException or continue
                             $this->extend('recaptchaFailWithCaution', $rule, $response);
                             TokenResponse::logStat("rule", ["fail" => true, "rule" => $rule->ID, "takeaction" => RecaptchaV3Rule::TAKE_ACTION_CAUTION]);
-                            return true;
+                            return $validator;
                         default:
                             throw new RecaptchaVerificationException(self::getMessagePossibleSpam());
                     }
@@ -552,10 +554,9 @@ class RecaptchaV3Field extends HiddenField
         }
 
         // create a form-wide validation error
-        $validationResult = $validator->getResult();
-        $validationResult->addError($message, ValidationResult::TYPE_ERROR, self::VALIDATION_ERROR_CODE);
+        $validator->addError($message, ValidationResult::TYPE_ERROR, self::VALIDATION_ERROR_CODE);
         $this->setSubmittedValue("");
         // fail validation
-        return false;
+        return $validator;
     }
 }

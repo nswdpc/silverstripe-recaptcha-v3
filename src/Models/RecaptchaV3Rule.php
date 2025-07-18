@@ -3,6 +3,7 @@
 namespace NSWDPC\SpamProtection;
 
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Validation\ValidationException;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\TextField;
@@ -11,7 +12,6 @@ use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
 use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\ORM\ValidationException;
 
 /**
  * Custom rules model for form spam protection, accessed via tags

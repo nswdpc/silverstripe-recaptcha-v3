@@ -10,7 +10,7 @@ use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\SpamProtection\SpamProtector;
-use SilverStripe\View\ArrayData;
+use SilverStripe\Model\ArrayData;
 use SilverStripe\View\Requirements;
 use SilverStripe\View\TemplateGlobalProvider;
 
@@ -263,7 +263,7 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
     /**
      * Return the privacy information from a template
      */
-    public static function get_privacy_information()
+    public static function get_privacy_information(): \SilverStripe\ORM\FieldType\DBHTMLText|string
     {
         $displayOption = self::config()->get('badge_display');
         switch ($displayOption) {

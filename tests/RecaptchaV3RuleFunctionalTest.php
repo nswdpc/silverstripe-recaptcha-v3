@@ -86,7 +86,7 @@ class RecaptchaV3RuleFunctionalTest extends FunctionalTest
         $sessionResponse = $field->getResponseFromSession();
 
         $this->assertNotEmpty($sessionResponse, 'Session response is not empty');
-        $this->assertEquals($field->Value(), $sessionResponse['token']);
+        $this->assertEquals($field->getValue(), $sessionResponse['token']);
         $this->assertEquals(TestVerifier::RESPONSE_HUMAN_SCORE, $sessionResponse['score']);
         $this->assertEquals('localhost', $sessionResponse['hostname']);
         $this->assertEquals($rule->Action, $sessionResponse['action']);

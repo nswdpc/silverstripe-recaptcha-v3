@@ -12,14 +12,14 @@
     ],
     "license": "BSD-3-Clause",
     "require": {
-        "silverstripe/spamprotection": "^4",
-        "silverstripe/admin": "^2"
+        "silverstripe/spamprotection": "^5",
+        "silverstripe/admin": "^3"
     },
     "require-dev": {
         "cambis/silverstripe-rector": "^2",
         "cambis/silverstan": "^2",
         "friendsofphp/php-cs-fixer": "^3",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^11.5",
         "phpstan/phpstan": "^2",
         "rector/rector": "^2",
         "nswdpc/ci-files": "dev-v-4",

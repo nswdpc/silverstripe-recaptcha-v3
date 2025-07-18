@@ -61,12 +61,10 @@ class Verifier
         }
 
         $body = $response->getBody();
-        if ($body) {
-            $decoded = json_decode($body, true);
-            if (json_last_error() == JSON_ERROR_NONE) {
-                // return a TokenResponse model for the caller to decide on the action
-                return new TokenResponse($decoded, $score, $action);
-            }
+        $decoded = json_decode($body, true);
+        if (json_last_error() == JSON_ERROR_NONE) {
+            // return a TokenResponse model for the caller to decide on the action
+            return new TokenResponse($decoded, $score, $action);
         }
 
         // failed in the decode or response collection
