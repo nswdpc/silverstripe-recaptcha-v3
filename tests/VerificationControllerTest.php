@@ -4,7 +4,6 @@ namespace NSWDPC\SpamProtection\Tests;
 
 use NSWDPC\SpamProtection\Verifier;
 use NSWDPC\SpamProtection\TokenResponse;
-use NSWDPC\SpamProtection\RecaptchaV3Field;
 use NSWDPC\SpamProtection\VerificationController;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
@@ -15,7 +14,6 @@ use SilverStripe\Dev\FunctionalTest;
  */
 class VerificationControllerTest extends FunctionalTest
 {
-
     /**
      * @inheritdoc
      */
@@ -24,6 +22,7 @@ class VerificationControllerTest extends FunctionalTest
     /**
      * @inheritdoc
      */
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -35,7 +34,7 @@ class VerificationControllerTest extends FunctionalTest
     /**
      * Test verification against a human with the requested threshold
      */
-    public function testVerificationControllerHuman()
+    public function testVerificationControllerHuman(): void
     {
 
         // and test verifier
@@ -70,7 +69,7 @@ class VerificationControllerTest extends FunctionalTest
     /**
      * Test verification against a human with the configured threshold
      */
-    public function testVerificationControllerScoreConfigured()
+    public function testVerificationControllerScoreConfigured(): void
     {
 
         // and test verifier
@@ -104,7 +103,7 @@ class VerificationControllerTest extends FunctionalTest
     /**
      * Test verification against a bot
      */
-    public function testVerificationControllerBot()
+    public function testVerificationControllerBot(): void
     {
 
         // and test verifier

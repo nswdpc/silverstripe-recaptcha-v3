@@ -5,7 +5,6 @@ namespace NSWDPC\SpamProtection\Tests;
 use NSWDPC\SpamProtection\RecaptchaV3SpamProtector;
 use NSWDPC\SpamProtection\RecaptchaV3Field;
 use NSWDPC\SpamProtection\Verifier;
-use NSWDPC\SpamProtection\TokenResponse;
 use SilverStripe\Dev\SapphireTest;
 
 /**
@@ -14,7 +13,6 @@ use SilverStripe\Dev\SapphireTest;
  */
 class RecaptchaV3FieldTest extends SapphireTest
 {
-
     /**
      * @inheritdoc
      */
@@ -23,7 +21,8 @@ class RecaptchaV3FieldTest extends SapphireTest
     /**
      * @inheritdoc
      */
-    public function setUp() : void
+    #[\Override]
+    public function setUp(): void
     {
         parent::setUp();
     }
@@ -31,7 +30,7 @@ class RecaptchaV3FieldTest extends SapphireTest
     /**
      * Get a test field from the RecaptchaV3SpamProtector
      */
-    public function testField()
+    public function testField(): void
     {
         $protector = new RecaptchaV3SpamProtector();
         $executeAction = 'prefix/testaction';
@@ -47,7 +46,7 @@ class RecaptchaV3FieldTest extends SapphireTest
         $this->assertEquals(round($threshold / 100, 2), $field->getScore(), "Score is correct");
     }
 
-    public function testMinRefreshTime()
+    public function testMinRefreshTime(): void
     {
         $field = RecaptchaV3Field::create('TestMinRefreshTime', 'Min Refresh Time Test');
         $expected = 2000;
@@ -55,7 +54,7 @@ class RecaptchaV3FieldTest extends SapphireTest
         $this->assertEquals($expected, $field->getMinRefreshTime());
     }
 
-    public function testInvalidMinRefreshTime()
+    public function testInvalidMinRefreshTime(): void
     {
         $field = RecaptchaV3Field::create('TestInvalidMinRefreshTime', 'Invalid Min Refresh Time Test');
         $expected = $field->getMinRefreshTime();
@@ -66,11 +65,12 @@ class RecaptchaV3FieldTest extends SapphireTest
     /**
      * Test the execute action handling on the field, with/without prefix
      */
-    public function testExecuteAction()
+    public function testExecuteAction(): void
     {
         $expectedAction = "test/action";
         $field = RecaptchaV3Field::create('TestExecuteAction', 'Execute action test');
         $field->setExecuteAction($expectedAction, true);
+
         $executeAction = $field->getExecuteAction();
         $this->assertEquals($expectedAction, $executeAction);
 
@@ -80,6 +80,7 @@ class RecaptchaV3FieldTest extends SapphireTest
         $expectedAction = "unprefixedaction";
         $field = RecaptchaV3Field::create('TestExecuteAction', 'Execute action test without prefix');
         $field->setExecuteAction($expectedAction, false);
+
         $executeAction = $field->getExecuteAction();
         $this->assertEquals($expectedAction, $executeAction);
 
@@ -88,36 +89,37 @@ class RecaptchaV3FieldTest extends SapphireTest
         $this->assertEquals($field->ID() . "/" . $expectedAction, $recaptchaAction);
     }
 
-    public function testUniqueID()
+    public function testUniqueID(): void
     {
         $field = RecaptchaV3Field::create('TestUniqID', 'UniqID test');
         $this->assertEquals("recaptcha_execute_TestUniqID", $field->getUniqueId());
     }
 
-    public function testSetScore()
+    public function testSetScore(): void
     {
         $field = RecaptchaV3Field::create('TestSetScore', 'Set score test');
         $field->setScore(0.7);
+
         $score = $field->getScore();
         $this->assertEquals(0.7, $score);
 
         try {
             $field->setScore(2.3);
-        } catch (\Exception $e) {
-            $this->assertEquals("Score should not be > 1", $e->getMessage());
+        } catch (\Exception $exception) {
+            $this->assertEquals("Score should not be > 1", $exception->getMessage());
         }
 
         try {
             $field->setScore(-0.1);
-        } catch (\Exception $e) {
-            $this->assertEquals("Score should not be < 0", $e->getMessage());
+        } catch (\Exception $exception) {
+            $this->assertEquals("Score should not be < 0", $exception->getMessage());
         }
 
     }
 
-    public function testVerifier()
+    public function testVerifier(): void
     {
         $field = RecaptchaV3Field::create('TestVerifier', 'Test verifier');
-        $this->assertEquals(Verifier::class, get_class($field->getVerifier()));
+        $this->assertEquals(Verifier::class, $field->getVerifier()::class);
     }
 }

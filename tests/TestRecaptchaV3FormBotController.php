@@ -4,7 +4,6 @@ namespace NSWDPC\SpamProtection\Tests;
 
 use NSWDPC\SpamProtection\RecaptchaV3Field;
 use SilverStripe\Control\Controller;
-use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\TestOnly;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
@@ -17,27 +16,20 @@ use SilverStripe\View\SSViewer;
  */
 class TestRecaptchaV3FormBotController extends Controller implements TestOnly
 {
-
     /**
      * @var string
      */
     protected $template = 'BlankPage';
 
-    /**
-     * @var string
-     */
-    private static $url_segment = 'TestRecaptchaV3FormBotController';
+    private static string $url_segment = 'TestRecaptchaV3FormBotController';
 
-    /**
-     * @var array
-     */
-    private static $allowed_actions = [
+    private static array $allowed_actions = [
         'Form',
         'RecaptchaV3BotTestForm',
         'testRecaptchaVerify'
     ];
 
-    const FIELD_VALUE = 'test-field-for-bot';
+    public const FIELD_VALUE = 'test-field-for-bot';
 
     /**
      * @return Form
@@ -83,13 +75,14 @@ class TestRecaptchaV3FormBotController extends Controller implements TestOnly
     /**
      * store data on submission
      */
-    public function testRecaptchaVerify($data, $form = null)
+    public function testRecaptchaVerify($data, $form = null): \SilverStripe\Control\HTTPResponse
     {
         return $this->redirectBack();
     }
 
+    #[\Override]
     public function getViewer($action = null)
     {
-        return new SSViewer($this->template);
+        return SSViewer::create($this->template);
     }
 }

@@ -63,7 +63,7 @@ The module `nswdpc/silverstripe-recaptcha-v3-userforms` provides a userforms fie
 ## Further documentation
 
 + [Further documentation](docs/en/001_index.md) for tips on usage
-+ [Badge placement](docs/en/001_badge_display.md)
++ [Badge placement](docs/en/002_badge_display.md)
 + [Rule management](docs/en/003_rule_management.md)
 
 ## Configuration
@@ -122,7 +122,7 @@ Token values are verified and give a score by the reCAPTCHAv3 API. Scores that m
 
 ## Maintainers
 
-+ [dpcdigital@NSWDPC:~$](https://dpc.nsw.gov.au)
++ PD Web Team
 
 ## Bugtracker
 

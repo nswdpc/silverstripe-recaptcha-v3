@@ -12,11 +12,19 @@
     ],
     "license": "BSD-3-Clause",
     "require": {
-        "silverstripe/spamprotection" : "^4"
+        "silverstripe/spamprotection": "^4",
+        "silverstripe/admin": "^2"
     },
     "require-dev": {
+        "cambis/silverstripe-rector": "^2",
+        "cambis/silverstan": "^2",
+        "friendsofphp/php-cs-fixer": "^3",
         "phpunit/phpunit": "^9.5",
-        "friendsofphp/php-cs-fixer": "^3"
+        "phpstan/phpstan": "^2",
+        "rector/rector": "^2",
+        "nswdpc/ci-files": "dev-v-4",
+        "vlucas/phpdotenv": "^5",
+        "phpstan/phpstan-phpunit": "^2"
     },
     "suggest": {
         "nswdpc/silverstripe-recaptcha-v3-userforms": "Adding reCAPTCHA v3 field via silverstripe/userforms"
@@ -24,7 +32,6 @@
     "authors": [
         {
             "name": "James Ellis",
-            "homepage": "https://dpc.nsw.gov.au",
             "role": "Developer"
         }
     ],
@@ -49,5 +56,13 @@
         "expose": [
             "client/static"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "silverstripe/vendor-plugin": true,
+            "silverstripe/recipe-plugin": true,
+            "phpstan/extension-installer": true
+        }
     }
 }

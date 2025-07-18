@@ -4,10 +4,8 @@ namespace NSWDPC\SpamProtection\Tests;
 
 use NSWDPC\SpamProtection\FormExtension;
 use NSWDPC\SpamProtection\Verifier;
-use NSWDPC\SpamProtection\TokenResponse;
 use NSWDPC\SpamProtection\RecaptchaV3Field;
 use NSWDPC\SpamProtection\RecaptchaV3Rule;
-use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\FunctionalTest;
 use SilverStripe\Forms\Form;
 use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
@@ -17,11 +15,10 @@ use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
  */
 class RecaptchaV3RuleFunctionalTest extends FunctionalTest
 {
-
     /**
      * @inheritdoc
      */
-    protected static $fixture_file = null;
+    protected static $fixture_file;
 
     /**
      * @inheritdoc
@@ -53,7 +50,7 @@ class RecaptchaV3RuleFunctionalTest extends FunctionalTest
     /**
      * Test a form submission using a rule for verification
      */
-    public function testFormSubmissionWithRule()
+    public function testFormSubmissionWithRule(): void
     {
 
         // Create a rule for this form
@@ -73,6 +70,7 @@ class RecaptchaV3RuleFunctionalTest extends FunctionalTest
         $form = $controller->Form();
         // the field created for the test
         $field = $form->HiddenFields()->fieldByName('RecaptchaV3FieldWithRule');
+        $this->assertInstanceOf(RecaptchaV3Field::class, $field);
         $ruleUsed = $field->getRecaptchaV3Rule();
         $this->assertInstanceOf(RecaptchaV3Rule::class, $ruleUsed, "Rule is a RecaptchaV3Rule");
         $this->assertEquals($rule->ID, $ruleUsed->ID, "Rule is the rule created");
@@ -83,8 +81,8 @@ class RecaptchaV3RuleFunctionalTest extends FunctionalTest
         $this->assertInstanceOf(TestVerifier::class, $field->getVerifier(), "Field verifier is a TestVerifier");
 
         // Submit the form
-        $response = $this->get('TestRecaptchaV3FormWithRuleController');
-        $submitResponse = $this->submitForm($form->FormName(), 'action_testRecaptchaVerify', []);
+        $this->get('TestRecaptchaV3FormWithRuleController');
+        $this->submitForm($form->FormName(), 'action_testRecaptchaVerify', []);
         $sessionResponse = $field->getResponseFromSession();
 
         $this->assertNotEmpty($sessionResponse, 'Session response is not empty');
