@@ -183,7 +183,7 @@ class TokenResponse
      */
     public function getScore(): float
     {
-        return $this->verification_score ?: self::getDefaultScore();
+        return $this->verification_score;
     }
 
     /**
