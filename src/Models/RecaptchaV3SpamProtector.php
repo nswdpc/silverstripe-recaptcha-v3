@@ -17,7 +17,7 @@ use SilverStripe\View\TemplateGlobalProvider;
 /**
  * Spam protector class, when set and you call $form->enableSpamProtection()
  * The RecaptchaV3Field will be added to the form
- * @author James Ellis <james.ellis@dpc.nsw.gov.au>
+ * @author James
  */
 class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
 {
@@ -180,12 +180,12 @@ class RecaptchaV3SpamProtector implements SpamProtector, TemplateGlobalProvider
      */
     public static function getRuleSummary(): string
     {
-        return "<h3>" . _t('NSWDPC\SpamProtection.SCORE_EXAMPLE_HEADER', 'Verification score guide') . "</h3>"
+        return "<h3>" . htmlspecialchars(_t('NSWDPC\SpamProtection.SCORE_EXAMPLE_HEADER', 'Verification score guide')) . "</h3>"
         . "<ul>"
-        . "<li>10: " . _t('NSWDPC\SpamProtection.SCORE_10', 'Very likely a bot/automated request') . "</li>"
-        . "<li>30: " . _t('NSWDPC\SpamProtection.SCORE_30', 'Likely a bot/automated request') . "</li>"
-        . "<li>70: " . _t('NSWDPC\SpamProtection.SCORE_70', 'Likely a non-automated request') . "</li>"
-        . "<li>90: " . _t('NSWDPC\SpamProtection.SCORE_90', 'Very likely a non-automated request') . "</li>"
+        . "<li>10: " . htmlspecialchars(_t('NSWDPC\SpamProtection.SCORE_10', 'Very likely a bot/automated request')) . "</li>"
+        . "<li>30: " . htmlspecialchars(_t('NSWDPC\SpamProtection.SCORE_30', 'Likely a bot/automated request')) . "</li>"
+        . "<li>70: " . htmlspecialchars(_t('NSWDPC\SpamProtection.SCORE_70', 'Likely a non-automated request')) . "</li>"
+        . "<li>90: " . htmlspecialchars(_t('NSWDPC\SpamProtection.SCORE_90', 'Very likely a non-automated request')) . "</li>"
         . "</ul>";
     }
 

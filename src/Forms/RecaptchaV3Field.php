@@ -12,7 +12,7 @@ use SilverStripe\Control\Controller;
  * Provides a Recaptcha Form Field for use in forms
  * When the action is fired, the token retrieved from Recaptcha is added to the hidden value
  * When the form field is validated after submission, the token is verified
- * @author James <james.ellis@dpc.nsw.gov.au>
+ * @author James
  */
 class RecaptchaV3Field extends HiddenField
 {
